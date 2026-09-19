@@ -25,3 +25,7 @@ One line per decision: date · decision · why. Started 2026-09-19.
 - 2026-09-20 · An accepted offer reserves the listing, completion sells it · A cancelled or refunded order puts it back on the market. The listing status follows the transaction rather than being set by hand.
 - 2026-09-20 · The e2e suite reseeds before it runs · The journeys buy and sell real rows, so they are not idempotent. Without a reset, a second run finds its fixtures already sold. `E2E_SKIP_SEED=1` opts out while iterating.
 - 2026-09-20 · Storage is cleared through the Storage API · Supabase now rejects `delete from storage.objects`, so the seed lists and removes the folders it owns instead.
+- 2026-09-20 · An administrator cannot suspend themselves or drop their own admin rights · Either one locks the last administrator out of the console. The guard is in `src/domain/admin.ts`, not in the template.
+- 2026-09-20 · Merging a model moves its listings and leaves a pointer · The duplicate keeps `merged_into_id` so old links still resolve, and every moved listing is re-indexed.
+- 2026-09-20 · Every admin query is covered by an integration test · Correlated subqueries written by hand fail only at runtime, and the ambiguous-column bug appeared twice. Running each query once in CI is what catches it.
+- 2026-09-20 · The ops console defaults to graphite dark · It is a palette, not a separate design, so the switcher still overrides it and every other palette renders.

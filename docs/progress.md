@@ -92,3 +92,29 @@ counter it.
 
 J4 passes as three Playwright tests covering the full negotiation, a failed
 payment and a dispute. 44 unit and integration tests, 16 e2e tests.
+
+## Phase 5 — Administration and moderation ✓
+
+Requirement R9 in full. The ops console at `/de/admin`, styled after mockup
+S19, defaults to the graphite dark palette but works in every palette.
+
+* Overview with KPIs, a risk-ordered moderation queue and marketplace metrics
+  (listings with offers, median days to sell, dispute rate).
+* Users: search, verify, suspend with a reason, promote and demote, and a
+  detail page listing everything that person created.
+* Listings: approve pending, verify, feature, hide and restore, filter by
+  status, including soft-deleted ones.
+* Equipment data: approve proposed models and merge duplicates, which moves
+  the listings and re-indexes them.
+* Comments, transactions and disputes, organisations, reports with resolution
+  notes.
+* Content pages edited as Markdown per language, with publish and footer
+  toggles, live on the public site immediately.
+* Settings: the fee rule with a worked example table, and every feature flag.
+* Audit log showing actor, action, target and a readable before/after diff.
+
+Try it: sign in as `admin@refreshlab.local` and open
+http://localhost:3000/de/admin
+
+J5 passes as four Playwright tests, including that every moderation action
+lands in the audit log and that an admin cannot lock themselves out.

@@ -488,7 +488,8 @@
     "noAudit": "Noch keine Einträge.",
     "adminOnly": "Dieser Bereich ist der Administration vorbehalten.",
     "pendingModels": "Vorgeschlagene Modelle",
-    "pendingListings": "Inserate zur Prüfung"
+    "pendingListings": "Inserate zur Prüfung",
+    "openOffers": "Offene Angebote"
   },
   "report": {
     "title": "Inhalt melden",

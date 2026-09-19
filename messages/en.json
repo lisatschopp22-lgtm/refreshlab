@@ -488,7 +488,8 @@
     "noAudit": "No entries yet.",
     "adminOnly": "This area is for administrators.",
     "pendingModels": "Proposed models",
-    "pendingListings": "Listings awaiting review"
+    "pendingListings": "Listings awaiting review",
+    "openOffers": "Open offers"
   },
   "report": {
     "title": "Report content",
