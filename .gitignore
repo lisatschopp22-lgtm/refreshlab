@@ -1,0 +1,23 @@
+# dependencies / build
+node_modules/
+.next/
+out/
+coverage/
+playwright-report/
+test-results/
+
+# env
+.env
+.env.local
+.env*.local
+
+# local supabase state
+supabase/.temp/
+supabase/.branches/
+
+# OS / editor
+.DS_Store
+.vscode/
+
+# ChatGPT "Sites" starter that came with the mockups (not a mockup, has its own node_modules and .git)
+docs/mockups/refreshlab-mockups-site/
