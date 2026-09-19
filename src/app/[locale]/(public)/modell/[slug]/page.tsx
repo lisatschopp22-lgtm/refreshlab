@@ -16,6 +16,7 @@ import { EmptyState } from "@/ui/empty-state";
 import { JsonLd, breadcrumbLd } from "@/ui/json-ld";
 import { ListingCardItem } from "@/ui/listing-card";
 import { Table, Td, Th } from "@/ui/table";
+import { CommentSection } from "@/ui/comment-section";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
@@ -181,6 +182,13 @@ export default async function ModelPage({
               </tbody>
             </Table>
           </section>
+
+          <CommentSection
+            locale={locale}
+            targetType="model"
+            targetId={model.id}
+            path={`/${locale}/modell/${model.slug}`}
+          />
 
           <section className="space-y-3">
             <div className="flex items-end justify-between gap-3">

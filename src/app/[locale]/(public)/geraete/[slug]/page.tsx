@@ -14,6 +14,9 @@ import { Badge } from "@/ui/badge";
 import { Breadcrumbs } from "@/ui/breadcrumbs";
 import { Button, ButtonLink } from "@/ui/button";
 import { WatchButton } from "@/ui/watch-button";
+import { CommentSection } from "@/ui/comment-section";
+import { startConversationAction } from "@/actions/community";
+import { buttonClass } from "@/ui/button";
 import { Card, CardBody, CardHeader } from "@/ui/card";
 import { Gallery } from "@/ui/gallery";
 import { JsonLd, breadcrumbLd } from "@/ui/json-ld";
@@ -237,6 +240,16 @@ export default async function ListingPage({
             </p>
           </section>
 
+          {flags.commentsOnListings ? (
+            <CommentSection
+              locale={locale}
+              targetType="listing"
+              targetId={listing.id}
+              sellerId={listing.sellerProfileId}
+              path={`/${locale}/geraete/${listing.slug}`}
+            />
+          ) : null}
+
           {related.length ? (
             <section className="space-y-3">
               <h2 className="text-lg font-semibold">{t("relatedListings")}</h2>
@@ -315,14 +328,14 @@ export default async function ListingPage({
                       {t("makeOffer")}
                     </ButtonLink>
                   ) : null}
-                  <ButtonLink
-                    href={`/${locale}/nachrichten/neu?listing=${listing.id}`}
-                    variant="secondary"
-                    className="w-full"
-                  >
-                    <MessageSquare className="size-4" aria-hidden="true" />
-                    {t("contactSeller")}
-                  </ButtonLink>
+                  <form action={startConversationAction}>
+                    <input type="hidden" name="locale" value={locale} />
+                    <input type="hidden" name="listingId" value={listing.id} />
+                    <button type="submit" className={buttonClass("secondary", "md", "w-full")}>
+                      <MessageSquare className="size-4" aria-hidden="true" />
+                      {t("contactSeller")}
+                    </button>
+                  </form>
                 </div>
               ) : (
                 <Badge tone={listing.status === "sold" ? "neutral" : "warning"} className="w-full justify-center py-1.5">

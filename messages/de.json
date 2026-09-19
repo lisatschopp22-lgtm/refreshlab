@@ -346,7 +346,9 @@
     "emptyHint": "Wer dieses Gerät kennt, darf gern anfangen.",
     "signInToComment": "Melden Sie sich an, um mitzudiskutieren.",
     "report": "Melden",
-    "reported": "Danke, wir schauen uns das an."
+    "reported": "Danke, wir schauen uns das an.",
+    "replyPlaceholder": "Antwort schreiben",
+    "sendReply": "Antwort senden"
   },
   "offers": {
     "title": "Angebote",

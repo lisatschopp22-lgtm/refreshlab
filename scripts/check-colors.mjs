@@ -8,7 +8,13 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 
 const root = process.cwd();
-const allowedFiles = new Set(["src/ui/tokens.css", "src/app/globals.css"]);
+const allowedFiles = new Set([
+  "src/ui/tokens.css",
+  "src/app/globals.css",
+  // Email clients cannot resolve CSS custom properties; that template keeps
+  // its own neutral literals and states why.
+  "src/integrations/email.ts",
+]);
 
 // Tailwind palette utilities (bg-green-600, text-red-500 …) and raw CSS colours.
 const patterns = [

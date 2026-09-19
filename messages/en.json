@@ -346,7 +346,9 @@
     "emptyHint": "If you know this instrument, please start.",
     "signInToComment": "Sign in to join the discussion.",
     "report": "Report",
-    "reported": "Thank you, we will look at it."
+    "reported": "Thank you, we will look at it.",
+    "replyPlaceholder": "Write a reply",
+    "sendReply": "Send reply"
   },
   "offers": {
     "title": "Offers",

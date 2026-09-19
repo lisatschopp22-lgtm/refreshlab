@@ -15,3 +15,8 @@ One line per decision: date · decision · why. Started 2026-09-19.
 - 2026-09-20 · The required marker sits outside the `<label>` element · Inside it, the label's text becomes "Preis*", which breaks both screen-reader announcement and `getByLabel`. The input's own `required` carries the semantics.
 - 2026-09-20 · A proposed model gets a `pending` catalogue record immediately · The seller must not be blocked while the catalogue is reviewed, so the listing can be published while the model record waits for approval. Its record number is suffixed `-P`.
 - 2026-09-20 · Personal profiles are `noindex` · They carry a real person's name. Organisation pages are indexable, because they are businesses.
+- 2026-09-20 · Comments nest one level only · A reply to a reply attaches to its root. Deep threads make a technical Q&A hard to scan, and the mockups show a flat question-and-answer shape.
+- 2026-09-20 · Messages poll every five seconds instead of using Realtime · Enough to judge the behaviour, and it keeps the prototype free of a live subscription to reason about. Supabase Realtime remains a Phase 7 option.
+- 2026-09-20 · A form must not unmount while its action is in flight · `useActionState`'s dispatch returns void, so awaiting it and then closing the form silently cancelled replies. Forms now close on the action's `ok` result.
+- 2026-09-20 · Mailpit's SMTP port has to be published explicitly · `supabase/config.toml` ships it commented out, so only the web interface was reachable and every notification failed with ECONNREFUSED.
+- 2026-09-20 · Controls that do different things get different labels · A reply toggle and a reply submit both reading "Antworten" is ambiguous for anyone navigating by button name.

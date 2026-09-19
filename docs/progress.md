@@ -49,3 +49,24 @@ Try it: sign in as `beat.seller@refreshlab.local` (password `refreshlab`),
 then http://localhost:3000/de/verkaufen
 
 J2 passes as two Playwright tests, including a real file upload.
+
+## Phase 3 — Comments and private messages ✓
+
+* Threaded comments on equipment models and on listings, one level deep, with
+  edit, delete, moderation hiding and reporting. The seller is labelled as
+  such on their own listing.
+* Private messages: "Contact seller" opens or reuses the thread for that
+  listing. Inbox with unread counts, thread view with attachments, block and
+  unblock, and a five-second poll.
+* Anti-abuse: you cannot message yourself, blocked parties cannot write, and
+  a ten-messages-per-minute cap lives in the domain layer.
+* A transactional outbox drives search re-indexing and notification mail.
+  `/api/jobs/run` drains it; in development an interval calls it every five
+  seconds. Every mail lands in Mailpit at http://127.0.0.1:54324.
+
+Try it: sign in as `anna.buyer@refreshlab.local`, open any listing by Beat
+Hunziker, press "Verkäufer kontaktieren", then sign in as
+`beat.seller@refreshlab.local` in a second browser profile to answer.
+
+J3 passes as four Playwright tests, including a genuine two-session exchange
+and a check that the notification reached the mail server.
