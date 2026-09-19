@@ -13,6 +13,7 @@ import { storageUrl } from "@/ui/storage-image";
 import { Badge } from "@/ui/badge";
 import { Breadcrumbs } from "@/ui/breadcrumbs";
 import { Button, ButtonLink } from "@/ui/button";
+import { WatchButton } from "@/ui/watch-button";
 import { Card, CardBody, CardHeader } from "@/ui/card";
 import { Gallery } from "@/ui/gallery";
 import { JsonLd, breadcrumbLd } from "@/ui/json-ld";
@@ -334,9 +335,11 @@ export default async function ListingPage({
               )}
 
               <div className="flex gap-2 border-t border-border pt-3">
-                <Button variant="ghost" size="sm" className="flex-1">
-                  {t("watch")}
-                </Button>
+                <WatchButton
+                  listingId={listing.id}
+                  locale={locale}
+                  labels={{ watch: t("watch"), unwatch: t("unwatch") }}
+                />
                 <Button variant="ghost" size="sm" className="flex-1">
                   <Share2 className="size-3.5" aria-hidden="true" />
                   {t("share")}

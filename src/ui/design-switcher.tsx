@@ -42,18 +42,19 @@ export function DesignSwitcher({
   }, [searchParams]);
 
   const prefs: DesignPrefs = { ...initial, ...fromUrl, ...chosen };
+  const { palette, theme, font, density } = prefs;
 
   // Writing to the document element and the cookie is an external system,
   // which is what an effect is for.
   useEffect(() => {
     const root = document.documentElement;
-    root.dataset.palette = prefs.palette;
-    root.dataset.font = prefs.font;
-    root.dataset.density = prefs.density;
-    if (prefs.theme === "system") delete root.dataset.theme;
-    else root.dataset.theme = prefs.theme;
-    document.cookie = `${COOKIE}=${serialisePrefs(prefs)};path=/;max-age=31536000;samesite=lax`;
-  }, [prefs.palette, prefs.font, prefs.density, prefs.theme]);
+    root.dataset.palette = palette;
+    root.dataset.font = font;
+    root.dataset.density = density;
+    if (theme === "system") delete root.dataset.theme;
+    else root.dataset.theme = theme;
+    document.cookie = `${COOKIE}=${serialisePrefs({ palette, theme, font, density })};path=/;max-age=31536000;samesite=lax`;
+  }, [palette, theme, font, density]);
 
   const group = (name: keyof DesignPrefs, values: readonly string[], label: string) => (
     <div className="space-y-1">

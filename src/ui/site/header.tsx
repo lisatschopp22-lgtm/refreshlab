@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { currentUser } from "@/auth/session";
 import { Menu, Search, User } from "lucide-react";
 import type { Locale } from "@/i18n/routing";
 import { ButtonLink } from "../button";
@@ -9,6 +10,7 @@ import { LocaleSwitch } from "./locale-switch";
 export async function SiteHeader({ locale }: { locale: Locale }) {
   const t = await getTranslations({ locale, namespace: "nav" });
   const tc = await getTranslations({ locale, namespace: "common" });
+  const user = await currentUser();
 
   const links = [
     { href: `/${locale}/suche`, label: t("discover") },
@@ -50,13 +52,24 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
 
         <div className="ml-auto flex items-center gap-2 lg:ml-0">
           <LocaleSwitch locale={locale} />
-          <Link
-            href={`/${locale}/konto`}
-            className="inline-flex size-9 items-center justify-center rounded-[var(--radius-md)] text-fg-muted hover:bg-bg-subtle hover:text-fg"
-            aria-label={t("account")}
-          >
-            <User className="size-4" />
-          </Link>
+          {user ? (
+            <Link
+              href={`/${locale}/konto`}
+              className="inline-flex h-9 items-center gap-1.5 rounded-[var(--radius-md)] px-2 text-sm text-fg-muted hover:bg-bg-subtle hover:text-fg"
+            >
+              <User className="size-4" />
+              <span className="hidden max-w-28 truncate sm:inline">{user.displayName}</span>
+            </Link>
+          ) : (
+            <Link
+              href={`/${locale}/anmelden`}
+              className="inline-flex h-9 items-center gap-1.5 rounded-[var(--radius-md)] px-2 text-sm text-fg-muted hover:bg-bg-subtle hover:text-fg"
+              aria-label={t("signIn")}
+            >
+              <User className="size-4" />
+              <span className="hidden sm:inline">{t("signIn")}</span>
+            </Link>
+          )}
           <ButtonLink href={`/${locale}/verkaufen`} size="sm">
             {t("sell")}
           </ButtonLink>

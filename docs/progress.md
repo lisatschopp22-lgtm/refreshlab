@@ -28,3 +28,24 @@ Try it: http://localhost:3000/de/suche?q=zentrifuge, then narrow by a facet.
 
 Not done in this phase: comments render on model and listing pages from
 Phase 3; the buy, offer and contact buttons link to routes built in Phases 2–4.
+
+## Phase 2 — Accounts, organisations, selling ✓
+
+* Sign-up, sign-in, magic link and password reset through Supabase Auth, with
+  all mail landing in Mailpit. `proxy.ts` keeps the session fresh.
+* Authorisation lives in one module, `src/domain/permissions.ts`. Nothing
+  writes to the database except through `src/domain/*`.
+* Account area: dashboard with live counts, my listings with status tabs and
+  status changes, watchlist, saved searches, profile settings with avatar
+  upload, organisations with members.
+* Four-step sell wizard after mockup S6: find the model in the catalogue (with
+  typeahead and "propose a new model"), condition and documents with real
+  uploads to Supabase Storage, price and sale type with a comparable-price
+  hint, then review showing the platform fee and what the seller receives.
+* Publishing is refused with a named list of what is missing.
+* Public organisation and personal profile pages.
+
+Try it: sign in as `beat.seller@refreshlab.local` (password `refreshlab`),
+then http://localhost:3000/de/verkaufen
+
+J2 passes as two Playwright tests, including a real file upload.

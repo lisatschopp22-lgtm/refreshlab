@@ -63,10 +63,16 @@ export function Field({
   return (
     <div className={cn("space-y-1.5", className)}>
       {label ? (
-        <Label htmlFor={htmlFor}>
-          {label}
-          {required ? <span className="ml-0.5 text-danger">*</span> : null}
-        </Label>
+        // The required marker sits outside the <label> so the label's text is
+        // exactly the field name, for screen readers and for tests.
+        <span className="flex items-baseline gap-0.5">
+          <Label htmlFor={htmlFor}>{label}</Label>
+          {required ? (
+            <span className="text-danger" aria-hidden="true">
+              *
+            </span>
+          ) : null}
+        </span>
       ) : null}
       {children}
       {hint && !error ? <p className="text-xs text-fg-subtle">{hint}</p> : null}
