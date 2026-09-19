@@ -1,0 +1,235 @@
+/*
+ * refreshLab design tokens.
+ *
+ * The brand colour is NOT decided. Everything derives from --hue / --chroma so
+ * a palette is one line. Components may only use the semantic tokens below --
+ * never a raw colour. `npm run check:colors` enforces that.
+ */
+
+:root {
+  /* ---- palette inputs (overridden per data-palette) --------------------- */
+  --hue: 150;
+  --chroma: 0.12;
+  --neutral-chroma: 0.006;
+  --accent-hue: 230;
+
+  /* ---- brand ramp ------------------------------------------------------ */
+  --brand-50: oklch(0.974 calc(var(--chroma) * 0.18) var(--hue));
+  --brand-100: oklch(0.941 calc(var(--chroma) * 0.32) var(--hue));
+  --brand-200: oklch(0.885 calc(var(--chroma) * 0.52) var(--hue));
+  --brand-300: oklch(0.803 calc(var(--chroma) * 0.72) var(--hue));
+  --brand-400: oklch(0.706 calc(var(--chroma) * 0.9) var(--hue));
+  --brand-500: oklch(0.606 var(--chroma) var(--hue));
+  --brand-600: oklch(0.518 var(--chroma) var(--hue));
+  --brand-700: oklch(0.432 calc(var(--chroma) * 0.95) var(--hue));
+  --brand-800: oklch(0.355 calc(var(--chroma) * 0.82) var(--hue));
+  --brand-900: oklch(0.286 calc(var(--chroma) * 0.68) var(--hue));
+
+  /* ---- neutral ramp (very slightly tinted by the brand hue) ------------ */
+  --neutral-0: oklch(1 0 0);
+  --neutral-50: oklch(0.985 var(--neutral-chroma) var(--hue));
+  --neutral-100: oklch(0.968 var(--neutral-chroma) var(--hue));
+  --neutral-200: oklch(0.925 calc(var(--neutral-chroma) * 1.4) var(--hue));
+  --neutral-300: oklch(0.868 calc(var(--neutral-chroma) * 1.8) var(--hue));
+  --neutral-400: oklch(0.715 calc(var(--neutral-chroma) * 2.2) var(--hue));
+  --neutral-500: oklch(0.586 calc(var(--neutral-chroma) * 2.4) var(--hue));
+  --neutral-600: oklch(0.478 calc(var(--neutral-chroma) * 2.4) var(--hue));
+  --neutral-700: oklch(0.386 calc(var(--neutral-chroma) * 2.2) var(--hue));
+  --neutral-800: oklch(0.283 calc(var(--neutral-chroma) * 2) var(--hue));
+  --neutral-900: oklch(0.21 calc(var(--neutral-chroma) * 1.8) var(--hue));
+  --neutral-950: oklch(0.153 calc(var(--neutral-chroma) * 1.6) var(--hue));
+
+  /* ---- status ---------------------------------------------------------- */
+  --status-success: oklch(0.58 0.14 152);
+  --status-success-bg: oklch(0.955 0.035 152);
+  --status-warning: oklch(0.63 0.15 70);
+  --status-warning-bg: oklch(0.962 0.043 80);
+  --status-danger: oklch(0.56 0.19 27);
+  --status-danger-bg: oklch(0.957 0.032 27);
+  --status-info: oklch(0.58 0.13 var(--accent-hue));
+  --status-info-bg: oklch(0.958 0.03 var(--accent-hue));
+
+  /* ---- semantic surface tokens ---------------------------------------- */
+  --bg: var(--neutral-0);
+  --bg-subtle: var(--neutral-50);
+  --bg-sunken: var(--neutral-100);
+  --bg-elevated: var(--neutral-0);
+  --bg-inverse: var(--neutral-900);
+
+  --fg: var(--neutral-900);
+  --fg-muted: var(--neutral-600);
+  --fg-subtle: var(--neutral-500);
+  --fg-inverse: var(--neutral-0);
+
+  --border: var(--neutral-200);
+  --border-strong: var(--neutral-300);
+
+  --primary: var(--brand-600);
+  --primary-hover: var(--brand-700);
+  --primary-fg: var(--neutral-0);
+  --primary-subtle: var(--brand-50);
+  --primary-subtle-fg: var(--brand-800);
+
+  --accent: oklch(0.55 0.13 var(--accent-hue));
+  --accent-subtle: oklch(0.962 0.028 var(--accent-hue));
+
+  --success: var(--status-success);
+  --success-subtle: var(--status-success-bg);
+  --warning: var(--status-warning);
+  --warning-subtle: var(--status-warning-bg);
+  --danger: var(--status-danger);
+  --danger-subtle: var(--status-danger-bg);
+  --info: var(--status-info);
+  --info-subtle: var(--status-info-bg);
+
+  --ring: var(--brand-500);
+
+  /* ---- shape and depth ------------------------------------------------- */
+  --radius-sm: 4px;
+  --radius-md: 7px;
+  --radius-lg: 11px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  --scrim: oklch(0.15 0 0 / 0.45);
+  --shadow-sm: 0 1px 2px oklch(0.2 0 0 / 0.06), 0 1px 1px oklch(0.2 0 0 / 0.04);
+  --shadow-md: 0 4px 12px oklch(0.2 0 0 / 0.07), 0 1px 3px oklch(0.2 0 0 / 0.05);
+  --shadow-lg: 0 12px 32px oklch(0.2 0 0 / 0.1), 0 2px 8px oklch(0.2 0 0 / 0.05);
+
+  /* ---- type ------------------------------------------------------------ */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, "SF Mono", Menlo, monospace;
+  --font-display: var(--font-sans);
+
+  /* ---- density --------------------------------------------------------- */
+  --row-py: 0.75rem;
+  --card-p: 1.25rem;
+  --control-h: 2.5rem;
+}
+
+/* ---------------------------------------------------------------- palettes */
+/* Green, as in the first mockups: botanical, nature, second life. */
+:root[data-palette="botanical"] {
+  --hue: 150;
+  --chroma: 0.12;
+  --accent-hue: 235;
+}
+
+/* Cool clinical blue: instrument panels, hospital, calibration. */
+:root[data-palette="clinical"] {
+  --hue: 244;
+  --chroma: 0.115;
+  --accent-hue: 195;
+  --neutral-chroma: 0.005;
+}
+
+/* Warm amber: Bunsen flame, safety orange, lab notebook. */
+:root[data-palette="ember"] {
+  --hue: 52;
+  --chroma: 0.135;
+  --accent-hue: 250;
+  --neutral-chroma: 0.008;
+}
+
+/* Deep violet-graphite, used by the ops console by default. */
+:root[data-palette="graphite"] {
+  --hue: 286;
+  --chroma: 0.095;
+  --accent-hue: 200;
+}
+
+/* ------------------------------------------------------------------- dark */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: var(--neutral-950);
+    --bg-subtle: var(--neutral-900);
+    --bg-sunken: oklch(0.12 calc(var(--neutral-chroma) * 1.6) var(--hue));
+    --bg-elevated: var(--neutral-900);
+    --bg-inverse: var(--neutral-50);
+
+    --fg: var(--neutral-50);
+    --fg-muted: var(--neutral-400);
+    --fg-subtle: var(--neutral-500);
+    --fg-inverse: var(--neutral-950);
+
+    --border: oklch(0.3 calc(var(--neutral-chroma) * 2) var(--hue));
+    --border-strong: oklch(0.38 calc(var(--neutral-chroma) * 2.2) var(--hue));
+
+    --primary: var(--brand-400);
+    --primary-hover: var(--brand-300);
+    --primary-fg: var(--neutral-950);
+    --primary-subtle: oklch(0.26 calc(var(--chroma) * 0.5) var(--hue));
+    --primary-subtle-fg: var(--brand-200);
+
+    --accent: oklch(0.7 0.12 var(--accent-hue));
+    --accent-subtle: oklch(0.27 0.05 var(--accent-hue));
+
+    --success: oklch(0.72 0.15 152);
+    --success-subtle: oklch(0.27 0.06 152);
+    --warning: oklch(0.78 0.14 75);
+    --warning-subtle: oklch(0.3 0.06 75);
+    --danger: oklch(0.68 0.17 25);
+    --danger-subtle: oklch(0.28 0.07 25);
+    --info: oklch(0.72 0.12 var(--accent-hue));
+    --info-subtle: oklch(0.27 0.05 var(--accent-hue));
+
+    --ring: var(--brand-400);
+
+    --scrim: oklch(0.05 0 0 / 0.6);
+  --shadow-sm: 0 1px 2px oklch(0 0 0 / 0.4);
+    --shadow-md: 0 4px 12px oklch(0 0 0 / 0.45);
+    --shadow-lg: 0 12px 32px oklch(0 0 0 / 0.55);
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: var(--neutral-950);
+  --bg-subtle: var(--neutral-900);
+  --bg-sunken: oklch(0.12 calc(var(--neutral-chroma) * 1.6) var(--hue));
+  --bg-elevated: var(--neutral-900);
+  --bg-inverse: var(--neutral-50);
+
+  --fg: var(--neutral-50);
+  --fg-muted: var(--neutral-400);
+  --fg-subtle: var(--neutral-500);
+  --fg-inverse: var(--neutral-950);
+
+  --border: oklch(0.3 calc(var(--neutral-chroma) * 2) var(--hue));
+  --border-strong: oklch(0.38 calc(var(--neutral-chroma) * 2.2) var(--hue));
+
+  --primary: var(--brand-400);
+  --primary-hover: var(--brand-300);
+  --primary-fg: var(--neutral-950);
+  --primary-subtle: oklch(0.26 calc(var(--chroma) * 0.5) var(--hue));
+  --primary-subtle-fg: var(--brand-200);
+
+  --accent: oklch(0.7 0.12 var(--accent-hue));
+  --accent-subtle: oklch(0.27 0.05 var(--accent-hue));
+
+  --success: oklch(0.72 0.15 152);
+  --success-subtle: oklch(0.27 0.06 152);
+  --warning: oklch(0.78 0.14 75);
+  --warning-subtle: oklch(0.3 0.06 75);
+  --danger: oklch(0.68 0.17 25);
+  --danger-subtle: oklch(0.28 0.07 25);
+  --info: oklch(0.72 0.12 var(--accent-hue));
+  --info-subtle: oklch(0.27 0.05 var(--accent-hue));
+
+  --ring: var(--brand-400);
+
+  --scrim: oklch(0.05 0 0 / 0.6);
+  --shadow-sm: 0 1px 2px oklch(0 0 0 / 0.4);
+  --shadow-md: 0 4px 12px oklch(0 0 0 / 0.45);
+  --shadow-lg: 0 12px 32px oklch(0 0 0 / 0.55);
+}
+
+/* --------------------------------------------------------------- variants */
+:root[data-font="plex"] {
+  --font-sans: var(--font-plex), ui-sans-serif, system-ui, sans-serif;
+}
+
+:root[data-density="compact"] {
+  --row-py: 0.45rem;
+  --card-p: 0.875rem;
+  --control-h: 2.125rem;
+}
