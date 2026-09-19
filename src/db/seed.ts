@@ -8,7 +8,7 @@ import { categories as categorySeed, manufacturers as manufacturerSeed } from ".
 import { models as modelSeed } from "./seed/model-data";
 import { organisations as orgSeed, people } from "./seed/people-data";
 import { contentPages } from "./seed/content-data";
-import { placeholderSvg, uploadSvg, type Variant } from "./seed/images";
+import { clearStorageFolder, placeholderSvg, uploadSvg, type Variant } from "./seed/images";
 import { uniqueSlug } from "@/domain/slug";
 import { calculateFee, defaultFeeRule } from "@/domain/fees";
 import { defaultFlags } from "@/domain/flags";
@@ -108,9 +108,11 @@ async function main() {
     restart identity cascade;
   `);
   await client.unsafe(`delete from auth.users;`);
-  const existingObjects = await client.unsafe(`select name from storage.objects where bucket_id = 'images' limit 1;`);
-  if (existingObjects.length) {
-    await client.unsafe(`delete from storage.objects where bucket_id in ('images','attachments');`);
+  // Model images are re-uploaded with upsert; anything a previous run created
+  // (uploads from the sell wizard, avatars, message attachments) is cleared.
+  for (const folder of ["listings", "avatars", "messages"]) {
+    await clearStorageFolder("images", folder);
+    await clearStorageFolder("attachments", folder);
   }
 
   // ------------------------------------------------------------------ people

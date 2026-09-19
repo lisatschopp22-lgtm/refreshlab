@@ -371,7 +371,8 @@
     "rejected": "Angebot abgelehnt.",
     "listPrice": "Angebotspreis",
     "noOffers": "Keine Angebote.",
-    "ownListing": "Für eigene Inserate können Sie kein Angebot abgeben."
+    "ownListing": "Für eigene Inserate können Sie kein Angebot abgeben.",
+    "sendCounter": "Gegenangebot senden"
   },
   "orders": {
     "title": "Transaktionen",

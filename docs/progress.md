@@ -70,3 +70,25 @@ Hunziker, press "Verkäufer kontaktieren", then sign in as
 
 J3 passes as four Playwright tests, including a genuine two-session exchange
 and a check that the notification reached the mail server.
+
+## Phase 4 — Offers, orders and payments ✓
+
+* Offer state machine: make, counter, accept, decline, withdraw, expire. A
+  minimum price is never shown but refuses a lower offer immediately, and every
+  offer event is mirrored into the message thread (mockup S9).
+* Order state machine with the five milestones from mockup S10: offer,
+  payment, shipping, check, payout. Cancellation, dispute and refund branches
+  included. Who may make each move is part of the machine.
+* `PaymentProvider` with a fake default and Stripe Connect in test mode. The
+  fake provider serves a local checkout page with a deliberate "let it fail"
+  button, and simulates a bank transfer an admin confirms. Stripe uses separate
+  charges and transfers, with webhook idempotency on the event id.
+* Invoices for both parties with the platform fee and the seller's net shown
+  separately. Dispute handling reserved to administrators.
+
+Try it: sign in as `anna.buyer@refreshlab.local`, open a listing by Beat
+Hunziker, make an offer, then sign in as `beat.seller@refreshlab.local` to
+counter it.
+
+J4 passes as three Playwright tests covering the full negotiation, a failed
+payment and a dispute. 44 unit and integration tests, 16 e2e tests.

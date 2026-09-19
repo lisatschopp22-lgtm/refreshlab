@@ -16,6 +16,7 @@ import { Button, ButtonLink } from "@/ui/button";
 import { WatchButton } from "@/ui/watch-button";
 import { CommentSection } from "@/ui/comment-section";
 import { startConversationAction } from "@/actions/community";
+import { buyNowAction } from "@/actions/transactions";
 import { buttonClass } from "@/ui/button";
 import { Card, CardBody, CardHeader } from "@/ui/card";
 import { Gallery } from "@/ui/gallery";
@@ -310,13 +311,13 @@ export default async function ListingPage({
               {isBuyable ? (
                 <div className="space-y-2">
                   {flags.buyNowEnabled && listing.negotiable !== "offer" ? (
-                    <ButtonLink
-                      href={`/${locale}/kaufen/${listing.slug}`}
-                      size="lg"
-                      className="w-full"
-                    >
-                      {t("buyNow")}
-                    </ButtonLink>
+                    <form action={buyNowAction}>
+                      <input type="hidden" name="locale" value={locale} />
+                      <input type="hidden" name="listingId" value={listing.id} />
+                      <button type="submit" className={buttonClass("primary", "lg", "w-full")}>
+                        {t("buyNow")}
+                      </button>
+                    </form>
                   ) : null}
                   {flags.offersEnabled && listing.negotiable !== "fixed" ? (
                     <ButtonLink

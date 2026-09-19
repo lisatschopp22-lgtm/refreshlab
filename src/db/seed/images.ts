@@ -169,6 +169,20 @@ export function storageClient() {
   });
 }
 
+/**
+ * Removes a folder through the Storage API. Deleting from storage.objects
+ * directly is rejected by Supabase, so re-seeding has to go through the API.
+ */
+export async function clearStorageFolder(bucket: string, folder: string) {
+  const supabase = storageClient();
+  const { data, error } = await supabase.storage.from(bucket).list(folder, { limit: 1000 });
+  if (error || !data?.length) return 0;
+
+  const paths = data.map((entry) => `${folder}/${entry.name}`);
+  await supabase.storage.from(bucket).remove(paths);
+  return paths.length;
+}
+
 export async function uploadSvg(path: string, svg: string) {
   const supabase = storageClient();
   const { error } = await supabase.storage
