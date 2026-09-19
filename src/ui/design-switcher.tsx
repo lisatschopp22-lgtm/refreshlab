@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Palette as PaletteIcon, X } from "lucide-react";
 import {
   COOKIE,
@@ -13,30 +14,37 @@ import {
 } from "./design-prefs";
 import { cn } from "./cn";
 
+const keys = ["palette", "theme", "font", "density"] as const;
+
 /**
  * Prototype-only control. Design decisions are still open, so every screen has
  * to be viewable in any palette, theme, typeface and density without a rebuild.
+ * Precedence: a click beats ?palette=… in the URL, which beats the cookie.
  */
-export function DesignSwitcher({ initial, labels }: { initial: DesignPrefs; labels: Record<string, string> }) {
-  const [prefs, setPrefs] = useState(initial);
+export function DesignSwitcher({
+  initial,
+  labels,
+}: {
+  initial: DesignPrefs;
+  labels: Record<string, string>;
+}) {
+  const searchParams = useSearchParams();
+  const [chosen, setChosen] = useState<Partial<DesignPrefs>>({});
   const [open, setOpen] = useState(false);
 
-  // ?palette=ember&theme=dark on any URL applies and persists.
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const next = { ...prefs };
-    let changed = false;
-    for (const key of ["palette", "theme", "font", "density"] as const) {
-      const value = params.get(key);
-      if (value && value !== next[key]) {
-        (next as Record<string, string>)[key] = value;
-        changed = true;
-      }
+  const fromUrl = useMemo(() => {
+    const out: Partial<DesignPrefs> = {};
+    for (const key of keys) {
+      const value = searchParams.get(key);
+      if (value) (out as Record<string, string>)[key] = value;
     }
-    if (changed) setPrefs(next);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    return out;
+  }, [searchParams]);
 
+  const prefs: DesignPrefs = { ...initial, ...fromUrl, ...chosen };
+
+  // Writing to the document element and the cookie is an external system,
+  // which is what an effect is for.
   useEffect(() => {
     const root = document.documentElement;
     root.dataset.palette = prefs.palette;
@@ -45,13 +53,9 @@ export function DesignSwitcher({ initial, labels }: { initial: DesignPrefs; labe
     if (prefs.theme === "system") delete root.dataset.theme;
     else root.dataset.theme = prefs.theme;
     document.cookie = `${COOKIE}=${serialisePrefs(prefs)};path=/;max-age=31536000;samesite=lax`;
-  }, [prefs]);
+  }, [prefs.palette, prefs.font, prefs.density, prefs.theme]);
 
-  const group = (
-    name: keyof DesignPrefs,
-    values: readonly string[],
-    label: string,
-  ) => (
+  const group = (name: keyof DesignPrefs, values: readonly string[], label: string) => (
     <div className="space-y-1">
       <p className="text-[0.6875rem] font-medium uppercase tracking-wide text-fg-subtle">{label}</p>
       <div className="flex flex-wrap gap-1">
@@ -59,7 +63,7 @@ export function DesignSwitcher({ initial, labels }: { initial: DesignPrefs; labe
           <button
             key={value}
             type="button"
-            onClick={() => setPrefs((p) => ({ ...p, [name]: value }))}
+            onClick={() => setChosen((current) => ({ ...current, [name]: value }))}
             className={cn(
               "rounded-[var(--radius-sm)] border px-2 py-1 text-xs capitalize transition-colors",
               prefs[name] === value

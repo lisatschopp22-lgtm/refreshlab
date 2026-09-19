@@ -9,7 +9,7 @@ import { models as modelSeed } from "./seed/model-data";
 import { organisations as orgSeed, people } from "./seed/people-data";
 import { contentPages } from "./seed/content-data";
 import { placeholderSvg, uploadSvg, type Variant } from "./seed/images";
-import { slugify, uniqueSlug } from "@/domain/slug";
+import { uniqueSlug } from "@/domain/slug";
 import { calculateFee, defaultFeeRule } from "@/domain/fees";
 import { defaultFlags } from "@/domain/flags";
 

@@ -7,6 +7,8 @@ const eslintConfig = defineConfig([
   ...nextTs,
   // Override default ignores of eslint-config-next.
   globalIgnores([
+    // The ChatGPT "Sites" starter that came with the mockups is not our code.
+    "docs/**",
     // Default ignores of eslint-config-next:
     ".next/**",
     "out/**",
