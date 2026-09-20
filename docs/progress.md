@@ -141,3 +141,23 @@ Measured in a production build, 5,000 listings, warm:
 | Search, facet filter only | 40 ms |
 | Search, text query | 180 ms |
 | Catalogue feed, text query | 150 ms |
+
+## Verification
+
+Checked on 2026-09-20 against the finished prototype:
+
+* `npm run db:reset` rebuilds the database from nothing in 48 seconds.
+* `npm run check` passes: lint, strict typecheck, colour guard, 59 unit and
+  integration tests.
+* `npm run e2e` passes: 20 journey tests covering J1 to J5.
+* `npm run build` produces a clean production build of 44 routes.
+* No browser console errors on the home, search, catalogue, listing, model,
+  organisation or design pages.
+
+One flaky e2e run was observed while the dev server was recompiling an edit
+mid-suite; the two runs after it were clean.
+
+Not done: Lighthouse scores were never captured, so the Performance, SEO and
+Accessibility targets in the build instructions are unverified. The page
+timings in the Phase 6 table were measured with `curl` against a production
+build instead.

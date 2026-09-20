@@ -9,7 +9,9 @@ export function Tabs({ items, className }: { items: TabItem[]; className?: strin
     <nav className={cn("flex gap-1 overflow-x-auto border-b border-border", className)}>
       {items.map((item) => (
         <Link
-          key={item.href}
+          // Two tabs can share an href (a demo, or a filter that clears itself),
+          // so the label is part of the key.
+          key={`${item.href}::${item.label}`}
           href={item.href}
           aria-current={item.active ? "page" : undefined}
           className={cn(
