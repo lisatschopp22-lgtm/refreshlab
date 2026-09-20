@@ -12,6 +12,8 @@ import { Pagination } from "@/ui/pagination";
 import { ClaimSource, ConditionBadge, LocationLine, SellerLine, VerifiedBadge, WarrantyBadge } from "@/ui/trust";
 import { conditions } from "@/domain/conditions";
 import { formatMoney } from "@/i18n/format";
+import { contrasts, densities, depths, fonts, paletteInk, palettes, radii, themes } from "@/ui/design-prefs";
+import Link from "next/link";
 
 export const metadata = { title: "Design system", robots: { index: false } };
 
@@ -56,12 +58,64 @@ export default async function DesignPage({ params }: { params: Promise<{ locale:
       <header className="space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
         <p className="max-w-2xl text-fg-muted">{t("subtitle")}</p>
-        <p className="text-sm text-fg-subtle">
-          Bottom right: palette, appearance, typeface and density. Any page also
-          accepts <code className="tabular">?palette=ember</code> or{" "}
-          <code className="tabular">?theme=dark</code>.
-        </p>
+        <p className="max-w-2xl text-sm text-fg-subtle">{t("switcherIntro")}</p>
       </header>
+
+      {/* Every switchable dimension, linkable so two directions can be opened
+          side by side in two tabs. */}
+      <Section title={t("palette")} description={t("subtitle")}>
+        <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-6">
+          {palettes.map((value) => (
+            <li key={value}>
+              <Link
+                href={`?palette=${value}`}
+                className="block rounded-[var(--radius-md)] border border-border p-2 transition-colors hover:border-[var(--primary)]"
+              >
+                <span
+                  className="block h-10 rounded-[var(--radius-sm)]"
+                  style={{
+                    background: `oklch(0.6 ${paletteInk[value].chroma} ${paletteInk[value].hue})`,
+                  }}
+                />
+                <span className="mt-1.5 block text-xs font-medium text-fg">{t(value)}</span>
+                <span className="tabular block text-[0.6875rem] text-fg-subtle">
+                  {paletteInk[value].hue}° · {paletteInk[value].chroma}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {(
+            [
+              ["theme", themes],
+              ["font", fonts],
+              ["radius", radii],
+              ["depth", depths],
+              ["density", densities],
+              ["contrast", contrasts],
+            ] as const
+          ).map(([dimension, values]) => (
+            <div key={dimension} className="space-y-1.5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-fg-subtle">
+                {t(dimension)}
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {values.map((value) => (
+                  <Link
+                    key={value}
+                    href={`?${dimension}=${value}`}
+                    className="rounded-[var(--radius-sm)] border border-border px-2 py-1 text-xs text-fg-muted transition-colors hover:border-[var(--primary)] hover:text-fg"
+                  >
+                    {t(value)}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </Section>
 
       <Section title={t("colours")}>
         <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4">

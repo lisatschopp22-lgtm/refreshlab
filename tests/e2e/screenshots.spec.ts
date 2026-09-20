@@ -7,8 +7,25 @@ import { password, personas } from "./personas";
  * `screenshots/`. Run it with: npx playwright test screenshots
  */
 
-const palettes = ["botanical", "clinical", "ember", "graphite"] as const;
+const palettes = [
+  "botanical", "moss", "clinical", "ocean", "aqua", "ember",
+  "copper", "crimson", "plum", "graphite", "slate", "ink",
+] as const;
 const themes = ["light", "dark"] as const;
+
+/** Every palette on the pages that decide a direction, four on the rest. */
+const detailPalettes = ["botanical", "clinical", "ember", "graphite"] as const;
+
+/** Looks worth comparing beyond colour: shape, depth, typeface and density. */
+const looks = [
+  { name: "a-default", query: "" },
+  { name: "b-sharp-flat", query: "radius=sharp&depth=flat" },
+  { name: "c-round-lifted", query: "radius=round&depth=lifted" },
+  { name: "d-serif-roomy", query: "font=serif&density=roomy" },
+  { name: "e-grotesk", query: "font=grotesk" },
+  { name: "f-plex-compact", query: "font=plex&density=compact" },
+  { name: "g-high-contrast", query: "contrast=high" },
+] as const;
 
 async function signIn(page: Page, email: string) {
   await page.goto("/de/anmelden");
@@ -33,17 +50,46 @@ async function shoot(page: Page, path: string, name: string, palette: string, th
 test.describe("design screenshots", () => {
   test.setTimeout(240_000);
 
-  test("public pages in every palette", async ({ page }) => {
-    const feed = await page.request.get("/api/feed/listings?perPage=1");
-    const listingUrl = new URL((await feed.json()).itemListElement[0].item.url).pathname;
-
+  test("every palette on the home and design pages", async ({ page }) => {
     for (const palette of palettes) {
       for (const theme of themes) {
         await shoot(page, "/de", "01-home", palette, theme);
+        await shoot(page, "/de/design", "05-design-system", palette, theme);
+      }
+    }
+    expect(true).toBe(true);
+  });
+
+  test("the remaining public pages in four palettes", async ({ page }) => {
+    const feed = await page.request.get("/api/feed/listings?perPage=1");
+    const listingUrl = new URL((await feed.json()).itemListElement[0].item.url).pathname;
+
+    for (const palette of detailPalettes) {
+      for (const theme of themes) {
         await shoot(page, "/de/suche?q=zentrifuge", "02-search", palette, theme);
         await shoot(page, listingUrl, "03-listing", palette, theme);
         await shoot(page, "/de/katalog", "04-catalogue", palette, theme);
-        await shoot(page, "/de/design", "05-design-system", palette, theme);
+      }
+    }
+    expect(true).toBe(true);
+  });
+
+  /** The same page in every shape, depth, typeface and density. */
+  test("looks beyond colour", async ({ page }) => {
+    const feed = await page.request.get("/api/feed/listings?perPage=1");
+    const listingUrl = new URL((await feed.json()).itemListElement[0].item.url).pathname;
+
+    for (const look of looks) {
+      for (const [path, name] of [
+        ["/de", "01-home"],
+        [listingUrl, "03-listing"],
+      ] as const) {
+        const join = path.includes("?") ? "&" : "?";
+        const url = `${path}${join}palette=botanical&theme=light${look.query ? `&${look.query}` : ""}`;
+        await page.goto(url);
+        await page.waitForLoadState("networkidle").catch(() => {});
+        await page.addStyleTag({ content: ".fixed.bottom-4.right-4 { display: none !important; }" });
+        await page.screenshot({ path: `screenshots/looks/${look.name}-${name}.png`, fullPage: true });
       }
     }
     expect(true).toBe(true);
@@ -51,7 +97,7 @@ test.describe("design screenshots", () => {
 
   test("account and admin pages", async ({ page }) => {
     await signIn(page, personas.admin.email);
-    for (const palette of palettes) {
+    for (const palette of detailPalettes) {
       await shoot(page, "/de/konto", "06-dashboard", palette, "light");
       await shoot(page, "/de/verkaufen", "07-sell-wizard", palette, "light");
       await shoot(page, "/de/admin", "08-admin-overview", palette, "dark");

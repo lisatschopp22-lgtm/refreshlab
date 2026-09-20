@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { IBM_Plex_Mono, IBM_Plex_Sans, Inter } from "next/font/google";
+import { IBM_Plex_Mono, IBM_Plex_Sans, Inter, Source_Serif_4, Space_Grotesk } from "next/font/google";
 import { isLocale, locales, type Locale } from "@/i18n/routing";
+import { prefsToDataset } from "@/ui/design-prefs";
 import { readDesignPrefs } from "@/ui/design-prefs.server";
 import { DesignSwitcher } from "@/ui/design-switcher";
 import { ToastProvider } from "@/ui/toast";
@@ -23,6 +24,37 @@ const plexMono = IBM_Plex_Mono({
   variable: "--font-plex-mono",
   display: "swap",
 });
+// Display faces. Only the selected one is ever rendered, so the others are
+// never fetched by the browser.
+const grotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-grotesk",
+  display: "swap",
+});
+const serif = Source_Serif_4({
+  subsets: ["latin"],
+  variable: "--font-serif",
+  display: "swap",
+});
+
+/** Every dimension and every option the switcher can show. */
+function optionLabels(t: (key: string) => string) {
+  const keys = [
+    "title", "palette", "theme", "font", "density", "radius", "depth", "contrast",
+    "shuffle", "reset", "copyLink", "close",
+    "system", "light", "dark",
+    "inter", "plex", "grotesk", "serif",
+    "compact", "comfortable", "roomy",
+    "sharp", "soft", "round",
+    "flat", "raised", "lifted",
+    "normal", "high",
+    "botanical", "moss", "clinical", "ocean", "aqua", "ember",
+    "copper", "crimson", "plum", "graphite", "slate", "ink",
+  ];
+  const labels = Object.fromEntries(keys.map((key) => [key, t(key)]));
+  labels.hint = t("switcherHint");
+  return labels;
+}
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
@@ -73,11 +105,8 @@ export default async function LocaleLayout({
   return (
     <html
       lang={locale}
-      data-palette={prefs.palette}
-      data-font={prefs.font}
-      data-density={prefs.density}
-      {...(prefs.theme === "system" ? {} : { "data-theme": prefs.theme })}
-      className={`${inter.variable} ${plex.variable} ${plexMono.variable}`}
+      {...prefsToDataset(prefs)}
+      className={`${inter.variable} ${plex.variable} ${plexMono.variable} ${grotesk.variable} ${serif.variable}`}
       suppressHydrationWarning
     >
       <body className="min-h-screen bg-bg text-fg antialiased">
@@ -87,20 +116,7 @@ export default async function LocaleLayout({
             {flags.showDesignSwitcher ? (
               <DesignSwitcher
                 initial={prefs}
-                labels={{
-                  title: t("title"),
-                  palette: t("palette"),
-                  theme: t("theme"),
-                  font: t("font"),
-                  density: t("density"),
-                  hint: t("switcherHint"),
-                  close: "×",
-                  system: t("system"),
-                  light: t("light"),
-                  dark: t("dark"),
-                  comfortable: t("comfortable"),
-                  compact: t("compact"),
-                }}
+                labels={optionLabels(t)}
               />
             ) : null}
           </ToastProvider>

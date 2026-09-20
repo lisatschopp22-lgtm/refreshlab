@@ -63,22 +63,36 @@ Everything derives from `--hue` and `--chroma` in
 [`src/ui/tokens.css`](src/ui/tokens.css), and `npm run check` fails on any raw
 colour outside that file.
 
-Four palettes ship: `botanical` (green, as in the first mockups), `clinical`
-(blue), `ember` (amber) and `graphite` (violet-grey). Switch them with the
-control at the bottom right of any page, or with a query parameter:
+Seven dimensions switch at runtime, from the control at the bottom right of
+any page or from a query parameter. The panel can also shuffle a combination,
+reset it, and copy a link that reproduces exactly what is on screen.
+
+| Dimension | Options |
+|---|---|
+| `palette` | `botanical`, `moss`, `clinical`, `ocean`, `aqua`, `ember`, `copper`, `crimson`, `plum`, `graphite`, `slate`, `ink` |
+| `theme` | `system`, `light`, `dark` |
+| `font` | `inter`, `plex`, `grotesk` (Space Grotesk headings), `serif` (Source Serif headings), `system` |
+| `radius` | `sharp`, `soft`, `round` |
+| `depth` | `flat`, `raised`, `lifted` |
+| `density` | `compact`, `comfortable`, `roomy` |
+| `contrast` | `normal`, `high` |
 
 ```
-http://localhost:3000/de/design?palette=ember&theme=dark&density=compact
+http://localhost:3000/de/design?palette=plum&font=serif&radius=round&depth=lifted
 ```
 
-Appearance (`light`/`dark`/`system`), typeface (Inter or IBM Plex Sans) and
-density are switchable the same way.
+`slate` is a near-neutral and `ink` is monochrome, because "no brand colour"
+is a legitimate answer worth seeing. Every option is also listed on
+[`/de/design`](http://localhost:3000/de/design) as links, so two directions can
+be opened side by side in two tabs.
 
 ## Comparing designs
 
-`npm run screenshots` writes every key screen in all four palettes, light and
-dark, plus mobile widths, into `screenshots/`. That is the quickest way to put
-two directions side by side.
+`npm run screenshots` writes 109 images into `screenshots/`: the home and
+design pages in all twelve palettes, light and dark; search, listing and
+catalogue in four; the account and admin areas; mobile widths; and a
+`looks/` folder comparing shape, depth, typeface and density at a fixed
+colour. That is the quickest way to put two directions side by side.
 
 ## Open questions and flags
 

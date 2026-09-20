@@ -108,35 +108,72 @@
 }
 
 /* ---------------------------------------------------------------- palettes */
-/* Green, as in the first mockups: botanical, nature, second life. */
-:root[data-palette="botanical"] {
-  --hue: 150;
-  --chroma: 0.12;
-  --accent-hue: 235;
+/*
+ * A palette is a hue and a chroma. The selector is attribute-only rather than
+ * :root-scoped, so a swatch can carry data-palette and derive the same brand
+ * ramp from the same definition: one source of truth, previewed in place.
+ */
+
+/* Green, as in the first mockups: nature, second life. */
+[data-palette="botanical"] { --hue: 150; --chroma: 0.12; --accent-hue: 235; }
+
+/* A deeper, more restrained green. Less fresh, more institutional. */
+[data-palette="moss"] { --hue: 138; --chroma: 0.075; --accent-hue: 40; --neutral-chroma: 0.009; }
+
+/* Cool clinical indigo: instrument panels, hospital, calibration. */
+[data-palette="clinical"] { --hue: 244; --chroma: 0.115; --accent-hue: 195; --neutral-chroma: 0.005; }
+
+/* Deep blue-green, like a cooled condenser. */
+[data-palette="ocean"] { --hue: 205; --chroma: 0.105; --accent-hue: 150; }
+
+/* Bright cyan: the colour of a UV lamp and of most lab software. */
+[data-palette="aqua"] { --hue: 195; --chroma: 0.12; --accent-hue: 280; }
+
+/* Warm amber: Bunsen flame, safety label, lab notebook. */
+[data-palette="ember"] { --hue: 52; --chroma: 0.135; --accent-hue: 250; --neutral-chroma: 0.008; }
+
+/* Copper and rust: older instruments, brass fittings. */
+[data-palette="copper"] { --hue: 38; --chroma: 0.11; --accent-hue: 210; --neutral-chroma: 0.01; }
+
+/* Crimson: hazard, urgency. Hard to live with, worth seeing once. */
+[data-palette="crimson"] { --hue: 22; --chroma: 0.14; --accent-hue: 230; }
+
+/* Plum: distinctive, slightly editorial. */
+[data-palette="plum"] { --hue: 330; --chroma: 0.11; --accent-hue: 190; }
+
+/* Violet-graphite. The ops console uses it by default. */
+[data-palette="graphite"] { --hue: 286; --chroma: 0.095; --accent-hue: 200; }
+
+/* Almost no brand colour: a near-neutral, for judging the layout alone. */
+[data-palette="slate"] { --hue: 240; --chroma: 0.028; --accent-hue: 220; --neutral-chroma: 0.004; }
+
+/* Monochrome. Primary goes near-black rather than mid-grey, which a plain
+   chroma of zero would otherwise give. The dark-theme block below overrides
+   it again, so dark mode keeps a legible light-on-dark button. */
+[data-palette="ink"] {
+  --hue: 0;
+  --chroma: 0.004;
+  --neutral-chroma: 0;
+  --accent-hue: 0;
+  --primary: var(--neutral-900);
+  --primary-hover: var(--neutral-800);
+  --primary-subtle: var(--neutral-100);
+  --primary-subtle-fg: var(--neutral-900);
+  --accent: var(--neutral-700);
+  --accent-subtle: var(--neutral-100);
 }
 
-/* Cool clinical blue: instrument panels, hospital, calibration. */
-:root[data-palette="clinical"] {
-  --hue: 244;
-  --chroma: 0.115;
-  --accent-hue: 195;
-  --neutral-chroma: 0.005;
-}
+/* ------------------------------------------------------------------ shape */
+/* A pill is a shape decision too, so "sharp" squares those off as well.
+   Tailwind's own `rounded-full` is untouched, which keeps avatars round. */
+[data-radius="sharp"] { --radius-unit: 0; --radius-full: 2px; }
+[data-radius="soft"] { --radius-unit: 1; --radius-full: 9999px; }
+[data-radius="round"] { --radius-unit: 2.4; --radius-full: 9999px; }
 
-/* Warm amber: Bunsen flame, safety orange, lab notebook. */
-:root[data-palette="ember"] {
-  --hue: 52;
-  --chroma: 0.135;
-  --accent-hue: 250;
-  --neutral-chroma: 0.008;
-}
-
-/* Deep violet-graphite, used by the ops console by default. */
-:root[data-palette="graphite"] {
-  --hue: 286;
-  --chroma: 0.095;
-  --accent-hue: 200;
-}
+/* ------------------------------------------------------------------ depth */
+[data-depth="flat"] { --depth: 0; }
+[data-depth="raised"] { --depth: 1; }
+[data-depth="lifted"] { --depth: 2.4; }
 
 /* ------------------------------------------------------------------- dark */
 @media (prefers-color-scheme: dark) {
@@ -218,18 +255,103 @@
   --ring: var(--brand-400);
 
   --scrim: oklch(0.05 0 0 / 0.6);
-  --shadow-sm: 0 1px 2px oklch(0 0 0 / 0.4);
-  --shadow-md: 0 4px 12px oklch(0 0 0 / 0.45);
-  --shadow-lg: 0 12px 32px oklch(0 0 0 / 0.55);
+  --shadow-sm: 0 1px 2px oklch(0 0 0 / calc(0.4 * var(--depth)));
+  --shadow-md: 0 4px 12px oklch(0 0 0 / calc(0.45 * var(--depth)));
+  --shadow-lg: 0 12px 32px oklch(0 0 0 / calc(0.55 * var(--depth)));
 }
 
-/* --------------------------------------------------------------- variants */
-:root[data-font="plex"] {
+/* -------------------------------------------------------------- typefaces */
+/*
+ * Some options change only the display face. Serif headings over a sans body
+ * is the "academic dossier" look of mockup S3, and reads very differently
+ * from the same page set entirely in Inter.
+ */
+[data-font="inter"] {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-sans);
+}
+
+[data-font="plex"] {
   --font-sans: var(--font-plex), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-sans);
 }
 
-:root[data-density="compact"] {
+[data-font="grotesk"] {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-grotesk), var(--font-inter), sans-serif;
+}
+
+[data-font="serif"] {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-serif), Georgia, "Times New Roman", serif;
+}
+
+[data-font="system"] {
+  --font-sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-sans);
+}
+
+/* A display face wants its own tracking; Inter and Plex do not. */
+[data-font="serif"] h1,
+[data-font="serif"] h2,
+[data-font="serif"] h3,
+[data-font="serif"] h4 {
+  letter-spacing: -0.005em;
+}
+
+[data-font="grotesk"] h1,
+[data-font="grotesk"] h2 {
+  letter-spacing: -0.03em;
+}
+
+/* ---------------------------------------------------------------- density */
+[data-density="comfortable"] {
+  --row-py: 0.75rem;
+  --card-p: 1.25rem;
+  --control-h: 2.5rem;
+}
+
+[data-density="compact"] {
   --row-py: 0.45rem;
   --card-p: 0.875rem;
   --control-h: 2.125rem;
+}
+
+[data-density="roomy"] {
+  --row-py: 1.05rem;
+  --card-p: 1.75rem;
+  --control-h: 2.875rem;
+}
+
+/* --------------------------------------------------------------- contrast */
+/*
+ * Not a separate theme: it pushes text and borders apart on whichever theme is
+ * active. Useful both for accessibility and for judging how much of a design
+ * rests on low-contrast grey.
+ */
+[data-contrast="high"] {
+  --fg: var(--neutral-950);
+  --fg-muted: var(--neutral-700);
+  --fg-subtle: var(--neutral-600);
+  --border: var(--neutral-400);
+  --border-strong: var(--neutral-500);
+}
+
+:root[data-theme="dark"][data-contrast="high"],
+:root[data-contrast="high"][data-theme="dark"] {
+  --fg: var(--neutral-0);
+  --fg-muted: var(--neutral-300);
+  --fg-subtle: var(--neutral-400);
+  --border: oklch(0.45 calc(var(--neutral-chroma) * 2) var(--hue));
+  --border-strong: oklch(0.58 calc(var(--neutral-chroma) * 2.2) var(--hue));
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"])[data-contrast="high"] {
+    --fg: var(--neutral-0);
+    --fg-muted: var(--neutral-300);
+    --fg-subtle: var(--neutral-400);
+    --border: oklch(0.45 calc(var(--neutral-chroma) * 2) var(--hue));
+    --border-strong: oklch(0.58 calc(var(--neutral-chroma) * 2.2) var(--hue));
+  }
 }

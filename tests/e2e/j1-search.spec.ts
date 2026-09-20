@@ -77,10 +77,34 @@ test.describe("J1 discover equipment", () => {
   });
 
   test("every palette renders the home page", async ({ page }) => {
-    for (const palette of ["botanical", "clinical", "ember", "graphite"]) {
+    const palettes = [
+      "botanical", "moss", "clinical", "ocean", "aqua", "ember",
+      "copper", "crimson", "plum", "graphite", "slate", "ink",
+    ];
+    for (const palette of palettes) {
       await page.goto(`/de?palette=${palette}`);
       await expect(page.locator("html")).toHaveAttribute("data-palette", palette);
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     }
+  });
+
+  test("shape, depth, density and contrast all apply from the URL", async ({ page }) => {
+    await page.goto("/de?radius=round&depth=flat&density=roomy&contrast=high&font=serif");
+    const html = page.locator("html");
+    await expect(html).toHaveAttribute("data-radius", "round");
+    await expect(html).toHaveAttribute("data-depth", "flat");
+    await expect(html).toHaveAttribute("data-density", "roomy");
+    await expect(html).toHaveAttribute("data-contrast", "high");
+    await expect(html).toHaveAttribute("data-font", "serif");
+
+    // The choice survives a move to another page, because it is stored.
+    await page.goto("/de/katalog");
+    await expect(page.locator("html")).toHaveAttribute("data-radius", "round");
+  });
+
+  test("an unknown option falls back instead of breaking the page", async ({ page }) => {
+    await page.goto("/de?palette=not-a-palette&radius=weird");
+    await expect(page.locator("html")).toHaveAttribute("data-palette", "botanical");
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   });
 });

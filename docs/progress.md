@@ -161,3 +161,26 @@ Not done: Lighthouse scores were never captured, so the Performance, SEO and
 Accessibility targets in the build instructions are unverified. The page
 timings in the Phase 6 table were measured with `curl` against a production
 build instead.
+
+## Design options, extended
+
+The switcher went from four dimensions to seven, and from four palettes to
+twelve.
+
+* **Palettes**: botanical, moss, clinical, ocean, aqua, ember, copper,
+  crimson, plum, graphite, slate, ink. The last two are near-neutral and
+  monochrome, so a layout can be judged with no brand colour at all.
+* **Typefaces**: Inter, IBM Plex Sans, Space Grotesk headings, Source Serif
+  headings, and the system stack. The display face is separate from the body
+  face, which is what makes the serif option read as an academic dossier
+  rather than a different website.
+* **Shape** (sharp, soft, round), **depth** (flat, raised, lifted),
+  **density** (compact, comfortable, roomy) and **contrast** (normal, high).
+  Each is one multiplier or a small token override, not a second stylesheet.
+* The panel gained a shuffle, a reset and a copy-link button, and now shows
+  each palette as a real swatch rather than a word.
+* `/de/design` lists every option as a link, so combinations can be opened in
+  two tabs and compared.
+
+`npm run screenshots` now produces 109 images, including a `looks/` folder
+that holds shape, depth, typeface and density at a fixed colour.
