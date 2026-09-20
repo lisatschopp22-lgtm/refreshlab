@@ -59,6 +59,11 @@ export default async function DesignPage({ params }: { params: Promise<{ locale:
         <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
         <p className="max-w-2xl text-fg-muted">{t("subtitle")}</p>
         <p className="max-w-2xl text-sm text-fg-subtle">{t("switcherIntro")}</p>
+        <p className="text-sm">
+          <Link href="./design/logo" className="text-primary hover:underline">
+            {locale === "de" ? "Logo-Vorschläge ansehen →" : "See the logo proposals →"}
+          </Link>
+        </p>
       </header>
 
       {/* Every switchable dimension, linkable so two directions can be opened

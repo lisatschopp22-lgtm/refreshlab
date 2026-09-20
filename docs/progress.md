@@ -184,3 +184,21 @@ twelve.
 
 `npm run screenshots` now produces 109 images, including a `looks/` folder
 that holds shape, depth, typeface and density at a fixed colour.
+
+## Logo proposals
+
+Eighteen lockups at `/de/design/logo`, selectable like any other design
+dimension and shown in the real header rather than on a white page.
+
+* **From the reference photograph**: `instrument` (the benchtop device reduced
+  to four parts) and `bench` (the whole scene).
+* **From the equipment itself**: `rotor`, `flask`, `beaker`, `microscope`,
+  `magnifier`, `sprout` (a seedling in a test tube), `molecule`, `hex`.
+* **From what the marketplace does**: `spin` (the cycle alone), `balance`
+  (what an instrument is worth), `tag` (every unit carries a record).
+* **Typographic**: `wordmark`, `brackets`, `lower`, `mono`, plus `badge` for
+  an app icon.
+
+Each mark is drawn on the same 24-unit grid with the same stroke, and the
+gallery shows all of them at 64, 32 and 20 pixels so a favicon candidate can
+be judged. Marks inherit the palette; wordmarks inherit the typeface.

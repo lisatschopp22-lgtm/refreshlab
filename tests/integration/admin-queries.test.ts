@@ -76,7 +76,14 @@ describe("admin queries", () => {
     expect((await adminComments()).length).toBeGreaterThan(0);
     expect((await adminModels()).length).toBeGreaterThan(0);
     expect((await adminOrders()).length).toBeGreaterThan(0);
-    expect((await adminOrganisations()).length).toBe(3);
+
+    // The seeded three must be there. An exact count would break whenever an
+    // end-to-end run has left one of its own behind.
+    const organisations = await adminOrganisations();
+    const slugs = organisations.map((row) => row.slug);
+    expect(slugs).toEqual(
+      expect.arrayContaining(["biorefurb", "lifescience-basel", "epfl-bioengineering"]),
+    );
   });
 
   it("puts proposed models before published ones", async () => {

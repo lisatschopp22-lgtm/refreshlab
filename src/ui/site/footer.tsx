@@ -6,12 +6,14 @@ import { and, eq } from "drizzle-orm";
 import { listCategories } from "@/db/queries/catalogue";
 import { pick } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
-import { Logo } from "./logo";
+import { SwitchableLogo } from "./logo-switchable";
+import { readDesignPrefs } from "@/ui/design-prefs.server";
 
 export async function SiteFooter({ locale }: { locale: Locale }) {
   const t = await getTranslations({ locale, namespace: "footer" });
   const tn = await getTranslations({ locale, namespace: "nav" });
 
+  const prefs = await readDesignPrefs();
   const [pages, categories] = await Promise.all([
     db
       .select({ slug: contentPages.slug, title: contentPages.title })
@@ -27,7 +29,7 @@ export async function SiteFooter({ locale }: { locale: Locale }) {
     <footer className="mt-20 border-t border-border bg-bg-subtle">
       <div className="mx-auto grid max-w-[1200px] gap-8 px-4 py-12 sm:grid-cols-2 lg:grid-cols-4">
         <div className="space-y-3">
-          <Logo />
+          <SwitchableLogo initial={prefs.logo} />
           <p className="max-w-xs text-sm text-fg-muted">{t("tagline")}</p>
         </div>
 

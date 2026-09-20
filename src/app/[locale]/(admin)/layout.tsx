@@ -4,7 +4,8 @@ import { ArrowLeft } from "lucide-react";
 import { requireAdmin } from "@/auth/session";
 import { openReportCount } from "@/domain/moderation";
 import type { Locale } from "@/i18n/routing";
-import { Logo } from "@/ui/site/logo";
+import { SwitchableLogo } from "@/ui/site/logo-switchable";
+import { readDesignPrefs } from "@/ui/design-prefs.server";
 
 export const metadata = { robots: { index: false } };
 
@@ -22,6 +23,7 @@ export default async function AdminLayout({
   const user = await requireAdmin(locale);
   const t = await getTranslations({ locale, namespace: "admin" });
   const openReports = await openReportCount();
+  const prefs = await readDesignPrefs();
 
   const items = [
     { href: `/${locale}/admin`, label: t("overview") },
@@ -44,7 +46,7 @@ export default async function AdminLayout({
       <header className="border-b border-border bg-bg-subtle">
         <div className="mx-auto flex max-w-[1280px] flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
           <Link href={`/${locale}/admin`} className="flex items-center gap-2">
-            <Logo />
+            <SwitchableLogo initial={prefs.logo} />
             <span className="text-xs uppercase tracking-[0.18em] text-fg-subtle">/ ops</span>
           </Link>
           <nav className="flex flex-1 flex-wrap items-center gap-1 text-sm">

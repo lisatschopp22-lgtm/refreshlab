@@ -4,13 +4,15 @@ import { currentUser } from "@/auth/session";
 import { Menu, Search, User } from "lucide-react";
 import type { Locale } from "@/i18n/routing";
 import { ButtonLink } from "../button";
-import { Logo } from "./logo";
+import { SwitchableLogo } from "./logo-switchable";
+import { readDesignPrefs } from "@/ui/design-prefs.server";
 import { LocaleSwitch } from "./locale-switch";
 
 export async function SiteHeader({ locale }: { locale: Locale }) {
   const t = await getTranslations({ locale, namespace: "nav" });
   const tc = await getTranslations({ locale, namespace: "common" });
   const user = await currentUser();
+  const prefs = await readDesignPrefs();
 
   const links = [
     { href: `/${locale}/suche`, label: t("discover") },
@@ -22,7 +24,7 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
     <header className="sticky top-0 z-30 border-b border-border bg-bg/90 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-[1200px] items-center gap-4 px-4">
         <Link href={`/${locale}`} className="shrink-0">
-          <Logo />
+          <SwitchableLogo initial={prefs.logo} />
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">

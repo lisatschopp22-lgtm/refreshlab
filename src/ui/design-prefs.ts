@@ -57,6 +57,32 @@ export type Depth = (typeof depths)[number];
 export const contrasts = ["normal", "high"] as const;
 export type Contrast = (typeof contrasts)[number];
 
+/**
+ * Logo lockups. Mirrors `logoVariants` in ui/site/logo.tsx; a unit test fails
+ * if the two lists drift apart.
+ */
+export const logos = [
+  "wordmark",
+  "brackets",
+  "lower",
+  "mono",
+  "instrument",
+  "rotor",
+  "flask",
+  "spin",
+  "hex",
+  "tag",
+  "bench",
+  "sprout",
+  "balance",
+  "microscope",
+  "magnifier",
+  "molecule",
+  "beaker",
+  "badge",
+] as const;
+export type Logo = (typeof logos)[number];
+
 export type DesignPrefs = {
   palette: Palette;
   theme: Theme;
@@ -65,6 +91,7 @@ export type DesignPrefs = {
   radius: Radius;
   depth: Depth;
   contrast: Contrast;
+  logo: Logo;
 };
 
 export const defaultPrefs: DesignPrefs = {
@@ -76,6 +103,8 @@ export const defaultPrefs: DesignPrefs = {
   radius: "soft",
   depth: "raised",
   contrast: "normal",
+  // The direction the reference photograph pointed at. One click to any other.
+  logo: "instrument",
 };
 
 /** Every switchable dimension, in the order the panel shows them. */
@@ -87,6 +116,7 @@ export const dimensions = {
   radius: radii,
   depth: depths,
   contrast: contrasts,
+  logo: logos,
 } as const satisfies Record<keyof DesignPrefs, readonly string[]>;
 
 export const COOKIE = "rl-design";
@@ -112,6 +142,7 @@ export function parsePrefs(raw: string | undefined): DesignPrefs {
     radius: pick("radius", parts.radius),
     depth: pick("depth", parts.depth),
     contrast: pick("contrast", parts.contrast),
+    logo: pick("logo", parts.logo),
   };
 }
 
@@ -130,6 +161,8 @@ export function prefsToDataset(prefs: DesignPrefs): Record<string, string> {
     "data-radius": prefs.radius,
     "data-depth": prefs.depth,
     "data-contrast": prefs.contrast,
+    // Not a stylesheet selector: the header reads it to pick a component.
+    "data-logo": prefs.logo,
   };
   if (prefs.theme !== "system") dataset["data-theme"] = prefs.theme;
   return dataset;

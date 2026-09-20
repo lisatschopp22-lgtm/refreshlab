@@ -40,7 +40,7 @@ const serif = Source_Serif_4({
 /** Every dimension and every option the switcher can show. */
 function optionLabels(t: (key: string) => string) {
   const keys = [
-    "title", "palette", "theme", "font", "density", "radius", "depth", "contrast",
+    "title", "palette", "theme", "font", "density", "radius", "depth", "contrast", "logo",
     "shuffle", "reset", "copyLink", "close",
     "system", "light", "dark",
     "inter", "plex", "grotesk", "serif",

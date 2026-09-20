@@ -102,6 +102,31 @@ test.describe("J1 discover equipment", () => {
     await expect(page.locator("html")).toHaveAttribute("data-radius", "round");
   });
 
+  test("the chosen logo reaches the header at once and survives navigation", async ({ page }) => {
+    // The mark must change on the first load, not one navigation later.
+    await page.goto("/de?logo=sprout");
+    await expect(page.locator("header [data-mark]")).toHaveAttribute("data-mark", "sprout");
+
+    await page.goto("/de/katalog");
+    await expect(page.locator("header [data-mark]")).toHaveAttribute("data-mark", "sprout");
+
+    await page.goto("/de?logo=balance");
+    await expect(page.locator("header [data-mark]")).toHaveAttribute("data-mark", "balance");
+
+    // A typographic variant draws no mark at all.
+    await page.goto("/de?logo=wordmark");
+    await expect(page.locator("header [data-mark]")).toHaveCount(0);
+    await expect(page.locator("header").getByText("refresh").first()).toBeVisible();
+  });
+
+  test("the logo gallery offers every variant", async ({ page }) => {
+    await page.goto("/de/design/logo");
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("Logo");
+    // 18 lockups, 13 marks at three sizes, 6 stacked, 12 palettes.
+    const links = page.locator('a[href^="?logo="]');
+    await expect(links).toHaveCount(18);
+  });
+
   test("an unknown option falls back instead of breaking the page", async ({ page }) => {
     await page.goto("/de?palette=not-a-palette&radius=weird");
     await expect(page.locator("html")).toHaveAttribute("data-palette", "botanical");

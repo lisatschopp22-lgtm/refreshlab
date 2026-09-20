@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Check, Copy, Palette as PaletteIcon, RotateCcw, Shuffle, X } from "lucide-react";
+import { Logo } from "./site/logo";
 import {
   COOKIE,
   defaultPrefs,
@@ -46,7 +47,7 @@ export function DesignSwitcher({
   }, [searchParams]);
 
   const prefs: DesignPrefs = { ...initial, ...fromUrl, ...chosen };
-  const { palette, theme, font, density, radius, depth, contrast } = prefs;
+  const { palette, theme, font, density, radius, depth, contrast, logo } = prefs;
 
   // Writing to the document element and the cookie is an external system,
   // which is what an effect is for.
@@ -58,12 +59,15 @@ export function DesignSwitcher({
     root.dataset.radius = radius;
     root.dataset.depth = depth;
     root.dataset.contrast = contrast;
+    root.dataset.logo = logo;
     if (theme === "system") delete root.dataset.theme;
     else root.dataset.theme = theme;
 
-    const value = serialisePrefs({ palette, theme, font, density, radius, depth, contrast });
+    const value = serialisePrefs({
+      palette, theme, font, density, radius, depth, contrast, logo,
+    });
     document.cookie = `${COOKIE}=${value};path=/;max-age=31536000;samesite=lax`;
-  }, [palette, theme, font, density, radius, depth, contrast]);
+  }, [palette, theme, font, density, radius, depth, contrast, logo]);
 
   const set = <K extends keyof DesignPrefs>(key: K, value: DesignPrefs[K]) =>
     setChosen((current) => ({ ...current, [key]: value }));
@@ -74,9 +78,10 @@ export function DesignSwitcher({
       const options = dimensions[key] as readonly string[];
       (next as Record<string, string>)[key] = options[Math.floor(Math.random() * options.length)]!;
     }
-    // Leave the light/dark choice alone: shuffling it is disorienting rather
-    // than informative.
+    // Leave light/dark and the logo alone: shuffling those is disorienting
+    // rather than informative.
     next.theme = theme;
+    next.logo = logo;
     setChosen(next);
   };
 
@@ -195,6 +200,33 @@ export function DesignSwitcher({
               <p className="text-[0.6875rem] capitalize text-fg-subtle">
                 {labels[palette] ?? palette}
               </p>
+            </div>
+
+            <div className="space-y-1.5">
+              <p className="text-[0.6875rem] font-medium uppercase tracking-wide text-fg-subtle">
+                {labels.logo}
+              </p>
+              {/* Each option renders the lockup itself, so the choice is made
+                  by looking rather than by reading a name. */}
+              <div className="grid grid-cols-2 gap-1">
+                {(dimensions.logo as readonly string[]).map((value) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => set("logo", value as DesignPrefs["logo"])}
+                    aria-pressed={logo === value}
+                    aria-label={value}
+                    className={cn(
+                      "flex items-center justify-center overflow-hidden rounded-[var(--radius-sm)] border px-1 py-1.5 transition-colors",
+                      logo === value
+                        ? "border-[var(--primary)] bg-primary-subtle"
+                        : "border-border hover:bg-bg-subtle",
+                    )}
+                  >
+                    <Logo variant={value as DesignPrefs["logo"]} size="sm" className="scale-[0.72]" />
+                  </button>
+                ))}
+              </div>
             </div>
 
             {chips("theme", labels.theme!)}
