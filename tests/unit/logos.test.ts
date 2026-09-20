@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { logos } from "@/ui/design-prefs";
 import { logoVariants, markFor, defaultLogo } from "@/ui/site/logo";
-import { markNames } from "@/ui/site/logo-marks";
+import { markNames, markViewBox } from "@/ui/site/logo-marks";
 
 describe("logo variants", () => {
   it("keeps the switcher list and the component list in step", () => {
@@ -33,11 +33,28 @@ describe("logo variants", () => {
     expect(logoVariants).toContain(defaultLogo);
   });
 
-  it("draws each mark on the same 24-unit grid", () => {
-    // Mixed viewBoxes make marks look different sizes beside each other.
+  it("draws every mark at the same height, whatever its width", () => {
+    // A shared height is what makes marks look the same size beside each
+    // other; a shared width would squash anything that is not square.
     const source = readFileSync("src/ui/site/logo-marks.tsx", "utf8");
-    const boxes = [...source.matchAll(/viewBox="([^"]+)"/g)].map((match) => match[1]);
-    expect(boxes.length).toBe(markNames.length);
-    expect(new Set(boxes)).toEqual(new Set(["0 0 24 24"]));
+    const drawn = [...source.matchAll(/<svg viewBox="([^"]+)"/g)].map((match) => match[1]!);
+    expect(drawn.length).toBe(markNames.length);
+
+    for (const box of drawn) {
+      const [minX, minY, width, height] = box.split(" ").map(Number);
+      expect([minX, minY]).toEqual([0, 0]);
+      expect(height).toBe(24);
+      expect(width).toBeGreaterThanOrEqual(24);
+      expect(width).toBeLessThanOrEqual(40);
+    }
+  });
+
+  it("declares a viewBox for every mark it draws", () => {
+    const source = readFileSync("src/ui/site/logo-marks.tsx", "utf8");
+    const drawn = [...source.matchAll(/<svg viewBox="([^"]+)"/g)].map((match) => match[1]!);
+    for (const name of markNames) {
+      expect(markViewBox[name], name).toBeTruthy();
+      expect(drawn, name).toContain(markViewBox[name]);
+    }
   });
 });

@@ -20,12 +20,44 @@ export const markNames = [
   "magnifier",
   "molecule",
   "beaker",
+  "pipette",
 ] as const;
 export type MarkName = (typeof markNames)[number];
 
 type MarkProps = { className?: string; title?: string };
 
-const svg = "h-full w-full";
+/**
+ * Most marks are a single object and sit on a 24 × 24 grid. The bench scene is
+ * a figure beside a rack, which is genuinely wider; squeezing it into a square
+ * distorts it. Marks therefore share a height of 24 and declare their own
+ * width, and are laid out by height so proportions survive.
+ */
+export const markViewBox: Record<MarkName, string> = {
+  instrument: "0 0 24 24",
+  rotor: "0 0 24 24",
+  flask: "0 0 24 24",
+  spin: "0 0 24 24",
+  hex: "0 0 24 24",
+  tag: "0 0 24 24",
+  bench: "0 0 24 24",
+  sprout: "0 0 24 24",
+  balance: "0 0 24 24",
+  microscope: "0 0 24 24",
+  magnifier: "0 0 24 24",
+  molecule: "0 0 24 24",
+  beaker: "0 0 24 24",
+  pipette: "0 0 26 24",
+};
+
+/** Width ÷ height, for laying a mark out beside the wordmark. */
+export const markAspect: Record<MarkName, number> = Object.fromEntries(
+  (Object.entries(markViewBox) as [MarkName, string][]).map(([name, box]) => {
+    const [, , width, height] = box.split(" ").map(Number);
+    return [name, width! / height!];
+  }),
+) as Record<MarkName, number>;
+
+const svg = "h-full w-auto";
 const stroke = {
   fill: "none",
   stroke: "currentColor",
@@ -197,6 +229,43 @@ function Beaker({ className }: MarkProps) {
   );
 }
 
+/**
+ * The scientist at the bench, from the silhouette sheet: head and shoulders, a
+ * forearm holding a pipette, two tubes in a rack. Drawn as a solid silhouette
+ * rather than a line, both because the reference is one and because a
+ * silhouette is what reverses cleanly out of a filled tile.
+ */
+function Pipette({ className }: MarkProps) {
+  return (
+    <svg viewBox="0 0 26 24" className={cn(svg, className)} aria-hidden="true">
+      <g fill="currentColor">
+        {/* head with a bob */}
+        <path d="M7.6 1.9a3.3 3.3 0 0 1 3.3 3.3v2.7a1.1 1.1 0 0 1-1.1 1.1H5.4a1.1 1.1 0 0 1-1.1-1.1V5.2a3.3 3.3 0 0 1 3.3-3.3Z" />
+        {/* neck */}
+        <path d="M6.5 8.4h2.3v3.6H6.5z" />
+        {/* shoulders and torso */}
+        <path d="M1.8 23v-5.5a5.8 5.8 0 0 1 11.6 0V23z" />
+        {/* pipette: plunger, barrel, tapered tip */}
+        <rect x="16.2" y="3.8" width="2.4" height="1.9" rx="0.6" />
+        <path d="M16.3 6a.7.7 0 0 1 .7-.7h.8a.7.7 0 0 1 .7.7v6.8h-2.2z" />
+        <path d="M16.6 12.7h1.6l-.45 3h-.7z" />
+        {/* two tubes in a rack, the left one under the pipette */}
+        <path d="M16.1 16.6h2.6v3.7a1.3 1.3 0 0 1-2.6 0z" />
+        <path d="M19.9 16.6h2.6v3.7a1.3 1.3 0 0 1-2.6 0z" />
+        <rect x="15" y="21.4" width="8.6" height="1.5" rx="0.7" />
+      </g>
+      {/* forearm, leaving the shoulder and angling down to the pipette */}
+      <path
+        d="M11.7 12.3 16.4 13.4"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.7"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 const marks: Record<MarkName, (props: MarkProps) => React.ReactElement> = {
   instrument: Instrument,
   rotor: Rotor,
@@ -211,6 +280,7 @@ const marks: Record<MarkName, (props: MarkProps) => React.ReactElement> = {
   magnifier: Magnifier,
   molecule: Molecule,
   beaker: Beaker,
+  pipette: Pipette,
 };
 
 export function LogoMark({

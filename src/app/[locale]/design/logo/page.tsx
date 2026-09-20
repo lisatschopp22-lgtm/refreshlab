@@ -82,6 +82,14 @@ const rationale: Record<LogoVariant, { de: string; en: string }> = {
     de: "Zeichen in einer gefüllten Kachel, für App-Icon und Favicon.",
     en: "The mark in a filled tile, for an app icon and a favicon.",
   },
+  pipette: {
+    de: "Die pipettierende Person aus der Vorlage. Menschen statt Geräte.",
+    en: "The person pipetting, from the reference. People rather than equipment.",
+  },
+  "pipette-badge": {
+    de: "Dieselbe Figur negativ: die Fläche ringsum trägt die Farbe.",
+    en: "The same figure reversed: the colour surrounds her instead of forming her.",
+  },
 };
 
 export default async function LogoPage({ params }: { params: Promise<{ locale: string }> }) {
@@ -179,7 +187,7 @@ export default async function LogoPage({ params }: { params: Promise<{ locale: s
         description={de ? "Für quadratische Flächen." : "For square spaces."}
       >
         <ul className="flex flex-wrap gap-3">
-          {(["instrument", "rotor", "sprout", "balance", "molecule", "spin"] as const).map(
+          {(["instrument", "rotor", "sprout", "pipette", "pipette-badge", "molecule"] as const).map(
             (variant) => (
               <li key={variant}>
                 <Card>

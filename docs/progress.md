@@ -196,6 +196,9 @@ dimension and shown in the real header rather than on a white page.
   `magnifier`, `sprout` (a seedling in a test tube), `molecule`, `hex`.
 * **From what the marketplace does**: `spin` (the cycle alone), `balance`
   (what an instrument is worth), `tag` (every unit carries a record).
+* **From the people**: `pipette`, the scientist at the bench from the
+  silhouette sheet, and `pipette-badge`, the same figure reversed out of a
+  filled rounded tile so the colour surrounds her.
 * **Typographic**: `wordmark`, `brackets`, `lower`, `mono`, plus `badge` for
   an app icon.
 

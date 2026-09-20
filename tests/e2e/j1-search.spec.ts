@@ -122,9 +122,9 @@ test.describe("J1 discover equipment", () => {
   test("the logo gallery offers every variant", async ({ page }) => {
     await page.goto("/de/design/logo");
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Logo");
-    // 18 lockups, 13 marks at three sizes, 6 stacked, 12 palettes.
+    // Every lockup is offered as a link; the count follows the component.
     const links = page.locator('a[href^="?logo="]');
-    await expect(links).toHaveCount(18);
+    await expect(links).toHaveCount(20);
   });
 
   test("an unknown option falls back instead of breaking the page", async ({ page }) => {

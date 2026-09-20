@@ -556,7 +556,9 @@
     "ink": "Tusche",
     "shape": "Form",
     "switcherIntro": "Unten rechts lassen sich Palette, Darstellung, Schrift, Form, Tiefe, Dichte und Kontrast umschalten. Jede Seite akzeptiert dieselben Werte als Query-Parameter, etwa ?palette=pflaume&font=serif, sodass sich zwei Richtungen in zwei Tabs nebeneinander öffnen lassen.",
-    "logo": "Logo"
+    "logo": "Logo",
+    "pipette": "Pipettieren",
+    "pipette-badge": "Pipettieren negativ"
   },
   "humour": {
     "heroKicker": "Forschung verdient ein zweites Leben",

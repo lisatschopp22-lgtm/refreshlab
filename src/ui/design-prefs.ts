@@ -79,7 +79,9 @@ export const logos = [
   "magnifier",
   "molecule",
   "beaker",
+  "pipette",
   "badge",
+  "pipette-badge",
 ] as const;
 export type Logo = (typeof logos)[number];
 

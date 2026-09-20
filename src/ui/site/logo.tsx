@@ -30,8 +30,10 @@ export const logoVariants = [
   "magnifier",
   "molecule",
   "beaker",
-  // Mark in a filled badge
+  "pipette",
+  // Mark reversed out of a filled tile
   "badge",
+  "pipette-badge",
 ] as const;
 export type LogoVariant = (typeof logoVariants)[number];
 
@@ -41,14 +43,24 @@ export const defaultLogo: LogoVariant = "instrument";
 export function markFor(variant: LogoVariant): MarkName | null {
   if ((markNames as readonly string[]).includes(variant)) return variant as MarkName;
   if (variant === "badge") return "rotor";
+  if (variant === "pipette-badge") return "pipette";
   return null;
 }
 
+/** Tile variants reverse the mark out of a filled rounded rectangle. */
+export function isBadge(variant: LogoVariant) {
+  return variant === "badge" || variant === "pipette-badge";
+}
+
+/**
+ * A mark is sized by height and lets its width follow, so the wide bench scene
+ * is not squashed into the same square as a flask.
+ */
 const sizes = {
-  sm: { text: "text-base", mark: "size-5", gap: "gap-1.5" },
-  md: { text: "text-lg", mark: "size-6", gap: "gap-2" },
-  lg: { text: "text-2xl", mark: "size-8", gap: "gap-2.5" },
-  xl: { text: "text-4xl", mark: "size-12", gap: "gap-3" },
+  sm: { text: "text-base", mark: "h-5", tile: "h-7 p-1.5", gap: "gap-1.5" },
+  md: { text: "text-lg", mark: "h-6", tile: "h-8 p-1.5", gap: "gap-2" },
+  lg: { text: "text-2xl", mark: "h-8", tile: "h-11 p-2", gap: "gap-2.5" },
+  xl: { text: "text-4xl", mark: "h-12", tile: "h-16 p-2.5", gap: "gap-3" },
 } as const;
 export type LogoSize = keyof typeof sizes;
 
@@ -107,11 +119,13 @@ export function Logo({
   return (
     <span className={cn("inline-flex items-center", scale.gap, className)}>
       {mark ? (
-        variant === "badge" ? (
+        isBadge(variant) ? (
+          // The tile is filled and the figure is knocked out of it, so the
+          // colour surrounds the subject rather than forming it.
           <span
             className={cn(
-              "inline-flex items-center justify-center rounded-[var(--radius-md)] bg-primary p-1 text-primary-fg",
-              scale.mark,
+              "inline-flex items-center justify-center rounded-[var(--radius-lg)] bg-primary text-primary-fg",
+              scale.tile,
             )}
           >
             <LogoMark name={mark} />
@@ -139,9 +153,15 @@ export function LogoStacked({
   return (
     <span className={cn("inline-flex flex-col items-center gap-2", className)}>
       {mark ? (
-        <span className="inline-flex size-10 text-primary">
-          <LogoMark name={mark} />
-        </span>
+        isBadge(variant) ? (
+          <span className="inline-flex h-12 items-center justify-center rounded-[var(--radius-lg)] bg-primary p-2 text-primary-fg">
+            <LogoMark name={mark} />
+          </span>
+        ) : (
+          <span className="inline-flex h-10 text-primary">
+            <LogoMark name={mark} />
+          </span>
+        )
       ) : null}
       <Wordmark variant={variant} className="text-lg" />
     </span>

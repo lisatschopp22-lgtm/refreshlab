@@ -76,7 +76,7 @@ reset it, and copy a link that reproduces exactly what is on screen.
 | `depth` | `flat`, `raised`, `lifted` |
 | `density` | `compact`, `comfortable`, `roomy` |
 | `contrast` | `normal`, `high` |
-| `logo` | 18 lockups, see [`/de/design/logo`](http://localhost:3000/de/design/logo) |
+| `logo` | 20 lockups, see [`/de/design/logo`](http://localhost:3000/de/design/logo) |
 
 ```
 http://localhost:3000/de/design?palette=plum&font=serif&radius=round&depth=lifted
@@ -89,9 +89,9 @@ be opened side by side in two tabs.
 
 ### Logo
 
-[`/de/design/logo`](http://localhost:3000/de/design/logo) holds eighteen
-proposals: thirteen marks drawn on one 24-unit grid, four typographic
-treatments and a filled badge for an app icon. Choosing one puts it in the
+[`/de/design/logo`](http://localhost:3000/de/design/logo) holds twenty
+proposals: fourteen marks, four typographic treatments and two reversed tiles
+where the colour surrounds the subject instead of forming it. Choosing one puts it in the
 header and footer of the whole site, so it is judged where it will sit rather
 than on a white page. The marks inherit the active palette and the wordmarks
 inherit the active typeface.
