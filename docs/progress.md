@@ -205,3 +205,23 @@ dimension and shown in the real header rather than on a white page.
 Each mark is drawn on the same 24-unit grid with the same stroke, and the
 gallery shows all of them at 64, 32 and 20 pixels so a favicon candidate can
 be judged. Marks inherit the palette; wordmarks inherit the typeface.
+
+## Real photographs
+
+`npm run images:fetch` replaces the generated placeholders with real
+laboratory-equipment photographs, which is the difference between judging a
+layout and judging how the site feels.
+
+* **Wikimedia Commons by default**, searched per equipment category, so a
+  centrifuge listing shows a centrifuge. 95 images across all twelve
+  categories, every one openly licensed, with licence and author recorded.
+* **labfinder.ch with `--source labfinder`**, as suggested. That site turns
+  out to be a directory rather than a catalogue: 40 product pages yielded 21
+  distinct photographs, most of them repeated sponsor blocks. Those images are
+  also not ours to publish.
+* Nothing is committed. The cache and manifest are gitignored and the
+  placeholders stay the default, so a fresh clone still works offline.
+* `npm run images:clear` removes them again.
+
+Both crawlers identify themselves, respect the robots policy and pace their
+requests. No personal contact details are sent to either site.

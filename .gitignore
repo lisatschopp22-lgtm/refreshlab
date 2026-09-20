@@ -16,6 +16,11 @@ screenshots/
 supabase/.temp/
 supabase/.branches/
 
+# Third-party reference photographs fetched for local design comping only.
+# Not ours to redistribute, so they never enter the repository.
+supabase/reference-cache/
+supabase/reference-images.json
+
 # OS / editor
 .DS_Store
 .vscode/

@@ -9,6 +9,7 @@ import { models as modelSeed } from "./seed/model-data";
 import { organisations as orgSeed, people } from "./seed/people-data";
 import { contentPages } from "./seed/content-data";
 import { clearStorageFolder, placeholderSvg, uploadSvg, type Variant } from "./seed/images";
+import { loadReferenceImages, pickImages } from "./seed/reference-images";
 import { uniqueSlug } from "@/domain/slug";
 import { calculateFee, defaultFeeRule } from "@/domain/fees";
 import { defaultFlags } from "@/domain/flags";
@@ -39,6 +40,16 @@ const daysAgo = (days: number) => new Date(Date.now() - days * 86_400_000);
 const NOW_YEAR = 2026;
 const args = process.argv.slice(2);
 const listingTarget = Number(args[args.indexOf("--listings") + 1]) || 150;
+
+/**
+ * --images reference uses the photographs fetched by `npm run images:fetch`.
+ * Without them, or without the flag, the seed draws its own placeholders.
+ */
+const wantsReference = args[args.indexOf("--images") + 1] === "reference";
+const reference = wantsReference ? loadReferenceImages() : null;
+if (wantsReference && !reference) {
+  console.warn("! no reference images found — run `npm run images:fetch` first");
+}
 
 // ------------------------------------------------------------------- pricing
 const conditionFactor = { new: 1, like_new: 0.9, good: 0.78, fair: 0.6, for_parts: 0.24 } as const;
@@ -224,20 +235,27 @@ async function main() {
       detail: `models/${slug}-detail.svg`,
       plate: `models/${slug}-plate.svg`,
     };
-    for (const variant of ["front", "detail", "plate"] as Variant[]) {
-      await uploadSvg(
-        paths[variant],
-        placeholderSvg({
-          icon: category.icon,
-          hue,
-          manufacturer: manufacturer.name,
-          model: m.name,
-          categoryLabel: category.name.de,
-          variant,
-          reference: recordNumber,
-        }),
-      );
+
+    if (!reference) {
+      for (const variant of ["front", "detail", "plate"] as Variant[]) {
+        await uploadSvg(
+          paths[variant],
+          placeholderSvg({
+            icon: category.icon,
+            hue,
+            manufacturer: manufacturer.name,
+            model: m.name,
+            categoryLabel: category.name.de,
+            variant,
+            reference: recordNumber,
+          }),
+        );
+      }
     }
+
+    const modelImage = reference
+      ? pickImages(reference, m.category, index, 1)[0]!.path
+      : paths.front;
 
     const [row] = await db
       .insert(s.equipmentModels)
@@ -255,7 +273,7 @@ async function main() {
         },
         specs: m.specs,
         accessories: m.accessories ?? [],
-        imagePath: paths.front,
+        imagePath: modelImage,
         yearIntroduced: m.year,
         discontinued: m.discontinued ?? false,
         manufacturerVerifiedAt: chance(0.55) ? daysAgo(intBetween(20, 300)) : null,
@@ -271,7 +289,7 @@ async function main() {
       category: m.category,
       listPriceChf: m.listPriceChf,
       year: m.year,
-      imagePath: paths.front,
+      imagePath: modelImage,
     });
   }
 
@@ -371,15 +389,23 @@ async function main() {
     });
 
     const imageCount = intBetween(2, 3);
-    const variants: Variant[] = (["front", "detail", "plate"] as Variant[]).slice(0, imageCount);
-    await db.insert(s.listingImages).values(
-      variants.map((variant, order) => ({
-        listingId: row!.id,
-        storagePath: `models/${model.slug}-${variant}.svg`,
-        alt: `${title} – ${variant === "front" ? "Gesamtansicht" : variant === "detail" ? "Detailansicht" : "Typenschild"}`,
-        sortOrder: order,
-      })),
-    );
+    const views = ["Gesamtansicht", "Detailansicht", "Typenschild"];
+
+    const images = reference
+      ? pickImages(reference, model.category, i, imageCount).map((image, order) => ({
+          listingId: row!.id,
+          storagePath: image.path,
+          alt: `${title} – ${views[order]}`,
+          sortOrder: order,
+        }))
+      : (["front", "detail", "plate"] as Variant[]).slice(0, imageCount).map((variant, order) => ({
+          listingId: row!.id,
+          storagePath: `models/${model.slug}-${variant}.svg`,
+          alt: `${title} – ${views[order]}`,
+          sortOrder: order,
+        }));
+
+    await db.insert(s.listingImages).values(images);
 
     if (chance(0.45)) {
       await db.insert(s.listingAttachments).values({

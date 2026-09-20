@@ -53,6 +53,8 @@ Every seeded account uses the password `refreshlab`.
 | `npm run db:reset` | Wipe, migrate and re-seed |
 | `npm run db:generate` | Generate a migration after a schema change |
 | `npm run db:seed -- --listings 5000` | Re-seed with a larger catalogue |
+| `npm run images:fetch` | Fetch real equipment photographs (see below) |
+| `npm run images:clear` | Remove them and go back to the placeholders |
 | `npm run screenshots` | Every key screen in every palette, into `screenshots/` |
 | `npm run db:studio` | Drizzle Studio |
 
@@ -95,6 +97,28 @@ where the colour surrounds the subject instead of forming it. Choosing one puts 
 header and footer of the whole site, so it is judged where it will sit rather
 than on a white page. The marks inherit the active palette and the wordmarks
 inherit the active typeface.
+
+## Real photographs instead of placeholders
+
+The seed draws its own technical placeholders, which is enough to judge layout
+but not to judge how the site feels. To use real equipment photographs:
+
+```bash
+npm run images:fetch          # Wikimedia Commons, searched per category
+npm run db:seed -- --images reference
+```
+
+Two sources, because they differ in what you may do with the result:
+
+| `--source` | What it is | May it be published? |
+|---|---|---|
+| `commons` (default) | Wikimedia Commons, searched per equipment category, so a centrifuge listing gets a centrifuge. Licence and author recorded per image. | Yes, with attribution. |
+| `labfinder` | Product photographs from labfinder.ch. | **No.** Local comping only. |
+
+Neither is committed: the cache and the manifest are gitignored, and the
+generated placeholders stay the default, so a fresh clone never depends on
+someone else's pictures. `supabase/reference-images.json` records the source
+page, licence and author of every image. `npm run images:clear` removes them.
 
 ## Comparing designs
 
