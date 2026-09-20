@@ -118,3 +118,26 @@ http://localhost:3000/de/admin
 
 J5 passes as four Playwright tests, including that every moderation action
 lands in the audit log and that an admin cannot lock themselves out.
+
+## Phase 6 — Test harness and design experiments ✓
+
+* All five journeys run as 20 Playwright tests, on top of 59 unit and
+  integration tests. The suite re-seeds first, so it is repeatable.
+* Flags moved from environment-only to admin settings with an environment
+  override, so a behaviour can be switched while the prototype is running.
+  The fee rule is editable in the same screen, with a worked example table.
+* `npm run screenshots` produces 63 images: every key screen in four palettes,
+  light and dark, plus mobile widths.
+* Volume tested at 5,000 listings. Removing two redundant ILIKE clauses from
+  the search predicate, which were forcing a sequential scan, took text search
+  from 860 ms to 180 ms in a production build. `SEARCH_DEBUG=1` prints the
+  timing of each part of a search.
+
+Measured in a production build, 5,000 listings, warm:
+
+| Page | Time |
+|---|---|
+| Home | 55 ms |
+| Search, facet filter only | 40 ms |
+| Search, text query | 180 ms |
+| Catalogue feed, text query | 150 ms |

@@ -53,6 +53,7 @@ Every seeded account uses the password `refreshlab`.
 | `npm run db:reset` | Wipe, migrate and re-seed |
 | `npm run db:generate` | Generate a migration after a schema change |
 | `npm run db:seed -- --listings 5000` | Re-seed with a larger catalogue |
+| `npm run screenshots` | Every key screen in every palette, into `screenshots/` |
 | `npm run db:studio` | Drizzle Studio |
 
 ## Design: palettes are not decided
@@ -73,21 +74,48 @@ http://localhost:3000/de/design?palette=ember&theme=dark&density=compact
 Appearance (`light`/`dark`/`system`), typeface (Inter or IBM Plex Sans) and
 density are switchable the same way.
 
+## Comparing designs
+
+`npm run screenshots` writes every key screen in all four palettes, light and
+dark, plus mobile widths, into `screenshots/`. That is the quickest way to put
+two directions side by side.
+
 ## Open questions and flags
 
-Behaviours that are still undecided sit behind flags in
-[`src/domain/flags.ts`](src/domain/flags.ts) so alternatives can be compared
-rather than argued about: `offersEnabled`, `buyNowEnabled`,
-`requireListingReview`, `commentsOnListings`, `showPriceRangeOnModel`,
-`buyerConfirmsReceipt`, `showDesignSwitcher`.
+Behaviours that are still undecided sit behind flags so alternatives can be
+compared rather than argued about. Change them in **Admin → Settings**
+(`/de/admin/einstellungen`), or override any of them with an environment
+variable, which always wins.
+
+| Flag | Environment variable | What it decides |
+|---|---|---|
+| `offersEnabled` | `FLAG_OFFERS` | Whether buyers can negotiate at all |
+| `buyNowEnabled` | `FLAG_BUY_NOW` | Whether a fixed-price purchase skips negotiation |
+| `requireListingReview` | `FLAG_LISTING_REVIEW` | Whether new listings need approval before going public |
+| `commentsOnListings` | `FLAG_LISTING_COMMENTS` | Public Q&A on a unit, as well as on the model |
+| `showPriceRangeOnModel` | `FLAG_PRICE_RANGE` | Whether the market price range is shown |
+| `buyerConfirmsReceipt` | `FLAG_BUYER_CONFIRMS` | Whether the buyer or an admin releases the payout |
+| `showDesignSwitcher` | `FLAG_DESIGN_SWITCHER` | The prototype-only palette control |
+
+The fee rule is editable in the same screen, with a table showing what the
+current setting means for sales from CHF 500 to CHF 500,000.
 
 Decisions taken while building are logged in
-[`docs/decisions.md`](docs/decisions.md).
+[`docs/decisions.md`](docs/decisions.md), and what each phase delivered is in
+[`docs/progress.md`](docs/progress.md).
 
 ## Notes
 
 * Payments are simulated by default (`PAYMENT_PROVIDER=fake`). No money moves.
+  Set `PAYMENT_PROVIDER=stripe` with a test-mode key to use Stripe Connect, and
+  forward webhooks with `stripe listen --forward-to localhost:3000/api/webhooks/stripe`.
+* All outgoing mail lands in Mailpit at http://127.0.0.1:54324.
+* `npm run e2e` re-seeds the database first, because the journeys buy and sell
+  real rows. Use `E2E_SKIP_SEED=1` to keep your own data while iterating.
 * Search runs on Postgres full-text plus trigram typo tolerance, behind a
   `SearchProvider` interface so Algolia or Typesense can replace it later.
+  `SEARCH_DEBUG=1` logs how long each part of a search takes. Measured in a
+  production build with 5,000 listings: home 55 ms, faceted search 40 ms,
+  text search 180 ms.
 * All data access is server-side through Drizzle. There is no row-level
   security in the prototype; authorisation lives in `src/domain/permissions.ts`.

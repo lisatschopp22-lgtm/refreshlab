@@ -5,7 +5,13 @@ const baseURL = process.env.E2E_BASE_URL ?? "http://localhost:3000";
 export default defineConfig({
   testDir: "./tests/e2e",
   globalSetup: "./tests/e2e/global-setup.ts",
-  testIgnore: ["**/global-setup.ts", "**/personas.ts"],
+  // Screenshots are a design tool, not a gate, so they stay out of the default
+  // run. `npm run screenshots` sets SCREENSHOTS=1 to include them.
+  testIgnore: [
+    "**/global-setup.ts",
+    "**/personas.ts",
+    ...(process.env.SCREENSHOTS === "1" ? [] : ["**/screenshots.spec.ts"]),
+  ],
   fullyParallel: false,
   workers: 1,
   retries: 0,

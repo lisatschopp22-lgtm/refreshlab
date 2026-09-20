@@ -15,6 +15,7 @@
     "check:colors": "node scripts/check-colors.mjs",
     "e2e": "playwright test",
     "e2e:ui": "playwright test --ui",
+    "screenshots": "SCREENSHOTS=1 E2E_SKIP_SEED=1 playwright test tests/e2e/screenshots.spec.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx src/db/migrate.ts",
     "db:seed": "tsx src/db/seed.ts",

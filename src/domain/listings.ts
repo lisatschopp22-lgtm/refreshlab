@@ -6,7 +6,7 @@ import type { SessionUser } from "@/auth/session";
 import { assert, canEditListing, canPublishListing } from "./permissions";
 import { enqueue, recordAudit } from "./audit";
 import { slugify, uniqueSlug } from "./slug";
-import { flagsFromEnv } from "./flags";
+import { flags as readFlags } from "./settings";
 
 export type ListingDraftInput = {
   modelId: string;
@@ -150,7 +150,7 @@ export async function publishListing(user: SessionUser, listingId: string) {
   if (problems.length) return { ok: false as const, problems };
 
   // Whether new listings need approval is still an open question, so it is a flag.
-  const requiresReview = flagsFromEnv().requireListingReview && user.role !== "admin";
+  const requiresReview = (await readFlags()).requireListingReview && user.role !== "admin";
   const [row] = await db
     .update(listings)
     .set({

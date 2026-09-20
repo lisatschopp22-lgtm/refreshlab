@@ -29,3 +29,6 @@ One line per decision: date · decision · why. Started 2026-09-19.
 - 2026-09-20 · Merging a model moves its listings and leaves a pointer · The duplicate keeps `merged_into_id` so old links still resolve, and every moved listing is re-indexed.
 - 2026-09-20 · Every admin query is covered by an integration test · Correlated subqueries written by hand fail only at runtime, and the ambiguous-column bug appeared twice. Running each query once in CI is what catches it.
 - 2026-09-20 · The ops console defaults to graphite dark · It is a palette, not a separate design, so the switcher still overrides it and every other palette renders.
+- 2026-09-20 · Flags are read from admin settings, with environment variables on top · The point of a flag is to switch a behaviour during a session without a rebuild, so it has to be editable in the running app. An env var still wins, which is what the e2e suite relies on.
+- 2026-09-20 · The search predicate stays index-only · An ILIKE on the reference or the model name forced a sequential scan and was redundant, because both fields are already in the haystack. Measured in a production build with 5,000 listings: 860 ms before, 180 ms after.
+- 2026-09-20 · Screenshots are a tool, not a gate · `npm run screenshots` renders every key screen in four palettes, light and dark, plus mobile. It stays out of the default e2e run.

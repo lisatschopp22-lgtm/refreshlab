@@ -8,7 +8,7 @@ import { assert, canActAsBuyer, canActAsSeller, canViewOrder, isAdmin } from "./
 import { enqueue, recordAudit } from "./audit";
 import { calculateFee, sellerNetCents } from "./fees";
 import { feeRule } from "./settings";
-import { flagsFromEnv } from "./flags";
+import { flags as readFlags } from "./settings";
 
 export type OrderStatus = (typeof orders.$inferSelect)["status"];
 export type Actor = "buyer" | "seller" | "admin" | "system";
@@ -101,7 +101,7 @@ export async function createOrder(
     if (offer!.status !== "accepted") throw new OrderError("offer_not_accepted");
     if (offer!.buyerId !== user.id) throw new OrderError("not_your_offer");
     amountCents = offer!.amountCents;
-  } else if (!flagsFromEnv().buyNowEnabled) {
+  } else if (!(await readFlags()).buyNowEnabled) {
     throw new OrderError("buy_now_disabled");
   } else if (listing!.negotiable === "offer") {
     throw new OrderError("offers_only");

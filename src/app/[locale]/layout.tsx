@@ -7,7 +7,7 @@ import { isLocale, locales, type Locale } from "@/i18n/routing";
 import { readDesignPrefs } from "@/ui/design-prefs.server";
 import { DesignSwitcher } from "@/ui/design-switcher";
 import { ToastProvider } from "@/ui/toast";
-import { flagsFromEnv } from "@/domain/flags";
+import { flags as readFlags } from "@/domain/settings";
 import "../globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
@@ -67,7 +67,7 @@ export default async function LocaleLayout({
   setRequestLocale(locale as Locale);
 
   const prefs = await readDesignPrefs();
-  const flags = flagsFromEnv();
+  const flags = await readFlags();
   const t = await getTranslations({ locale, namespace: "design" });
 
   return (

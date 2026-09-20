@@ -6,7 +6,7 @@ import { Clock, FileText, Gauge, MapPin, MessageSquare, Share2, ShieldCheck } fr
 import { getListingBySlug, relatedListings } from "@/db/queries/listings";
 import { modelPriceRange } from "@/db/queries/catalogue";
 import { conditionGrade } from "@/domain/conditions";
-import { flagsFromEnv } from "@/domain/flags";
+import { flags as readFlags } from "@/domain/settings";
 import { formatDate, formatMoney, formatNumber, pick } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
 import { storageUrl } from "@/ui/storage-image";
@@ -69,7 +69,7 @@ export default async function ListingPage({
   const tc = await getTranslations({ locale, namespace: "common" });
   const tm = await getTranslations({ locale, namespace: "model" });
   const tcond = await getTranslations({ locale, namespace: "conditions" });
-  const flags = flagsFromEnv();
+  const flags = await readFlags();
 
   const [related, priceRange] = await Promise.all([
     relatedListings(listing.id, listing.modelId, category.id, 4),

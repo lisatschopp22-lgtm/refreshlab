@@ -3,7 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { currentUser } from "@/auth/session";
 import { getListingBySlug } from "@/db/queries/listings";
 import { canOfferOn } from "@/domain/permissions";
-import { flagsFromEnv } from "@/domain/flags";
+import { flags as readFlags } from "@/domain/settings";
 import { formatMoney } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
 import { Breadcrumbs } from "@/ui/breadcrumbs";
@@ -26,7 +26,8 @@ export default async function MakeOfferPage({
 
   const data = await getListingBySlug(slug);
   if (!data || data.listing.status !== "active") notFound();
-  if (!flagsFromEnv().offersEnabled || data.listing.negotiable === "fixed") notFound();
+  const flags = await readFlags();
+  if (!flags.offersEnabled || data.listing.negotiable === "fixed") notFound();
 
   const t = await getTranslations({ locale, namespace: "offers" });
   const own = !canOfferOn(user, data.listing);

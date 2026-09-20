@@ -12,6 +12,16 @@ type Dimension = "category" | "manufacturer" | "condition" | "country" | "saleMo
 
 const PER_PAGE = 24;
 
+/** SEARCH_DEBUG=1 logs how long each part of a search takes. */
+const debug = process.env.SEARCH_DEBUG === "1";
+async function timed<T>(label: string, run: () => Promise<T>): Promise<T> {
+  if (!debug) return run();
+  const start = performance.now();
+  const result = await run();
+  console.log(`[search] ${label}: ${(performance.now() - start).toFixed(0)} ms`);
+  return result;
+}
+
 /**
  * Postgres full-text search with trigram typo tolerance and SQL facets.
  * Algolia is hosted only, so the prototype uses what runs locally. Everything
@@ -30,11 +40,13 @@ class PostgresSearchProvider implements SearchProvider {
 
     if (query.q?.trim()) {
       const q = query.q.trim();
+      // Both clauses are GIN-indexed, so Postgres can combine them with a
+      // BitmapOr. Adding an ILIKE on the reference or the model name here
+      // would force a sequential scan for no gain: search_text already
+      // contains both. Measured at 5000 listings: 2 ms against 318 ms.
       where.push(sql`(
         l.search_vector @@ websearch_to_tsquery('german', ${q})
         or rl_unaccent(${q}) <% rl_unaccent(l.search_text)
-        or l.reference ilike ${`%${q}%`}
-        or m.name ilike ${`%${q}%`}
       )`);
     }
     if (query.category && exclude !== "category") {
@@ -135,9 +147,9 @@ class PostgresSearchProvider implements SearchProvider {
     const countQuery = sql`select count(*)::int as total ${this.from()} ${where}`;
 
     const [items, countRows, facets] = await Promise.all([
-      db.execute(itemsQuery),
-      db.execute(countQuery),
-      this.facets(query),
+      timed("items", () => db.execute(itemsQuery)),
+      timed("count", () => db.execute(countQuery)),
+      timed("facets", () => this.facets(query)),
     ]);
 
     return {
@@ -150,11 +162,13 @@ class PostgresSearchProvider implements SearchProvider {
   private async facets(query: SearchQuery): Promise<SearchFacets> {
     const group = async (dimension: Dimension, expr: SQL, label: SQL) => {
       const where = this.whereSql(this.conditions(query, dimension));
-      const rows = await db.execute(sql`
-        select ${expr} as value, ${label} as label, count(*)::int as count
-        ${this.from()} ${where}
-        group by 1, 2 having ${expr} is not null order by count desc, 2 asc limit 40
-      `);
+      const rows = await timed(`facet:${dimension}`, () =>
+        db.execute(sql`
+          select ${expr} as value, ${label} as label, count(*)::int as count
+          ${this.from()} ${where}
+          group by 1, 2 having ${expr} is not null order by count desc, 2 asc limit 40
+        `),
+      );
       return (rows as unknown as { value: string; label: string; count: number }[]).map((r) => ({
         value: r.value,
         label: r.label,

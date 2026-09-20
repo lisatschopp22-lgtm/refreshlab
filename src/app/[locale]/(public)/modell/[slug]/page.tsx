@@ -6,7 +6,7 @@ import { BadgeCheck, Puzzle } from "lucide-react";
 import { getModelBySlug, modelPriceRange } from "@/db/queries/catalogue";
 import { searchProvider } from "@/integrations/search";
 import { formatMoney, formatNumber, pick } from "@/i18n/format";
-import { flagsFromEnv } from "@/domain/flags";
+import { flags as readFlags } from "@/domain/settings";
 import type { Locale } from "@/i18n/routing";
 import { storageUrl, StorageImage } from "@/ui/storage-image";
 import { Badge } from "@/ui/badge";
@@ -56,7 +56,7 @@ export default async function ModelPage({
 
   const t = await getTranslations({ locale, namespace: "model" });
   const tl = await getTranslations({ locale, namespace: "listing" });
-  const flags = flagsFromEnv();
+  const flags = await readFlags();
 
   const [listings, priceRange] = await Promise.all([
     searchProvider().search({ modelId: model.id, perPage: 12, sort: "price_asc" }),

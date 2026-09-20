@@ -6,7 +6,7 @@ import { offers } from "@/db/schema/transactions";
 import type { SessionUser } from "@/auth/session";
 import { assert, canActAsSeller, canOfferOn } from "./permissions";
 import { enqueue, recordAudit } from "./audit";
-import { flagsFromEnv } from "./flags";
+import { flags as readFlags } from "./settings";
 
 export type OfferStatus = (typeof offers.$inferSelect)["status"];
 
@@ -42,7 +42,7 @@ export async function makeOffer(
   user: SessionUser,
   input: { listingId: string; amountCents: number; message?: string },
 ) {
-  assert(flagsFromEnv().offersEnabled, "Offers are disabled");
+  assert((await readFlags()).offersEnabled, "Offers are disabled");
 
   const [listing] = await db.select().from(listings).where(eq(listings.id, input.listingId)).limit(1);
   assert(!!listing, "Listing not found");
