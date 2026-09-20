@@ -1,6 +1,7 @@
 # dependencies / build
 node_modules/
 .next/
+*.tsbuildinfo
 out/
 coverage/
 playwright-report/
