@@ -5,7 +5,7 @@
  * tokens. This fails the build on any raw colour that slips in.
  */
 import { readdirSync, readFileSync, statSync } from "node:fs";
-import { join, relative } from "node:path";
+import { join, relative, sep } from "node:path";
 
 const root = process.cwd();
 const allowedFiles = new Set([
@@ -39,7 +39,8 @@ function walk(dir, files = []) {
 
 const violations = [];
 for (const file of walk(join(root, "src"))) {
-  const rel = relative(root, file);
+  // Windows reports backslashes; the allow-list is written with forward slashes.
+  const rel = relative(root, file).split(sep).join("/");
   if (allowedFiles.has(rel)) continue;
   const source = readFileSync(file, "utf8");
   source.split("\n").forEach((line, index) => {
