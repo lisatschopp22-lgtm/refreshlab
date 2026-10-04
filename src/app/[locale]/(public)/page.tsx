@@ -8,6 +8,7 @@ import type { Locale } from "@/i18n/routing";
 import { ButtonLink } from "@/ui/button";
 import { Card, CardBody, Section } from "@/ui/card";
 import { ListingCardItem } from "@/ui/listing-card";
+import { QualifiedFacts } from "@/ui/qualified-facts";
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale: raw } = await params;
@@ -17,6 +18,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const t = await getTranslations({ locale, namespace: "home" });
   const tc = await getTranslations({ locale, namespace: "common" });
   const th = await getTranslations({ locale, namespace: "humour" });
+  const tn = await getTranslations({ locale, namespace: "nav" });
+  const tq = await getTranslations({ locale, namespace: "qualified" });
 
   const search = searchProvider();
   const [categories, counts, latest, featured] = await Promise.all([
@@ -40,7 +43,20 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             </h1>
             <p className="mt-5 max-w-2xl text-lg leading-relaxed text-fg-muted">{t("subtitle")}</p>
 
-            <form action={`/${locale}/suche`} className="mt-8 flex max-w-xl gap-2">
+            {/* The three ways in: the open marketplace, qualified equipment, parts donors. */}
+            <div className="mt-8 flex flex-wrap gap-3">
+              <ButtonLink href={`/${locale}/suche`} size="lg">
+                {t("buyCta")}
+              </ButtonLink>
+              <ButtonLink href={`/${locale}/qualifizierte-geraete`} size="lg" variant="secondary">
+                {tn("qualified")}
+              </ButtonLink>
+              <ButtonLink href={`/${locale}/ersatzteillager`} size="lg" variant="secondary">
+                {tn("parts")}
+              </ButtonLink>
+            </div>
+
+            <form action={`/${locale}/suche`} className="mt-4 flex max-w-xl gap-2">
               <div className="relative flex-1">
                 <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-fg-subtle" />
                 <input
@@ -78,6 +94,24 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       </section>
 
       <div className="mx-auto max-w-[1200px] space-y-16 px-4 py-14">
+        <Section
+          title={tq("homeTitle")}
+          action={
+            <Link
+              href={`/${locale}/qualifizierte-geraete`}
+              className="text-sm font-medium text-primary hover:underline"
+            >
+              {tq("homeCta")} →
+            </Link>
+          }
+        >
+          <div className="max-w-3xl space-y-3 leading-relaxed text-fg-muted">
+            <p>{tq("open")}</p>
+            <p>{tq("meaning")}</p>
+          </div>
+          <QualifiedFacts />
+        </Section>
+
         <Section title={t("categoriesTitle")} description={t("categoriesSubtitle")}>
           <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {categories.map((category) => (

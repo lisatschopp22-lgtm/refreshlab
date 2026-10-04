@@ -277,7 +277,7 @@ export default async function ListingPage({
         </div>
 
         {/* Price and trust column, after mockup S4. */}
-        <aside className="space-y-4 lg:sticky lg:top-20 lg:self-start">
+        <aside className="space-y-4 lg:sticky lg:top-30 lg:self-start">
           <div className="space-y-3">
             <div className="flex flex-wrap items-center gap-1.5">
               {listing.verifiedAt ? <VerifiedBadge /> : null}

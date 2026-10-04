@@ -30,6 +30,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     ...entry("", new Date(), 1),
     ...entry("/suche", new Date(), 0.5),
+    ...entry("/qualifizierte-geraete", new Date(), 0.8),
+    ...entry("/ersatzteillager", new Date(), 0.8),
     ...entry("/katalog", new Date(), 0.8),
     ...slugs.categories.flatMap((c) => entry(`/kategorie/${c.slug}`, c.updatedAt, 0.8)),
     ...slugs.manufacturers.flatMap((m) => entry(`/hersteller/${m.slug}`, m.updatedAt, 0.6)),

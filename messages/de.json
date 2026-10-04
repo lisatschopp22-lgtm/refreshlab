@@ -30,11 +30,13 @@
     "showLess": "Weniger anzeigen",
     "language": "Sprache",
     "from": "ab",
-    "new": "Neu"
+    "new": "Neu",
+    "allWithFilters": "Alle mit Filtern"
   },
   "nav": {
     "discover": "Geräte entdecken",
     "qualified": "Qualifizierte Geräte",
+    "parts": "Ersatzteillager",
     "catalogue": "Gerätedatenbank",
     "guides": "Ratgeber",
     "sell": "Gerät verkaufen",
@@ -65,6 +67,7 @@
     "title": "Das nächste Gerät steht vielleicht schon im Nachbarlabor.",
     "subtitle": "Geprüfte Laborgeräte finden, vergleichen und sicher weitergeben – mit transparenten Daten, verifizierten Anbietern und spezialisierten Services.",
     "searchCta": "Suchen",
+    "buyCta": "Geräte einkaufen",
     "statSaving": "unter Neupreis",
     "statListings": "geprüfte Geräte",
     "statModels": "Modelle im Katalog",
@@ -83,6 +86,33 @@
     "sellCtaTitle": "Steht bei Ihnen ein Gerät ungenutzt?",
     "sellCtaText": "Inserate sind kostenlos. Gebühren fallen erst an, wenn tatsächlich verkauft wird.",
     "browseAll": "Alle Angebote ansehen"
+  },
+  "qualified": {
+    "title": "Qualifizierte Geräte",
+    "description": "Laborgeräte, die ein von refreshLab akkreditierter Fachbetrieb instand gesetzt, qualifiziert und mit einer Garantie von 3 bis 24 Monaten versehen hat.",
+    "homeTitle": "Qualifizierte Geräte: instand gesetzt und mit Garantie",
+    "homeCta": "Qualifizierte Geräte ansehen",
+    "open": "refreshLab ist ein offener Marktplatz: Jede Firma, jede Arztpraxis und jede Privatperson kann hier ein Gerät einstellen und verkaufen. Der Bereich «Qualifizierte Geräte» geht einen Schritt weiter.",
+    "meaning": "Ein qualifiziertes Gerät war in den Händen eines Fachbetriebs, bevor es zu Ihnen kommt: Er hat es geprüft, wo nötig repariert und mit Ersatzteilen versehen und anschliessend qualifiziert. Für den Zustand steht er mit einer Garantie ein. Sie wissen also schon vor dem Kauf, wer das Gerät qualifiziert hat, wie lange die Garantie läuft und was sie abdeckt.",
+    "factsTitle": "Akkreditierung und Garantie",
+    "accreditedTitle": "Nur akkreditierte Fachbetriebe",
+    "accreditedText": "In diesen Bereich gelangen ausschliesslich Geräte von Betrieben, die refreshLab akkreditiert hat – für genau diese Arbeit: Geräte reparieren, Ersatzteile beschaffen und Geräte qualifizieren.",
+    "termTitle": "3 bis 24 Monate Garantie",
+    "termText": "Die Garantie gibt der Fachbetrieb, der das Gerät qualifiziert hat. Wie lange sie läuft, legt er selbst fest: mindestens 3 und höchstens 24 Monate.",
+    "scopeTitle": "Vollgarantie oder Bauteilgarantie",
+    "scopeText": "Auch den Umfang bestimmt der Fachbetrieb: Die Vollgarantie gilt für das komplette Gerät, die Bauteilgarantie nur für bestimmte Bauteile, etwa die eingebauten Ersatzteile.",
+    "listingsTitle": "Aktuell qualifizierte Geräte",
+    "emptyTitle": "Zurzeit ist kein qualifiziertes Gerät im Angebot",
+    "emptyText": "Sobald ein akkreditierter Fachbetrieb ein Gerät einstellt, erscheint es hier."
+  },
+  "parts": {
+    "title": "Ersatzteillager",
+    "description": "Als defekt deklarierte Laborgeräte, die als Ersatzteilträger angeboten werden: Platinen, Lüfter, Bedienknöpfe und Türgriffe, die noch funktionieren.",
+    "lead": "Hier stehen Geräte, die als defekt deklariert sind. Als Ganzes laufen sie nicht mehr – viele ihrer Teile aber schon.",
+    "text": "Vielleicht arbeitet die Platine noch, der Lüfter, ein Bedienknopf oder der Türgriff. Wer zum Beispiel einen Wärmeschrank betreibt, findet hier ein baugleiches Gerät als Ersatzteilträger und baut aus, was noch gebraucht wird. Oder aus zwei Geräten wird wieder eines, das läuft.",
+    "listingsTitle": "Geräte als Ersatzteilträger",
+    "emptyTitle": "Das Lager ist gerade leer",
+    "emptyText": "Sobald jemand ein defektes Gerät als Ersatzteilträger einstellt, erscheint es hier."
   },
   "search": {
     "title": "Geräte suchen",

@@ -225,3 +225,24 @@ layout and judging how the site feels.
 
 Both crawlers identify themselves, respect the robots policy and pace their
 requests. No personal contact details are sent to either site.
+
+## Three ways in: open marketplace, qualified equipment, spare parts store
+
+The product owner's model of the marketplace, as copy and navigation.
+
+* **Home**: three buttons in the hero (`Geräte einkaufen`, `Qualifizierte
+  Geräte`, `Ersatzteillager`) and, directly below it, a section explaining
+  what a qualified instrument is.
+* **`/de/qualifizierte-geraete`**: the same explanation plus the listings.
+  Only firms accredited by refreshLab may offer here; the qualifying firm
+  gives a warranty of 3 to 24 months, either on the complete instrument or on
+  named components.
+* **`/de/ersatzteillager`**: equipment declared defective, offered as a donor
+  for parts.
+* The main navigation moved to a row of its own, because five entries no
+  longer fit beside the search field.
+
+Skipped: accreditation, the qualifying firm and the warranty scope have no
+fields. The qualified page lists verified listings with a warranty as a
+stand-in (14 in the seed), the store lists condition `for_parts` (11). The new
+pages have no Playwright test yet.

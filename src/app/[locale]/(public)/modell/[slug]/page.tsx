@@ -211,7 +211,7 @@ export default async function ModelPage({
           </section>
         </div>
 
-        <aside className="space-y-4 lg:sticky lg:top-20 lg:self-start">
+        <aside className="space-y-4 lg:sticky lg:top-30 lg:self-start">
           {flags.showPriceRangeOnModel && priceRange ? (
             <Card>
               <CardHeader title={t("market")} />

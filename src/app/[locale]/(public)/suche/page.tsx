@@ -87,7 +87,7 @@ export default async function SearchPage({
 
       <div className="grid gap-8 lg:grid-cols-[230px_1fr]">
         {/* Facet rail, after mockup S2: counts visible, other values stay reachable. */}
-        <aside className="lg:sticky lg:top-20 lg:self-start">
+        <aside className="lg:sticky lg:top-30 lg:self-start">
           <div className="mb-3 flex items-center justify-between lg:mb-1">
             <h2 className="flex items-center gap-1.5 text-sm font-semibold">
               <SlidersHorizontal className="size-4" aria-hidden="true" />
