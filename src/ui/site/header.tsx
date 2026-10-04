@@ -16,6 +16,7 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
 
   const links = [
     { href: `/${locale}/suche`, label: t("discover") },
+    { href: `/${locale}/suche?geprueft=1`, label: t("qualified") },
     { href: `/${locale}/katalog`, label: t("catalogue") },
     { href: `/${locale}/p/gebrauchte-zentrifuge-kaufen`, label: t("guides") },
   ];
@@ -27,19 +28,19 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
           <SwitchableLogo initial={prefs.logo} />
         </Link>
 
-        <nav className="hidden items-center gap-1 md:flex">
+        <nav className="hidden items-center gap-1 lg:flex">
           {links.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="rounded-[var(--radius-md)] px-3 py-2 text-sm font-medium text-fg-muted transition-colors hover:bg-bg-subtle hover:text-fg"
+              className="rounded-[var(--radius-md)] px-2 py-2 text-sm font-medium text-fg-muted transition-colors hover:bg-bg-subtle hover:text-fg"
             >
               {link.label}
             </Link>
           ))}
         </nav>
 
-        <form action={`/${locale}/suche`} className="ml-auto hidden max-w-xs flex-1 lg:block">
+        <form action={`/${locale}/suche`} className="ml-auto hidden max-w-xs flex-1 xl:block">
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-fg-subtle" />
             <input
@@ -52,7 +53,7 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
           </div>
         </form>
 
-        <div className="ml-auto flex items-center gap-2 lg:ml-0">
+        <div className="ml-auto flex items-center gap-2 xl:ml-0">
           <LocaleSwitch locale={locale} />
           {user ? (
             <Link
@@ -77,7 +78,7 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
           </ButtonLink>
           <Link
             href={`/${locale}/suche`}
-            className="inline-flex size-9 items-center justify-center rounded-[var(--radius-md)] text-fg-muted hover:bg-bg-subtle md:hidden"
+            className="inline-flex size-9 items-center justify-center rounded-[var(--radius-md)] text-fg-muted hover:bg-bg-subtle lg:hidden"
             aria-label={tc("search")}
           >
             <Menu className="size-4" />
