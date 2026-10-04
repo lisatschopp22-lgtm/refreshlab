@@ -239,7 +239,10 @@ The product owner's model of the marketplace, as copy and navigation.
   named components.
 * **`/de/ersatzteillager`**: equipment declared defective, offered as a donor
   for parts.
-* **`/de/verbrauchsmaterialien`**: the navigation entry and an empty page.
+* **`/de/verbrauchsmaterialien`**: surplus consumables from projects,
+  over-orders and cleared laboratories. The page states what belongs there
+  (tangible, non-hazardous material) and what does not (chemicals), and lists
+  nothing yet.
 * The main navigation moved to a row of its own, because six entries no
   longer fit beside the search field.
 

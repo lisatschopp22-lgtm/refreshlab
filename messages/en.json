@@ -117,10 +117,15 @@
   },
   "consumables": {
     "title": "Consumables",
-    "description": "Laboratory consumables on refreshLab. This section is being set up.",
-    "lead": "Consumables for the laboratory – pipette tips, reaction tubes, filters or columns, for example.",
+    "description": "Sell and find surplus laboratory consumables: pipette tips, filters, gloves and glassware. No chemicals.",
+    "lead": "Bought too much for a project, ordered too much or cleared a whole laboratory? This is where you pass on surplus material.",
+    "text": "Something is left over in almost every laboratory. Instead of gathering dust in a cupboard or ending up in the bin, that material can be listed and sold here – to someone who needs exactly that right now.",
+    "welcomeTitle": "What belongs here",
+    "welcomeText": "Tangible consumables that are not classified as hazardous: pipette tips, filters, gloves and glassware such as Erlenmeyer flasks, beakers and other glass containers.",
+    "excludedTitle": "What does not belong here",
+    "excludedText": "Chemicals, and anything classified as hazardous. With a chemical, nobody can guarantee that the container really holds what is being sold. If something goes wrong, the consequences are too serious.",
     "emptyTitle": "No consumables on offer yet",
-    "emptyText": "This section is being set up. Equipment is already available on the marketplace today.",
+    "emptyText": "This section is being set up: consumables cannot be listed yet. Equipment is already available on the marketplace today.",
     "emptyCta": "Browse equipment"
   },
   "search": {

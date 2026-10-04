@@ -117,10 +117,15 @@
   },
   "consumables": {
     "title": "Verbrauchsmaterialien",
-    "description": "Verbrauchsmaterial für das Labor auf refreshLab. Dieser Bereich ist im Aufbau.",
-    "lead": "Verbrauchsmaterial für das Labor – etwa Pipettenspitzen, Reaktionsgefässe, Filter oder Säulen.",
+    "description": "Überschüssiges Verbrauchsmaterial aus dem Labor verkaufen und finden: Pipettenspitzen, Filter, Handschuhe und Glaswaren. Keine Chemikalien.",
+    "lead": "Für ein Projekt zu viel angeschafft, zu viel bestellt oder ein ganzes Labor geräumt? Hier werden Sie überschüssiges Material los.",
+    "text": "In fast jedem Labor bleibt etwas übrig. Statt im Schrank zu verstauben oder im Abfall zu landen, kann dieses Material hier inseriert und verkauft werden – an jemanden, der genau das gerade braucht.",
+    "welcomeTitle": "Das gehört hierher",
+    "welcomeText": "Handfestes Verbrauchsmaterial, das nicht als gefährlich eingestuft ist: Pipettenspitzen, Filter, Handschuhe und Glaswaren wie Erlenmeyerkolben, Bechergläser und andere Glasbehälter.",
+    "excludedTitle": "Das gehört nicht hierher",
+    "excludedText": "Chemikalien und alles, was als gefährlich eingestuft ist. Bei einer Chemikalie kann niemand garantieren, dass im Behälter wirklich das ist, was verkauft wird. Geht dabei etwas schief, sind die Folgen zu gross.",
     "emptyTitle": "Noch keine Verbrauchsmaterialien im Angebot",
-    "emptyText": "Dieser Bereich ist im Aufbau. Geräte finden Sie bereits heute auf dem Marktplatz.",
+    "emptyText": "Dieser Bereich ist im Aufbau: Verbrauchsmaterial lässt sich noch nicht einstellen. Geräte finden Sie bereits heute auf dem Marktplatz.",
     "emptyCta": "Geräte entdecken"
   },
   "search": {
