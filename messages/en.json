@@ -37,6 +37,7 @@
     "discover": "Browse equipment",
     "qualified": "Qualified equipment",
     "parts": "Spare parts store",
+    "consumables": "Consumables",
     "catalogue": "Equipment database",
     "guides": "Guides",
     "sell": "Sell equipment",
@@ -113,6 +114,14 @@
     "listingsTitle": "Equipment for parts",
     "emptyTitle": "The store is empty right now",
     "emptyText": "As soon as someone lists a defective instrument for parts, it appears here."
+  },
+  "consumables": {
+    "title": "Consumables",
+    "description": "Laboratory consumables on refreshLab. This section is being set up.",
+    "lead": "Consumables for the laboratory – pipette tips, reaction tubes, filters or columns, for example.",
+    "emptyTitle": "No consumables on offer yet",
+    "emptyText": "This section is being set up. Equipment is already available on the marketplace today.",
+    "emptyCta": "Browse equipment"
   },
   "search": {
     "title": "Search equipment",

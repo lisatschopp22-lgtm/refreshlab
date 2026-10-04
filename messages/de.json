@@ -37,6 +37,7 @@
     "discover": "Geräte entdecken",
     "qualified": "Qualifizierte Geräte",
     "parts": "Ersatzteillager",
+    "consumables": "Verbrauchsmaterialien",
     "catalogue": "Gerätedatenbank",
     "guides": "Ratgeber",
     "sell": "Gerät verkaufen",
@@ -113,6 +114,14 @@
     "listingsTitle": "Geräte als Ersatzteilträger",
     "emptyTitle": "Das Lager ist gerade leer",
     "emptyText": "Sobald jemand ein defektes Gerät als Ersatzteilträger einstellt, erscheint es hier."
+  },
+  "consumables": {
+    "title": "Verbrauchsmaterialien",
+    "description": "Verbrauchsmaterial für das Labor auf refreshLab. Dieser Bereich ist im Aufbau.",
+    "lead": "Verbrauchsmaterial für das Labor – etwa Pipettenspitzen, Reaktionsgefässe, Filter oder Säulen.",
+    "emptyTitle": "Noch keine Verbrauchsmaterialien im Angebot",
+    "emptyText": "Dieser Bereich ist im Aufbau. Geräte finden Sie bereits heute auf dem Marktplatz.",
+    "emptyCta": "Geräte entdecken"
   },
   "search": {
     "title": "Geräte suchen",

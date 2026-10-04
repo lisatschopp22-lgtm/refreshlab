@@ -38,6 +38,7 @@ export async function SiteFooter({ locale }: { locale: Locale }) {
           <Link href={`/${locale}/suche`} className={link}>{tn("discover")}</Link>
           <Link href={`/${locale}/qualifizierte-geraete`} className={link}>{tn("qualified")}</Link>
           <Link href={`/${locale}/ersatzteillager`} className={link}>{tn("parts")}</Link>
+          <Link href={`/${locale}/verbrauchsmaterialien`} className={link}>{tn("consumables")}</Link>
           <Link href={`/${locale}/katalog`} className={link}>{tn("catalogue")}</Link>
           <Link href={`/${locale}/verkaufen`} className={link}>{tn("sell")}</Link>
           <Link href={`/${locale}/hersteller`} className={link}>{t("manufacturers")}</Link>

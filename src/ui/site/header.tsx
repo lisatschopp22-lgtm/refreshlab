@@ -18,6 +18,7 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
     { href: `/${locale}/suche`, label: t("discover") },
     { href: `/${locale}/qualifizierte-geraete`, label: t("qualified") },
     { href: `/${locale}/ersatzteillager`, label: t("parts") },
+    { href: `/${locale}/verbrauchsmaterialien`, label: t("consumables") },
     { href: `/${locale}/katalog`, label: t("catalogue") },
     { href: `/${locale}/p/gebrauchte-zentrifuge-kaufen`, label: t("guides") },
   ];
@@ -75,9 +76,9 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
         </div>
       </div>
 
-      {/* A row of its own: five entries do not fit beside the search field. */}
+      {/* A row of its own: the entries do not fit beside the search field. It wraps on narrow windows. */}
       <nav className="hidden border-t border-border md:block">
-        <div className="mx-auto flex h-10 max-w-[1200px] items-center gap-1 px-1">
+        <div className="mx-auto flex min-h-10 max-w-[1200px] flex-wrap items-center gap-x-1 px-1 py-1">
           {links.map((link) => (
             <Link
               key={link.href}

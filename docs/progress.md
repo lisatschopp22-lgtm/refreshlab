@@ -239,10 +239,12 @@ The product owner's model of the marketplace, as copy and navigation.
   named components.
 * **`/de/ersatzteillager`**: equipment declared defective, offered as a donor
   for parts.
-* The main navigation moved to a row of its own, because five entries no
+* **`/de/verbrauchsmaterialien`**: the navigation entry and an empty page.
+* The main navigation moved to a row of its own, because six entries no
   longer fit beside the search field.
 
 Skipped: accreditation, the qualifying firm and the warranty scope have no
 fields. The qualified page lists verified listings with a warranty as a
-stand-in (14 in the seed), the store lists condition `for_parts` (11). The new
-pages have no Playwright test yet.
+stand-in (14 in the seed), the store lists condition `for_parts` (11).
+Consumables cannot be listed at all, because a listing needs an equipment
+model. The new pages have no Playwright test yet.
