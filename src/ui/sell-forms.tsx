@@ -181,6 +181,66 @@ export function ImageUploader({
   );
 }
 
+/**
+ * The type plate with its serial number, required to publish. It goes to the
+ * private bucket: the review needs it, the public does not.
+ */
+export function SerialPhotoUploader({
+  locale,
+  listingId,
+  photo,
+  labels,
+}: {
+  locale: string;
+  listingId: string;
+  photo: { url: string | null; filename: string } | null;
+  labels: Record<string, string>;
+}) {
+  const [state, action, pending] = useActionState<FormState, FormData>(uploadAttachmentAction, empty);
+
+  return (
+    <div className="space-y-3">
+      {photo ? (
+        <div className="flex items-center gap-3">
+          {photo.url ? (
+            // A signed, short-lived URL from the private bucket, so next/image cannot optimise it.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={photo.url}
+              alt={labels.title}
+              className="size-24 rounded-[var(--radius-md)] border border-border bg-bg-sunken object-cover"
+            />
+          ) : null}
+          <p className="text-sm text-success">{labels.saved}</p>
+        </div>
+      ) : null}
+      <form action={action} className="space-y-2">
+        <input type="hidden" name="locale" value={locale} />
+        <input type="hidden" name="listingId" value={listingId} />
+        <input type="hidden" name="kind" value="serial_plate" />
+        <label className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-md)] border border-dashed border-border-strong bg-bg-subtle px-3 py-3 text-sm text-fg-muted hover:border-[var(--primary)]">
+          <Upload className="size-4" aria-hidden="true" />
+          <span>{photo ? labels.replace : labels.upload}</span>
+          <input
+            type="file"
+            name="file"
+            accept="image/png,image/jpeg,image/webp"
+            capture="environment"
+            className="sr-only"
+            onChange={(event) => event.currentTarget.form?.requestSubmit()}
+          />
+        </label>
+        {pending ? <p className="text-xs text-fg-subtle">…</p> : null}
+        {state.error ? (
+          <p className="text-sm text-danger" role="alert">
+            {labels.uploadFailed}
+          </p>
+        ) : null}
+      </form>
+    </div>
+  );
+}
+
 export function AttachmentUploader({
   locale,
   listingId,

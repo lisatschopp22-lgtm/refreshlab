@@ -269,3 +269,23 @@ Carl Roth, VWR, Faust and TH.GEYER as orientation.
 
 Skipped: device types have no introduction of their own and borrow their
 parent's. Nothing can be listed under consumables yet.
+
+## New instruments are checked; the serial number is mandatory
+
+* **Selling an unknown instrument**: step 1 of `/de/verkaufen` offers "Neues
+  Gerät anlegen". The form takes an existing manufacturer or a new one (name,
+  website), a device type and the model name.
+* **Review instead of publishing**: such a listing is submitted with "Zur
+  Prüfung einreichen" and shows as "In Prüfung" under "Meine Inserate".
+* **Administration**: `/de/admin/geraetedaten` lists new instruments with
+  their device type and new manufacturers (approve, or merge into an
+  existing one). Approving a model publishes its manufacturer and releases
+  the waiting listings. `/de/admin/inserate?status=pending_review` links to
+  each listing's serial number photo.
+* **Serial number photo**: required in step 2 of every new listing, stored
+  privately, never shown on the public page.
+
+Tried by hand with the seeded seller and admin: propose with a new
+manufacturer, upload a photo and the serial plate, submit, see it in review,
+approve, see it go live. The test rows were removed afterwards. There is no
+Playwright journey for the review path yet; J2 now uploads a serial photo.

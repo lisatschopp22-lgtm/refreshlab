@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useState, useTransition } from "react";
 import { searchModels, startListingAction, type FormState } from "@/actions/listings";
-import { Button } from "./button";
+import { Button, ButtonLink } from "./button";
 import { Field, Input, Select } from "./field";
 import { StorageImage } from "./storage-image";
 import { cn } from "./cn";
@@ -121,6 +121,17 @@ export function ModelPicker({
           {labels.continueToCondition}
         </Button>
       </form>
+
+      {/* Always offered, not only after a failed search: some sellers know the catalogue lacks their instrument. */}
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-md)] border border-dashed border-border-strong bg-bg-subtle px-4 py-3">
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium text-fg">{labels.newDeviceTitle}</p>
+          <p className="mt-0.5 text-xs text-fg-muted">{labels.newDeviceText}</p>
+        </div>
+        <ButtonLink href={proposeHref} variant="secondary" size="sm">
+          {labels.newDeviceButton}
+        </ButtonLink>
+      </div>
     </div>
   );
 }

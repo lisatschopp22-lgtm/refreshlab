@@ -6,7 +6,9 @@ import { z } from "zod";
 import { requireAdmin } from "@/auth/session";
 import {
   approveListing,
+  approveManufacturer,
   approveModel,
+  mergeManufacturers,
   mergeModels,
   savePage,
   setListingFeatured,
@@ -157,6 +159,10 @@ export async function modelAdminAction(formData: FormData) {
     await approveModel(user, String(formData.get("modelId") ?? ""));
   } else if (intent === "merge") {
     await mergeModels(user, String(formData.get("sourceId") ?? ""), String(formData.get("targetId") ?? ""));
+  } else if (intent === "approveManufacturer") {
+    await approveManufacturer(user, String(formData.get("manufacturerId") ?? ""));
+  } else if (intent === "mergeManufacturer") {
+    await mergeManufacturers(user, String(formData.get("sourceId") ?? ""), String(formData.get("targetId") ?? ""));
   }
 
   revalidatePath(`/${locale}/admin/geraetedaten`);

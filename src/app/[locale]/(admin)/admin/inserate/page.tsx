@@ -5,6 +5,7 @@ import { adminListings } from "@/db/queries/admin";
 import { listingAdminAction } from "@/actions/admin";
 import { formatDate, formatMoney } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
+import { signedAttachmentUrl } from "@/integrations/storage";
 import { Badge } from "@/ui/badge";
 import { Table, Td, Th } from "@/ui/table";
 import { Tabs } from "@/ui/tabs";
@@ -28,6 +29,14 @@ export default async function AdminListingsPage({
 
   const rows = await adminListings(status, deleted === "1");
   const base = `/${locale}/admin/inserate`;
+  // The serial plate photo is private, so the review sees it through a short-lived link.
+  const serialPhotoUrls = new Map(
+    await Promise.all(
+      rows
+        .filter((row) => row.status === "pending_review" && row.serialPhotoPath)
+        .map(async (row) => [row.id, await signedAttachmentUrl(row.serialPhotoPath!)] as const),
+    ),
+  );
 
   return (
     <div className="space-y-4">
@@ -71,7 +80,22 @@ export default async function AdminListingsPage({
                   {row.featuredUntil && row.featuredUntil > new Date() ? (
                     <Badge tone="primary">{t("feature")}</Badge>
                   ) : null}
+                  {row.modelStatus === "pending" ? <Badge tone="warning">{t("newDevice")}</Badge> : null}
                 </p>
+                {row.status === "pending_review" ? (
+                  serialPhotoUrls.get(row.id) ? (
+                    <a
+                      href={serialPhotoUrls.get(row.id)!}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-1 inline-block text-xs text-primary hover:underline"
+                    >
+                      {t("serialPhoto")} →
+                    </a>
+                  ) : (
+                    <p className="mt-1 text-xs text-danger">{t("noSerialPhoto")}</p>
+                  )
+                ) : null}
               </Td>
               <Td>
                 <Link href={`/${locale}/admin/nutzende/${row.sellerId}`} className="text-fg-muted hover:underline">

@@ -1,12 +1,13 @@
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/db/client";
-import { equipmentModels } from "@/db/schema/catalogue";
+import { equipmentModels, manufacturers } from "@/db/schema/catalogue";
 import { organisations, profiles } from "@/db/schema/identity";
 import { listings } from "@/db/schema/marketplace";
 import { contentPages } from "@/db/schema/operations";
 import type { SessionUser } from "@/auth/session";
 import { assert, isAdmin } from "./permissions";
 import { enqueue, recordAudit } from "./audit";
+import { flags as readFlags } from "./settings";
 import type { Localized } from "@/db/schema/common";
 
 /** Everything here is administration; each function records what it changed. */
@@ -149,6 +150,11 @@ export async function approveListing(user: SessionUser, listingId: string) {
   return after;
 }
 
+/**
+ * Approving a new instrument settles everything that waited for it: a new
+ * manufacturer is published with it, and listings held back only because
+ * the model was unchecked go live (unless every listing needs review anyway).
+ */
 export async function approveModel(user: SessionUser, modelId: string) {
   assert(isAdmin(user), "Admin only");
   const [after] = await db
@@ -163,7 +169,81 @@ export async function approveModel(user: SessionUser, modelId: string) {
     targetId: modelId,
     summary: after!.name,
   });
+
+  const [maker] = await db.select().from(manufacturers).where(eq(manufacturers.id, after!.manufacturerId)).limit(1);
+  if (maker?.status === "pending") await approveManufacturer(user, maker.id);
+
+  if (!(await readFlags()).requireListingReview) {
+    const waiting = await db
+      .select({ id: listings.id })
+      .from(listings)
+      .where(and(eq(listings.modelId, modelId), eq(listings.status, "pending_review")));
+    for (const listing of waiting) await approveListing(user, listing.id);
+  }
   return after!;
+}
+
+export async function approveManufacturer(user: SessionUser, manufacturerId: string) {
+  assert(isAdmin(user), "Admin only");
+  const [after] = await db
+    .update(manufacturers)
+    .set({ status: "published" })
+    .where(and(eq(manufacturers.id, manufacturerId), eq(manufacturers.status, "pending")))
+    .returning();
+  if (!after) return null;
+  await recordAudit({
+    actorId: user.id,
+    action: "manufacturer.approved",
+    targetType: "manufacturer",
+    targetId: manufacturerId,
+    summary: after.name,
+    before: { status: "pending" },
+    after: { status: "published" },
+  });
+  return after;
+}
+
+/**
+ * A manufacturer a seller typed that the catalogue already had under another
+ * spelling. Its models move to the existing one; the duplicate keeps a pointer.
+ */
+export async function mergeManufacturers(user: SessionUser, sourceId: string, targetId: string) {
+  assert(isAdmin(user), "Admin only");
+  assert(sourceId !== targetId, "Cannot merge a manufacturer into itself");
+
+  const [source] = await db.select().from(manufacturers).where(eq(manufacturers.id, sourceId)).limit(1);
+  const [target] = await db.select().from(manufacturers).where(eq(manufacturers.id, targetId)).limit(1);
+  assert(!!source && !!target, "Manufacturer not found");
+
+  const moved = await db.transaction(async (tx) => {
+    const models = await tx
+      .update(equipmentModels)
+      .set({ manufacturerId: targetId })
+      .where(eq(equipmentModels.manufacturerId, sourceId))
+      .returning({ id: equipmentModels.id });
+    await tx
+      .update(manufacturers)
+      .set({ status: "merged", mergedIntoId: targetId })
+      .where(eq(manufacturers.id, sourceId));
+    return models;
+  });
+
+  // The search haystack names the manufacturer, so the affected listings are reindexed.
+  for (const model of moved) {
+    const affected = await db.select({ id: listings.id }).from(listings).where(eq(listings.modelId, model.id));
+    for (const listing of affected) await enqueue("listing.reindex", { listingId: listing.id });
+  }
+
+  await recordAudit({
+    actorId: user.id,
+    action: "manufacturer.merged",
+    targetType: "manufacturer",
+    targetId: sourceId,
+    summary: `${source!.name} → ${target!.name} (${moved.length})`,
+    before: { status: source!.status, mergedIntoId: null },
+    after: { status: "merged", mergedIntoId: targetId, movedModels: moved.length },
+  });
+  return { movedModels: moved.length };
 }
 
 /**

@@ -6,6 +6,7 @@ import { organisationMembers, organisations, profiles } from "@/db/schema/identi
 import { listings } from "@/db/schema/marketplace";
 import { auditLog, contentPages, outbox, reports } from "@/db/schema/operations";
 import { qualified } from "./sql-helpers";
+import type { Localized } from "@/db/schema/common";
 import { offers, orders } from "@/db/schema/transactions";
 
 export async function adminOverview() {
@@ -152,6 +153,12 @@ export async function adminListings(status?: string, includeDeleted = false, lim
       sellerName: profiles.displayName,
       sellerId: profiles.id,
       organisationName: organisations.name,
+      modelStatus: sql<string>`(select status from equipment_models m where m.id = ${qualified("listings.model_id")})`,
+      serialPhotoPath: sql<string | null>`(
+        select storage_path from listing_attachments a
+        where a.listing_id = ${qualified("listings.id")} and a.kind = 'serial_plate'
+        order by a.created_at desc limit 1
+      )`,
     })
     .from(listings)
     .innerJoin(profiles, eq(profiles.id, listings.sellerProfileId))
@@ -197,7 +204,10 @@ export async function adminModels(status?: "pending" | "published", limit = 200)
       recordNumber: equipmentModels.recordNumber,
       status: equipmentModels.status,
       manufacturerName: manufacturers.name,
+      manufacturerStatus: manufacturers.status,
+      manufacturerWebsite: manufacturers.website,
       categoryName: categories.name,
+      parentCategoryName: sql<Localized | null>`(select name from categories p where p.id = ${qualified("categories.parent_id")})`,
       proposedById: equipmentModels.proposedBy,
       proposedByName: sql<string | null>`(select display_name from profiles where id = ${qualified("equipment_models.proposed_by")})`,
       listingCount: sql<number>`(select count(*)::int from ${listings} where model_id = ${qualified("equipment_models.id")})`,
@@ -212,6 +222,22 @@ export async function adminModels(status?: "pending" | "published", limit = 200)
       desc(equipmentModels.createdAt),
     )
     .limit(limit);
+}
+
+/** Manufacturers sellers added that nobody has checked yet. */
+export async function adminPendingManufacturers() {
+  return db
+    .select({
+      id: manufacturers.id,
+      name: manufacturers.name,
+      website: manufacturers.website,
+      createdAt: manufacturers.createdAt,
+      proposedByName: sql<string | null>`(select display_name from profiles where id = ${qualified("manufacturers.proposed_by")})`,
+      modelCount: sql<number>`(select count(*)::int from ${equipmentModels} where manufacturer_id = ${qualified("manufacturers.id")})`,
+    })
+    .from(manufacturers)
+    .where(eq(manufacturers.status, "pending"))
+    .orderBy(desc(manufacturers.createdAt));
 }
 
 export async function adminOrders(status?: string, limit = 100) {

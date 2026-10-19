@@ -19,6 +19,9 @@ export const modelStatusEnum = pgEnum("model_status", ["pending", "published", "
 /** Equipment carries models and listings; consumables are a taxonomy only, so far. */
 export const categoryKindEnum = pgEnum("category_kind", ["equipment", "consumable"]);
 
+/** A manufacturer a seller adds stays out of the public catalogue until it is checked. */
+export const manufacturerStatusEnum = pgEnum("manufacturer_status", ["pending", "published", "merged"]);
+
 /** One spec field of a category, e.g. { key: "max_rcf", unit: "× g", type: "number" }. */
 export type SpecField = {
   key: string;
@@ -37,6 +40,9 @@ export const manufacturers = pgTable(
     country: text("country"),
     website: text("website"),
     about: jsonb("about").$type<Localized>(),
+    status: manufacturerStatusEnum("status").notNull().default("published"),
+    mergedIntoId: uuid("merged_into_id"),
+    proposedBy: uuid("proposed_by").references(() => profiles.id, { onDelete: "set null" }),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },

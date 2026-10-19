@@ -102,12 +102,24 @@ export async function listManufacturers(categoryId?: string) {
       website: manufacturers.website,
       modelCount: sql<number>`(
         select count(*)::int from ${equipmentModels} m
-        where m.manufacturer_id = ${qualified("manufacturers.id")}
+        where m.manufacturer_id = ${qualified("manufacturers.id")} and m.status = 'published'
         ${categoryId ? sql`and m.category_id = ${categoryId}` : sql``}
       )`,
     })
     .from(manufacturers)
+    // A manufacturer a seller added appears once an administrator has checked it.
+    .where(eq(manufacturers.status, "published"))
     .orderBy(asc(manufacturers.name));
+}
+
+/** "pending" while an administrator has not checked a model a seller added. */
+export async function getModelStatus(modelId: string) {
+  const [row] = await db
+    .select({ status: equipmentModels.status })
+    .from(equipmentModels)
+    .where(eq(equipmentModels.id, modelId))
+    .limit(1);
+  return row?.status ?? null;
 }
 
 export async function getManufacturerBySlug(slug: string) {
@@ -208,7 +220,7 @@ export async function catalogueCounts() {
     .select({
       models: sql<number>`(select count(*)::int from ${equipmentModels} where status = 'published')`,
       listings: sql<number>`(select count(*)::int from ${listings} where status = 'active' and deleted_at is null)`,
-      manufacturers: sql<number>`(select count(*)::int from ${manufacturers})`,
+      manufacturers: sql<number>`(select count(*)::int from ${manufacturers} where status = 'published')`,
     })
     .from(sql`(select 1) as one`);
   return row ?? { models: 0, listings: 0, manufacturers: 0 };
@@ -236,7 +248,10 @@ export async function allPublicSlugs() {
           sql`(${qualified("categories.parent_id")} is null or exists (select 1 from ${equipmentModels} m where m.category_id = ${qualified("categories.id")} and m.status = 'published'))`,
         ),
       ),
-    db.select({ slug: manufacturers.slug, updatedAt: manufacturers.updatedAt }).from(manufacturers),
+    db
+      .select({ slug: manufacturers.slug, updatedAt: manufacturers.updatedAt })
+      .from(manufacturers)
+      .where(eq(manufacturers.status, "published")),
   ]);
   return { listings: listingRows, models: modelRows, categories: categoryRows, manufacturers: manufacturerRows };
 }

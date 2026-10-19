@@ -39,6 +39,7 @@ export default async function MyListingsPage({
   const tn = await getTranslations({ locale, namespace: "nav" });
   const ts = await getTranslations({ locale, namespace: "status" });
   const tl = await getTranslations({ locale, namespace: "listing" });
+  const tsell = await getTranslations({ locale, namespace: "sell" });
 
   const all = await myListings(user.id, user.organisations.map((o) => o.id));
   const rows = status ? all.filter((row) => row.status === status) : all;
@@ -67,6 +68,11 @@ export default async function MyListingsPage({
       </div>
 
       <Tabs items={tabs} />
+
+      {/* Where publishing a new instrument lands: say what happens next. */}
+      {status === "pending_review" && rows.length > 0 ? (
+        <p className="rounded-[var(--radius-md)] bg-info-subtle px-3 py-2 text-sm text-info">{tsell("pendingReviewNote")}</p>
+      ) : null}
 
       {rows.length === 0 ? (
         <EmptyState

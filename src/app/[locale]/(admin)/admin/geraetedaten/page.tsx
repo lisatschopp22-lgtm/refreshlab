@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { requireAdmin } from "@/auth/session";
-import { adminModels, duplicateModelCandidates } from "@/db/queries/admin";
+import { adminModels, adminPendingManufacturers, duplicateModelCandidates } from "@/db/queries/admin";
+import { listManufacturers } from "@/db/queries/catalogue";
 import { modelAdminAction } from "@/actions/admin";
 import { pick } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
@@ -16,7 +17,12 @@ export default async function AdminModelsPage({ params }: { params: Promise<{ lo
   await requireAdmin(locale);
 
   const t = await getTranslations({ locale, namespace: "admin" });
-  const [models, duplicates] = await Promise.all([adminModels(), duplicateModelCandidates()]);
+  const [models, duplicates, newManufacturers, publishedManufacturers] = await Promise.all([
+    adminModels(),
+    duplicateModelCandidates(),
+    adminPendingManufacturers(),
+    listManufacturers(),
+  ]);
   const pending = models.filter((model) => model.status === "pending");
 
   return (
@@ -24,7 +30,7 @@ export default async function AdminModelsPage({ params }: { params: Promise<{ lo
       <h1 className="text-xl font-bold tracking-tight">{t("models")}</h1>
 
       <Card>
-        <CardHeader title={t("pendingModels")} description={`${pending.length}`} />
+        <CardHeader title={t("pendingModels")} description={t("approveModelHint")} />
         <CardBody className="space-y-2">
           {pending.length === 0 ? (
             <p className="text-sm text-fg-subtle">—</p>
@@ -32,20 +38,92 @@ export default async function AdminModelsPage({ params }: { params: Promise<{ lo
             pending.map((model) => (
               <div key={model.id} className="flex flex-wrap items-center gap-3 border-b border-border py-2 last:border-b-0">
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-fg">
-                    {model.manufacturerName} {model.name}
+                  <p className="flex flex-wrap items-center gap-1.5 text-fg">
+                    <span className="truncate">
+                      {model.manufacturerName} {model.name}
+                    </span>
+                    {model.manufacturerStatus === "pending" ? <Badge tone="warning">{t("newManufacturer")}</Badge> : null}
                   </p>
                   <p className="tabular text-xs text-fg-subtle">
-                    {model.recordNumber} · {pick(model.categoryName, locale)} · {model.proposedByName ?? "—"}
+                    {model.recordNumber} ·{" "}
+                    {model.parentCategoryName ? `${pick(model.parentCategoryName, locale)} › ` : ""}
+                    {pick(model.categoryName, locale)} · {model.proposedByName ?? "—"}
                   </p>
+                  {model.manufacturerStatus === "pending" && model.manufacturerWebsite ? (
+                    <a
+                      href={model.manufacturerWebsite}
+                      target="_blank"
+                      rel="noreferrer nofollow"
+                      className="text-xs text-primary hover:underline"
+                    >
+                      {model.manufacturerWebsite}
+                    </a>
+                  ) : null}
                 </div>
-                <Badge tone="warning">{model.listingCount} {t("listings")}</Badge>
+                <Link
+                  href={`/${locale}/admin/inserate?status=pending_review`}
+                  className="text-xs text-fg-muted hover:underline"
+                >
+                  <Badge tone="warning">{model.listingCount} {t("listings")}</Badge>
+                </Link>
                 <form action={modelAdminAction}>
                   <input type="hidden" name="locale" value={locale} />
                   <input type="hidden" name="modelId" value={model.id} />
                   <input type="hidden" name="intent" value="approve" />
                   <button className="rounded-[var(--radius-sm)] bg-primary px-2 py-1 text-xs font-medium text-primary-fg">
                     {t("approve")}
+                  </button>
+                </form>
+              </div>
+            ))
+          )}
+        </CardBody>
+      </Card>
+
+      {/* A manufacturer typed by a seller may already exist under another spelling. */}
+      <Card>
+        <CardHeader title={t("pendingManufacturers")} description={t("pendingManufacturersHint")} />
+        <CardBody className="space-y-3">
+          {newManufacturers.length === 0 ? (
+            <p className="text-sm text-fg-subtle">—</p>
+          ) : (
+            newManufacturers.map((maker) => (
+              <div key={maker.id} className="flex flex-wrap items-end gap-2 border-b border-border pb-3 last:border-b-0">
+                <div className="min-w-40 flex-1">
+                  <p className="text-sm text-fg">{maker.name}</p>
+                  <p className="text-xs text-fg-subtle">
+                    {t("modelCount", { count: maker.modelCount })} · {maker.proposedByName ?? "—"}
+                  </p>
+                  {maker.website ? (
+                    <a href={maker.website} target="_blank" rel="noreferrer nofollow" className="text-xs text-primary hover:underline">
+                      {maker.website}
+                    </a>
+                  ) : null}
+                </div>
+                <form action={modelAdminAction}>
+                  <input type="hidden" name="locale" value={locale} />
+                  <input type="hidden" name="manufacturerId" value={maker.id} />
+                  <input type="hidden" name="intent" value="approveManufacturer" />
+                  <button className="h-9 rounded-[var(--radius-md)] bg-primary px-3 text-sm font-medium text-primary-fg">
+                    {t("approve")}
+                  </button>
+                </form>
+                <form action={modelAdminAction} className="flex items-end gap-2">
+                  <input type="hidden" name="locale" value={locale} />
+                  <input type="hidden" name="intent" value="mergeManufacturer" />
+                  <input type="hidden" name="sourceId" value={maker.id} />
+                  <label className="text-xs text-fg-subtle">
+                    <span className="mb-1 block">{t("mergeInto")}</span>
+                    <select name="targetId" className="h-9 max-w-56 rounded-[var(--radius-md)] border border-border-strong bg-bg-elevated px-2 text-sm">
+                      {publishedManufacturers.map((target) => (
+                        <option key={target.id} value={target.id}>
+                          {target.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <button className="h-9 rounded-[var(--radius-md)] border border-border px-3 text-sm text-fg-muted hover:bg-bg-subtle">
+                    {t("mergeManufacturer")}
                   </button>
                 </form>
               </div>

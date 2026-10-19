@@ -36,6 +36,8 @@ export const attachmentKindEnum = pgEnum("attachment_kind", [
   "service_report",
   "decontamination",
   "other",
+  // The photo of the type plate. Required to publish, never shown publicly.
+  "serial_plate",
 ]);
 
 export const listings = pgTable(

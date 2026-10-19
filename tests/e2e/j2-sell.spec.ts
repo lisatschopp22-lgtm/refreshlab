@@ -52,6 +52,17 @@ test("a new user can register, create an organisation and publish a listing", as
   });
   await expect(page.getByRole("button", { name: "Entfernen" }).first()).toBeVisible({ timeout: 20_000 });
 
+  // The serial plate photo is required before the listing can be published.
+  await page.setInputFiles('input[name="file"][accept^="image/"]', {
+    name: "typenschild.png",
+    mimeType: "image/png",
+    buffer: Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=",
+      "base64",
+    ),
+  });
+  await expect(page.getByText("Foto der Seriennummer gespeichert")).toBeVisible({ timeout: 20_000 });
+
   await page.getByRole("button", { name: "Weiter zum Preis" }).click();
   await page.waitForURL(/\/verkaufen\/.*\/preis/, { timeout: 20_000 });
 

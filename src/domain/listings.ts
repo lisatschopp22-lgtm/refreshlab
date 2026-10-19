@@ -1,7 +1,7 @@
 import { and, eq, isNull, like, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { equipmentModels } from "@/db/schema/catalogue";
-import { listingImages, listings } from "@/db/schema/marketplace";
+import { listingAttachments, listingImages, listings } from "@/db/schema/marketplace";
 import type { SessionUser } from "@/auth/session";
 import { assert, canEditListing, canPublishListing } from "./permissions";
 import { enqueue, recordAudit } from "./audit";
@@ -129,14 +129,38 @@ export async function updateListing(user: SessionUser, listingId: string, patch:
   return after!;
 }
 
-export function readyToPublish(listing: typeof listings.$inferSelect, imageCount: number) {
+export function readyToPublish(
+  listing: typeof listings.$inferSelect,
+  imageCount: number,
+  hasSerialPhoto: boolean,
+) {
   const problems: string[] = [];
   if (!listing.title.trim()) problems.push("title");
   if (listing.priceCents <= 0) problems.push("price");
   if (!listing.locationCity.trim()) problems.push("location");
   if (!listing.conditionNotes?.trim()) problems.push("conditionNotes");
   if (imageCount === 0) problems.push("images");
+  // An instrument without a readable serial number is not admitted at all.
+  if (!hasSerialPhoto) problems.push("serialPhoto");
   return problems;
+}
+
+/**
+ * A listing waits for an administrator when every listing has to (the flag),
+ * or when its model is new to the catalogue and has not been checked yet.
+ */
+export function listingNeedsReview(input: { modelStatus: string; reviewFlag: boolean; isAdmin: boolean }) {
+  if (input.isAdmin) return false;
+  return input.reviewFlag || input.modelStatus === "pending";
+}
+
+export async function hasSerialPhoto(listingId: string) {
+  const [row] = await db
+    .select({ id: listingAttachments.id })
+    .from(listingAttachments)
+    .where(and(eq(listingAttachments.listingId, listingId), eq(listingAttachments.kind, "serial_plate")))
+    .limit(1);
+  return !!row;
 }
 
 export async function publishListing(user: SessionUser, listingId: string) {
@@ -146,11 +170,20 @@ export async function publishListing(user: SessionUser, listingId: string) {
     .from(listingImages)
     .where(eq(listingImages.listingId, listingId));
 
-  const problems = readyToPublish(listing, images.length);
+  const problems = readyToPublish(listing, images.length, await hasSerialPhoto(listingId));
   if (problems.length) return { ok: false as const, problems };
 
-  // Whether new listings need approval is still an open question, so it is a flag.
-  const requiresReview = (await readFlags()).requireListingReview && user.role !== "admin";
+  const [model] = await db
+    .select({ status: equipmentModels.status })
+    .from(equipmentModels)
+    .where(eq(equipmentModels.id, listing.modelId))
+    .limit(1);
+  // Whether every new listing needs approval is still an open question, so it is a flag.
+  const requiresReview = listingNeedsReview({
+    modelStatus: model?.status ?? "published",
+    reviewFlag: (await readFlags()).requireListingReview,
+    isAdmin: user.role === "admin",
+  });
   const [row] = await db
     .update(listings)
     .set({

@@ -37,6 +37,10 @@ export default async function ProposeModelPage({ params }: { params: Promise<{ l
             organisations={user.organisations.filter((o) => o.canPublish)}
             labels={{
               manufacturer: t("manufacturer"),
+              manufacturerNew: t("manufacturerNew"),
+              manufacturerName: t("manufacturerName"),
+              manufacturerWebsite: t("manufacturerWebsite"),
+              manufacturerWebsiteHint: t("manufacturerWebsiteHint"),
               category: locale === "de" ? "Kategorie" : "Category",
               categoryGeneral: t("categoryGeneral"),
               name: locale === "de" ? "Modellbezeichnung" : "Model name",

@@ -2,11 +2,12 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { and, asc, desc, eq, ilike, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, ne, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db/client";
-import { getCategoryById } from "@/db/queries/catalogue";
 import { equipmentModels, manufacturers } from "@/db/schema/catalogue";
+import { proposeModel } from "@/domain/catalogue";
+import { NEW_MANUFACTURER } from "@/domain/proposal";
 import { listingAttachments, listingImages, listings, watchlist } from "@/db/schema/marketplace";
 import { requireUser } from "@/auth/session";
 import {
@@ -18,9 +19,7 @@ import {
   updateListing,
 } from "@/domain/listings";
 import { parseAmountToCents } from "@/domain/money";
-import { slugify } from "@/domain/slug";
-import { uploadAttachment, uploadImage, UploadError } from "@/integrations/storage";
-import { recordAudit } from "@/domain/audit";
+import { signedAttachmentUrl, uploadAttachment, uploadImage, UploadError } from "@/integrations/storage";
 
 export type FormState = { error?: string; ok?: boolean; fields?: string[] };
 
@@ -64,58 +63,51 @@ export async function startListingAction(_prev: FormState, formData: FormData): 
   redirect(`/${locale}/verkaufen/${draft.id}/zustand`);
 }
 
-/** A model the catalogue does not have yet. It is reviewed before it goes public. */
+/**
+ * An instrument the catalogue does not have yet, and its manufacturer if that
+ * is missing too. Both are checked before the listing goes public.
+ */
 export async function proposeModelAction(_prev: FormState, formData: FormData): Promise<FormState> {
   const locale = String(formData.get("locale") ?? "de");
   const user = await requireUser(locale);
 
   const parsed = z
     .object({
-      manufacturerId: z.uuid(),
+      manufacturerId: z.union([z.uuid(), z.literal(NEW_MANUFACTURER)]),
+      manufacturerName: z.string().trim().max(120).optional(),
+      manufacturerWebsite: z.url().max(300).optional(),
       categoryId: z.uuid(),
-      name: z.string().min(2).max(120),
+      name: z.string().trim().min(2).max(120),
       organisationId: z.string().optional(),
+    })
+    .refine((data) => data.manufacturerId !== NEW_MANUFACTURER || (data.manufacturerName ?? "").length >= 2, {
+      path: ["manufacturerName"],
     })
     .safeParse({
       manufacturerId: formData.get("manufacturerId"),
+      manufacturerName: formData.get("manufacturerName") || undefined,
+      manufacturerWebsite: formData.get("manufacturerWebsite") || undefined,
       categoryId: formData.get("categoryId"),
       name: formData.get("name"),
       organisationId: formData.get("organisationId") || undefined,
     });
-  if (!parsed.success) return { error: "invalid" };
-  // Consumables have no models, so a proposal can only name an equipment category.
-  const category = await getCategoryById(parsed.data.categoryId);
-  if (category?.kind !== "equipment") return { error: "invalid" };
+  if (!parsed.success) {
+    return { error: "invalid", fields: parsed.error.issues.map((issue) => String(issue.path[0])) };
+  }
 
-  const [{ count }] = await db
-    .select({ count: sql<number>`count(*)::int` })
-    .from(equipmentModels);
-
-  const [model] = await db
-    .insert(equipmentModels)
-    .values({
-      recordNumber: `RL-EQ-${String(4000 + Number(count)).padStart(6, "0")}-P`,
-      manufacturerId: parsed.data.manufacturerId,
-      categoryId: parsed.data.categoryId,
-      name: parsed.data.name,
-      slug: `${slugify(parsed.data.name)}-${Date.now().toString(36)}`,
-      status: "pending",
-      proposedBy: user.id,
-    })
-    .returning();
-
-  await recordAudit({
-    actorId: user.id,
-    action: "model.proposed",
-    targetType: "equipment_model",
-    targetId: model!.id,
-    summary: parsed.data.name,
-  });
-
-  const draft = await createDraft(user, {
-    modelId: model!.id,
-    organisationId: parsed.data.organisationId ?? null,
-  });
+  const { manufacturerId, manufacturerName, manufacturerWebsite, ...rest } = parsed.data;
+  let draft;
+  try {
+    draft = await proposeModel(user, {
+      ...rest,
+      manufacturer:
+        manufacturerId === NEW_MANUFACTURER
+          ? { name: manufacturerName!, website: manufacturerWebsite ?? null }
+          : { id: manufacturerId },
+    });
+  } catch {
+    return { error: "invalid", fields: ["categoryId"] };
+  }
   redirect(`/${locale}/verkaufen/${draft.id}/zustand`);
 }
 
@@ -253,6 +245,8 @@ export async function uploadAttachmentAction(_prev: FormState, formData: FormDat
   const file = formData.get("file");
   if (!(file instanceof File) || file.size === 0) return { error: "empty" };
   const kind = String(formData.get("kind") ?? "other");
+  // The serial plate is checked by eye, so it has to be a picture.
+  if (kind === "serial_plate" && !file.type.startsWith("image/")) return { error: "type" };
 
   try {
     const path = await uploadAttachment(file, `listings/${listingId}`);
@@ -336,10 +330,23 @@ export async function listingImagesFor(listingId: string) {
     .orderBy(asc(listingImages.sortOrder));
 }
 
+/** Documents only: the serial plate photo has a slot of its own. */
 export async function listingAttachmentsFor(listingId: string) {
   return db
     .select()
     .from(listingAttachments)
-    .where(eq(listingAttachments.listingId, listingId))
+    .where(and(eq(listingAttachments.listingId, listingId), ne(listingAttachments.kind, "serial_plate")))
     .orderBy(desc(listingAttachments.createdAt));
+}
+
+/** The newest serial plate photo, with a short-lived link for the seller or an administrator. */
+export async function serialPhotoFor(listingId: string) {
+  const [row] = await db
+    .select()
+    .from(listingAttachments)
+    .where(and(eq(listingAttachments.listingId, listingId), eq(listingAttachments.kind, "serial_plate")))
+    .orderBy(desc(listingAttachments.createdAt))
+    .limit(1);
+  if (!row) return null;
+  return { ...row, url: await signedAttachmentUrl(row.storagePath) };
 }

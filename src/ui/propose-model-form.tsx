@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { proposeModelAction, type FormState } from "@/actions/listings";
+import { NEW_MANUFACTURER } from "@/domain/proposal";
 import { Button } from "./button";
 import { Field, Input, Select } from "./field";
 
@@ -19,6 +20,8 @@ export function ProposeModelForm({
   labels: Record<string, string>;
 }) {
   const [state, action, pending] = useActionState<FormState, FormData>(proposeModelAction, {});
+  const [manufacturerId, setManufacturerId] = useState("");
+  const addsManufacturer = manufacturerId === NEW_MANUFACTURER;
 
   return (
     <form action={action} className="space-y-4">
@@ -30,10 +33,17 @@ export function ProposeModelForm({
         </p>
       ) : null}
       <Field label={labels.manufacturer} htmlFor="manufacturerId" required>
-        <Select id="manufacturerId" name="manufacturerId" required defaultValue="">
+        <Select
+          id="manufacturerId"
+          name="manufacturerId"
+          required
+          value={manufacturerId}
+          onChange={(event) => setManufacturerId(event.target.value)}
+        >
           <option value="" disabled>
             —
           </option>
+          <option value={NEW_MANUFACTURER}>{labels.manufacturerNew}</option>
           {manufacturers.map((manufacturer) => (
             <option key={manufacturer.id} value={manufacturer.id}>
               {manufacturer.name}
@@ -41,6 +51,16 @@ export function ProposeModelForm({
           ))}
         </Select>
       </Field>
+      {addsManufacturer ? (
+        <div className="space-y-4 rounded-[var(--radius-md)] border border-border bg-bg-subtle p-3">
+          <Field label={labels.manufacturerName} htmlFor="manufacturerName" required>
+            <Input id="manufacturerName" name="manufacturerName" required minLength={2} maxLength={120} />
+          </Field>
+          <Field label={labels.manufacturerWebsite} htmlFor="manufacturerWebsite" hint={labels.manufacturerWebsiteHint}>
+            <Input id="manufacturerWebsite" name="manufacturerWebsite" type="url" placeholder="https://" />
+          </Field>
+        </div>
+      ) : null}
       <Field label={labels.category} htmlFor="categoryId" required>
         <Select id="categoryId" name="categoryId" required defaultValue="">
           <option value="" disabled>

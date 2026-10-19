@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { requireUser } from "@/auth/session";
-import { getEditableListing, readyToPublish } from "@/domain/listings";
+import { getModelStatus } from "@/db/queries/catalogue";
+import { getEditableListing, hasSerialPhoto, readyToPublish } from "@/domain/listings";
 import { listingImagesFor } from "@/actions/listings";
 import { calculateFee } from "@/domain/fees";
 import { sellerNetCents } from "@/domain/fees";
@@ -30,7 +31,9 @@ export default async function ReviewStep({
   const tc = await getTranslations({ locale, namespace: "conditions" });
   const to = await getTranslations({ locale, namespace: "orders" });
 
-  const problems = readyToPublish(listing, images.length);
+  const [serialPhoto, modelStatus] = await Promise.all([hasSerialPhoto(id), getModelStatus(listing.modelId)]);
+  const problems = readyToPublish(listing, images.length, serialPhoto);
+  const newDevice = modelStatus === "pending";
   const fee = calculateFee(listing.priceCents, listing.currency);
   const net = sellerNetCents(listing.priceCents, fee.cents);
 
@@ -91,11 +94,16 @@ export default async function ReviewStep({
         </CardBody>
       </Card>
 
+      {newDevice ? (
+        <p className="rounded-[var(--radius-md)] bg-info-subtle px-3 py-2 text-sm text-info">{t("reviewNewDevice")}</p>
+      ) : null}
+
       <PublishForm
         locale={locale}
         listingId={id}
         labels={{
-          publish: t("publish"),
+          publish: newDevice ? t("submitForReview") : t("publish"),
+          serialPhoto: t("serialPhotoTitle"),
           incomplete: locale === "de" ? "Es fehlt noch etwas:" : "Something is still missing:",
           title: t("titleField"),
           price: t("price"),

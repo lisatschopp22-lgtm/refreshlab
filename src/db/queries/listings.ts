@@ -50,7 +50,11 @@ export async function getListingBySlug(slug: string) {
       .from(listingImages)
       .where(eq(listingImages.listingId, row.listing.id))
       .orderBy(listingImages.sortOrder),
-    db.select().from(listingAttachments).where(eq(listingAttachments.listingId, row.listing.id)),
+    // The serial plate photo is for the review only and never part of the public documents.
+    db
+      .select()
+      .from(listingAttachments)
+      .where(and(eq(listingAttachments.listingId, row.listing.id), ne(listingAttachments.kind, "serial_plate"))),
     db
       .select({
         activeListings: sql<number>`count(*) filter (where status = 'active')::int`,

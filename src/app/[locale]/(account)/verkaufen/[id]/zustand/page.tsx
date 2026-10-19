@@ -1,11 +1,11 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { requireUser } from "@/auth/session";
 import { getEditableListing } from "@/domain/listings";
-import { listingAttachmentsFor, listingImagesFor } from "@/actions/listings";
+import { listingAttachmentsFor, listingImagesFor, serialPhotoFor } from "@/actions/listings";
 import { conditions } from "@/domain/conditions";
 import type { Locale } from "@/i18n/routing";
 import { Card, CardBody, CardHeader } from "@/ui/card";
-import { AttachmentUploader, ConditionForm, ImageUploader } from "@/ui/sell-forms";
+import { AttachmentUploader, ConditionForm, ImageUploader, SerialPhotoUploader } from "@/ui/sell-forms";
 import { WizardSteps } from "@/ui/wizard-steps";
 
 export default async function ConditionStep({
@@ -19,7 +19,11 @@ export default async function ConditionStep({
 
   const user = await requireUser(locale);
   const listing = await getEditableListing(user, id);
-  const [images, attachments] = await Promise.all([listingImagesFor(id), listingAttachmentsFor(id)]);
+  const [images, attachments, serialPhoto] = await Promise.all([
+    listingImagesFor(id),
+    listingAttachmentsFor(id),
+    serialPhotoFor(id),
+  ]);
 
   const t = await getTranslations({ locale, namespace: "sell" });
   const tc = await getTranslations({ locale, namespace: "conditions" });
@@ -79,6 +83,24 @@ export default async function ConditionStep({
               imagesHint: t("imagesHint"),
               remove: locale === "de" ? "Entfernen" : "Remove",
               uploadFailed: locale === "de" ? "Upload fehlgeschlagen." : "Upload failed.",
+            }}
+          />
+        </CardBody>
+      </Card>
+
+      <Card>
+        <CardHeader title={t("serialPhotoTitle")} description={t("serialPhotoHint")} />
+        <CardBody>
+          <SerialPhotoUploader
+            locale={locale}
+            listingId={id}
+            photo={serialPhoto ? { url: serialPhoto.url, filename: serialPhoto.filename } : null}
+            labels={{
+              title: t("serialPhotoTitle"),
+              upload: t("serialPhotoUpload"),
+              replace: t("serialPhotoReplace"),
+              saved: t("serialPhotoSaved"),
+              uploadFailed: t("serialPhotoFailed"),
             }}
           />
         </CardBody>

@@ -22,7 +22,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale, slug } = await params;
   const manufacturer = await getManufacturerBySlug(slug);
-  if (!manufacturer) return {};
+  if (manufacturer?.status !== "published") return {};
   const t = await getTranslations({ locale, namespace: "seo" });
   return {
     title: t("manufacturerTitle", { name: manufacturer.name }),
@@ -41,7 +41,8 @@ export default async function ManufacturerPage({
   setRequestLocale(locale);
 
   const manufacturer = await getManufacturerBySlug(slug);
-  if (!manufacturer) notFound();
+  // Unchecked or merged manufacturers are not public.
+  if (!manufacturer || manufacturer.status !== "published") notFound();
 
   const t = await getTranslations({ locale, namespace: "manufacturer" });
   const tc = await getTranslations({ locale, namespace: "category" });
