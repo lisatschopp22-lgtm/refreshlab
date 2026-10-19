@@ -152,7 +152,11 @@
     "emptyText": "Versuchen Sie es mit weniger Filtern oder einem allgemeineren Suchbegriff. Wir legen auch eine Suchbenachrichtigung an, sobald Sie angemeldet sind.",
     "clearFilters": "Filter zurücksetzen",
     "matchingItems": "passende Geräte",
-    "saveSearch": "Suche speichern"
+    "saveSearch": "Suche speichern",
+    "highlightQualified": "Neu bei den qualifizierten Geräten",
+    "highlightQualifiedAll": "Alle qualifizierten Geräte",
+    "highlightNewest": "Neu eingestellt",
+    "moreItems": "Weitere Geräte"
   },
   "listing": {
     "buyNow": "Kaufen",

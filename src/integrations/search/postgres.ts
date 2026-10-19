@@ -120,7 +120,15 @@ class PostgresSearchProvider implements SearchProvider {
     const perPage = query.perPage ?? PER_PAGE;
     const page = Math.max(1, query.page ?? 1);
     const offset = (page - 1) * perPage;
-    const where = this.whereSql(this.conditions(query));
+    const conditions = this.conditions(query);
+    // Listings shown elsewhere on the page (highlights) must not repeat in the
+    // list. The facets still count them, because they still match.
+    const where = query.excludeIds?.length
+      ? this.whereSql([
+          ...conditions,
+          sql`l.id not in (${sql.join(query.excludeIds.map((id) => sql`${id}`), sql`, `)})`,
+        ])
+      : this.whereSql(conditions);
 
     const itemsQuery = sql`
       select

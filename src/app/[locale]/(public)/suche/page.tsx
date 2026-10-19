@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { LayoutGrid, List, Search as SearchIcon, SlidersHorizontal } from "lucide-react";
-import { searchProvider } from "@/integrations/search";
+import { BadgeCheck, LayoutGrid, List, Search as SearchIcon, SlidersHorizontal, Sparkles } from "lucide-react";
+import type { ComponentType, ReactNode } from "react";
+import { searchProvider, type ListingCard } from "@/integrations/search";
 import { hasAnyFilter, parseSearchParams, withParam, type RawParams } from "@/domain/search-params";
 import { formatNumber } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
@@ -50,7 +51,25 @@ export default async function SearchPage({
 
   const query = parseSearchParams(sp);
   const perPage = 24;
-  const result = await searchProvider().search({ ...query, perPage });
+  const search = searchProvider();
+
+  // The plain view of "Geräte entdecken" (nothing searched, filtered or
+  // re-sorted) opens with the newest qualified and the newest listings. The
+  // list below leaves those out on every page, so nothing appears twice and
+  // the pages stay stable. Once someone narrows the list, it answers alone.
+  const landing = !query.q && !hasAnyFilter(query) && (!query.sort || query.sort === "newest");
+  const qualified = landing
+    ? await search.search({ verifiedOnly: true, warrantyOnly: true, sort: "newest", perPage: 3 })
+    : null;
+  const newest = landing
+    ? await search.search({ sort: "newest", perPage: 3, excludeIds: qualified?.items.map((l) => l.id) })
+    : null;
+  const highlighted = [...(qualified?.items ?? []), ...(newest?.items ?? [])].map((l) => l.id);
+  const showHighlights = landing && (query.page ?? 1) === 1 && highlighted.length > 0;
+
+  const result = await search.search({ ...query, perPage, excludeIds: highlighted });
+  // The highlighted listings still belong to the set the heading counts.
+  const matching = result.total + highlighted.length;
   const basePath = `/${locale}/suche`;
   const layout = (typeof sp.ansicht === "string" ? sp.ansicht : "grid") === "list" ? "list" : "grid";
   const pageCount = Math.max(1, Math.ceil(result.total / perPage));
@@ -107,12 +126,12 @@ export default async function SearchPage({
             <h1 className="text-lg font-semibold">
               {query.q ? (
                 <>
-                  <span className="tabular">{formatNumber(result.total, locale)}</span> {t("resultsFor")}{" "}
+                  <span className="tabular">{formatNumber(matching, locale)}</span> {t("resultsFor")}{" "}
                   <span className="text-primary">&ldquo;{query.q}&rdquo;</span>
                 </>
               ) : (
                 <>
-                  <span className="tabular">{formatNumber(result.total, locale)}</span> {t("matchingItems")}
+                  <span className="tabular">{formatNumber(matching, locale)}</span> {t("matchingItems")}
                 </>
               )}
             </h1>
@@ -156,7 +175,34 @@ export default async function SearchPage({
             </div>
           </div>
 
-          {result.items.length === 0 ? (
+          {showHighlights ? (
+            <div className="mb-8 space-y-4">
+              {qualified && qualified.items.length > 0 ? (
+                <Highlight
+                  icon={BadgeCheck}
+                  title={t("highlightQualified")}
+                  items={qualified.items}
+                  locale={locale}
+                  action={
+                    <Link
+                      href={`/${locale}/qualifizierte-geraete`}
+                      className="text-sm font-medium text-primary hover:underline"
+                    >
+                      {t("highlightQualifiedAll")} →
+                    </Link>
+                  }
+                />
+              ) : null}
+              {newest && newest.items.length > 0 ? (
+                <Highlight icon={Sparkles} title={t("highlightNewest")} items={newest.items} locale={locale} />
+              ) : null}
+              {result.items.length > 0 ? (
+                <h2 className="pt-4 text-lg font-semibold">{t("moreItems")}</h2>
+              ) : null}
+            </div>
+          ) : null}
+
+          {result.items.length === 0 && showHighlights ? null : result.items.length === 0 ? (
             <EmptyState
               title={t("emptyTitle")}
               description={`${th("emptySearch")} ${t("emptyText")}`}
@@ -199,5 +245,39 @@ export default async function SearchPage({
         </section>
       </div>
     </main>
+  );
+}
+
+/** A short row of listings set apart from the list, always as cards. */
+function Highlight({
+  icon: Icon,
+  title,
+  items,
+  locale,
+  action,
+}: {
+  icon: ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
+  title: string;
+  items: ListingCard[];
+  locale: Locale;
+  action?: ReactNode;
+}) {
+  return (
+    <section className="rounded-[var(--radius-lg)] border border-border bg-bg-subtle p-4">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <h2 className="flex items-center gap-2 text-base font-semibold text-fg">
+          <Icon className="size-4 text-primary" aria-hidden />
+          {title}
+        </h2>
+        {action}
+      </div>
+      <ul className="grid gap-4 sm:grid-cols-3">
+        {items.map((listing) => (
+          <li key={listing.id}>
+            <ListingCardItem listing={listing} locale={locale} />
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }

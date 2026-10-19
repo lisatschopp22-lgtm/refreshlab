@@ -152,7 +152,11 @@
     "emptyText": "Try fewer filters or a broader search term. We can also set up a search alert once you are signed in.",
     "clearFilters": "Clear filters",
     "matchingItems": "matching instruments",
-    "saveSearch": "Save this search"
+    "saveSearch": "Save this search",
+    "highlightQualified": "New in qualified equipment",
+    "highlightQualifiedAll": "All qualified equipment",
+    "highlightNewest": "Just listed",
+    "moreItems": "More equipment"
   },
   "listing": {
     "buyNow": "Buy now",

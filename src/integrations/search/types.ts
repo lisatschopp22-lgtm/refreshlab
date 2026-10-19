@@ -17,6 +17,8 @@ export type SearchQuery = {
   modelId?: string;
   sellerId?: string;
   organisationId?: string;
+  /** Left out of the items and the total, but still counted in the facets. */
+  excludeIds?: string[];
   sort?: SortKey;
   page?: number;
   perPage?: number;

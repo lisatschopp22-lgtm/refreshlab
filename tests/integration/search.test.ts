@@ -61,6 +61,18 @@ describe("postgres search", () => {
     expect(result.items.every((i) => i.priceCents >= 500_000 && i.priceCents <= 1_500_000)).toBe(true);
   });
 
+  it("leaves excluded listings out of the items and total, but not the facets", async () => {
+    // The landing view of the search page shows highlights above the list.
+    const all = await search.search({ sort: "newest", perPage: 10 });
+    const excluded = all.items.slice(0, 3).map((i) => i.id);
+    const rest = await search.search({ sort: "newest", perPage: 10, excludeIds: excluded });
+
+    expect(rest.total).toBe(all.total - excluded.length);
+    expect(rest.items.some((i) => excluded.includes(i.id))).toBe(false);
+    expect(rest.items[0]!.id).toBe(all.items[3]!.id);
+    expect(rest.facets).toEqual(all.facets);
+  });
+
   it("reindexes without losing rows", async () => {
     const count = await search.reindex();
     expect(count).toBeGreaterThan(0);
