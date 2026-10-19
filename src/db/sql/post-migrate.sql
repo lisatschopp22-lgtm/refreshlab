@@ -82,11 +82,14 @@ returns text language sql stable as $$
     m.name,
     mf.name,
     c.slug,
+    -- A device type also answers to its parent: a "tischzentrifugen" listing is still found by "zentrifuge".
+    parent.slug,
     p_listing.year::text
   )
   from public.equipment_models m
   join public.manufacturers mf on mf.id = m.manufacturer_id
   join public.categories c on c.id = m.category_id
+  left join public.categories parent on parent.id = c.parent_id
   where m.id = p_listing.model_id
 $$;
 

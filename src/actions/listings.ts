@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { and, asc, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db/client";
+import { getCategoryById } from "@/db/queries/catalogue";
 import { equipmentModels, manufacturers } from "@/db/schema/catalogue";
 import { listingAttachments, listingImages, listings, watchlist } from "@/db/schema/marketplace";
 import { requireUser } from "@/auth/session";
@@ -82,6 +83,9 @@ export async function proposeModelAction(_prev: FormState, formData: FormData): 
       organisationId: formData.get("organisationId") || undefined,
     });
   if (!parsed.success) return { error: "invalid" };
+  // Consumables have no models, so a proposal can only name an equipment category.
+  const category = await getCategoryById(parsed.data.categoryId);
+  if (category?.kind !== "equipment") return { error: "invalid" };
 
   const [{ count }] = await db
     .select({ count: sql<number>`count(*)::int` })

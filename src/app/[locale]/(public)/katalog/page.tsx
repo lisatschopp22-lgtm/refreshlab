@@ -18,6 +18,17 @@ export async function generateMetadata({
   return { title: t("catalogue"), description: ts("defaultDescription") };
 }
 
+/** Manufacturers grouped by their first letter; digits and umlauts are filed sensibly. */
+function byInitial<T extends { name: string }>(items: T[]): [string, T[]][] {
+  const groups = new Map<string, T[]>();
+  for (const item of items) {
+    const first = item.name.normalize("NFD").charAt(0).toUpperCase();
+    const letter = /[A-Z]/.test(first) ? first : "#";
+    groups.set(letter, [...(groups.get(letter) ?? []), item]);
+  }
+  return [...groups.entries()].sort(([a], [b]) => (a === "#" ? -1 : b === "#" ? 1 : a.localeCompare(b)));
+}
+
 export default async function CataloguePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale: raw } = await params;
   const locale = raw as Locale;
@@ -71,20 +82,30 @@ export default async function CataloguePage({ params }: { params: Promise<{ loca
           </ul>
         </Section>
 
-        <Section title={tf("manufacturers")}>
-          <ul className="flex flex-wrap gap-2">
-            {manufacturers.map((manufacturer) => (
-              <li key={manufacturer.slug}>
-                <Link
-                  href={`/${locale}/hersteller/${manufacturer.slug}`}
-                  className="inline-flex items-center gap-2 rounded-[var(--radius-full)] border border-border bg-bg-elevated px-3 py-1.5 text-sm text-fg transition-colors hover:border-[var(--primary)]"
-                >
-                  {manufacturer.name}
-                  <span className="tabular text-xs text-fg-subtle">{manufacturer.modelCount}</span>
-                </Link>
-              </li>
+        {/* Grouped by initial: a flat cloud of a few hundred names cannot be scanned. */}
+        <Section title={t("manufacturersAll")} description={`${formatNumber(manufacturers.length, locale)} ${tf("manufacturers")}`}>
+          <div className="space-y-4">
+            {byInitial(manufacturers).map(([letter, group]) => (
+              <div key={letter} className="flex gap-4">
+                <p className="tabular w-6 shrink-0 pt-1.5 text-sm font-semibold text-fg-subtle">{letter}</p>
+                <ul className="flex flex-wrap gap-2">
+                  {group.map((manufacturer) => (
+                    <li key={manufacturer.slug}>
+                      <Link
+                        href={`/${locale}/hersteller/${manufacturer.slug}`}
+                        className="inline-flex items-center gap-2 rounded-[var(--radius-full)] border border-border bg-bg-elevated px-3 py-1.5 text-sm text-fg transition-colors hover:border-[var(--primary)]"
+                      >
+                        {manufacturer.name}
+                        {manufacturer.modelCount > 0 ? (
+                          <span className="tabular text-xs text-fg-subtle">{manufacturer.modelCount}</span>
+                        ) : null}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ))}
-          </ul>
+          </div>
         </Section>
       </div>
     </main>

@@ -51,6 +51,7 @@ Every seeded account uses the password `refreshlab`.
 | `npm run check` | lint, typecheck, colour guard, unit and integration tests |
 | `npm run e2e` | Playwright journeys |
 | `npm run db:reset` | Wipe, migrate and re-seed |
+| `npm run db:catalogue` | Update manufacturers and categories in a database in use, without wiping it |
 | `npm run db:generate` | Generate a migration after a schema change |
 | `npm run db:seed -- --listings 5000` | Re-seed with a larger catalogue |
 | `npm run images:fetch` | Fetch real equipment photographs (see below) |

@@ -16,6 +16,9 @@ import { profiles } from "./identity";
 
 export const modelStatusEnum = pgEnum("model_status", ["pending", "published", "merged"]);
 
+/** Equipment carries models and listings; consumables are a taxonomy only, so far. */
+export const categoryKindEnum = pgEnum("category_kind", ["equipment", "consumable"]);
+
 /** One spec field of a category, e.g. { key: "max_rcf", unit: "× g", type: "number" }. */
 export type SpecField = {
   key: string;
@@ -45,6 +48,7 @@ export const categories = pgTable(
   {
     id: id(),
     parentId: uuid("parent_id"),
+    kind: categoryKindEnum("kind").notNull().default("equipment"),
     name: jsonb("name").$type<Localized>().notNull(),
     intro: jsonb("intro").$type<Localized>(),
     slug: text("slug").notNull(),

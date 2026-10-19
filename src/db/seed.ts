@@ -5,6 +5,7 @@ import postgres from "postgres";
 import { DATABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_URL } from "./env";
 import * as s from "./schema";
 import { categories as categorySeed, manufacturers as manufacturerSeed } from "./seed/catalogue-data";
+import { syncCatalogue } from "./seed/catalogue-sync";
 import { models as modelSeed } from "./seed/model-data";
 import { organisations as orgSeed, people } from "./seed/people-data";
 import { contentPages } from "./seed/content-data";
@@ -183,32 +184,10 @@ async function main() {
 
   // --------------------------------------------------------------- catalogue
   console.log("→ creating catalogue");
-  const manufacturerIdBySlug = new Map<string, string>();
-  for (const m of manufacturerSeed) {
-    const [row] = await db
-      .insert(s.manufacturers)
-      .values({ name: m.name, slug: m.slug, country: m.country, website: m.website })
-      .returning({ id: s.manufacturers.id });
-    manufacturerIdBySlug.set(m.slug, row!.id);
-  }
-
-  const categoryIdBySlug = new Map<string, string>();
+  // The same sync `npm run db:catalogue` runs against a database in use.
+  const { manufacturerIdBySlug, categoryIdBySlug } = await syncCatalogue(db);
   const categoryHue = new Map<string, number>();
   categorySeed.forEach((c, index) => categoryHue.set(c.slug, Math.round((index * 360) / categorySeed.length)));
-  for (const [index, c] of categorySeed.entries()) {
-    const [row] = await db
-      .insert(s.categories)
-      .values({
-        name: c.name,
-        intro: c.intro,
-        slug: c.slug,
-        icon: c.icon,
-        sortOrder: index,
-        specSchema: c.specs,
-      })
-      .returning({ id: s.categories.id });
-    categoryIdBySlug.set(c.slug, row!.id);
-  }
 
   console.log(`→ creating ${modelSeed.length} equipment models and uploading images`);
   const modelRows: {
@@ -263,7 +242,7 @@ async function main() {
         recordNumber,
         revision: intBetween(1, 9),
         manufacturerId: manufacturerIdBySlug.get(m.manufacturer)!,
-        categoryId: categoryIdBySlug.get(m.category)!,
+        categoryId: categoryIdBySlug.get(m.sub ?? m.category)!,
         name: m.name,
         slug,
         summary: m.summary,

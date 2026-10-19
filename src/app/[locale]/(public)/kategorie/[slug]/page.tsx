@@ -2,13 +2,20 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { getCategoryBySlug, listModelsForCategory } from "@/db/queries/catalogue";
+import {
+  getCategoryById,
+  getCategoryBySlug,
+  listChildCategories,
+  listModelsForCategory,
+} from "@/db/queries/catalogue";
 import { searchProvider } from "@/integrations/search";
 import { parseSearchParams, type RawParams } from "@/domain/search-params";
 import { formatNumber, pick } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
 import { Breadcrumbs } from "@/ui/breadcrumbs";
 import { Badge } from "@/ui/badge";
+import { ButtonLink } from "@/ui/button";
+import { EmptyState } from "@/ui/empty-state";
 import { JsonLd, breadcrumbLd } from "@/ui/json-ld";
 import { ListingCardItem } from "@/ui/listing-card";
 import { Section } from "@/ui/card";
@@ -23,7 +30,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale, slug } = await params;
   const category = await getCategoryBySlug(slug);
-  if (!category) return {};
+  if (!category || category.kind !== "equipment") return {};
   const t = await getTranslations({ locale, namespace: "seo" });
   const name = pick(category.name, locale as Locale);
   return {
@@ -46,21 +53,27 @@ export default async function CategoryPage({
   const sp = await searchParams;
 
   const category = await getCategoryBySlug(slug);
-  if (!category) notFound();
+  // Consumables are a taxonomy without models; they live on their own page.
+  if (!category || category.kind !== "equipment") notFound();
 
   const t = await getTranslations({ locale, namespace: "category" });
   const tm = await getTranslations({ locale, namespace: "model" });
+  const tc = await getTranslations({ locale, namespace: "common" });
+  const tn = await getTranslations({ locale, namespace: "nav" });
 
   const query = parseSearchParams(sp);
-  const [listings, models] = await Promise.all([
+  const [listings, models, parent, children] = await Promise.all([
     searchProvider().search({ ...query, category: slug, perPage: 12, sort: query.sort ?? "newest" }),
     listModelsForCategory(category.id),
+    category.parentId ? getCategoryById(category.parentId) : null,
+    listChildCategories(category.id),
   ]);
 
   const name = pick(category.name, locale);
   const breadcrumbs = [
     { name: "refreshLab", href: `/${locale}` },
     { name: t("title"), href: `/${locale}/katalog` },
+    ...(parent ? [{ name: pick(parent.name, locale), href: `/${locale}/kategorie/${parent.slug}` }] : []),
     { name, href: `/${locale}/kategorie/${slug}` },
   ];
 
@@ -71,7 +84,8 @@ export default async function CategoryPage({
 
       <header className="max-w-3xl space-y-3 border-b border-border pb-6">
         <h1 className="text-3xl font-bold tracking-tight">{name}</h1>
-        <p className="leading-relaxed text-fg-muted">{pick(category.intro, locale)}</p>
+        {/* A device type borrows its parent's introduction. */}
+        <p className="leading-relaxed text-fg-muted">{pick(category.intro ?? parent?.intro, locale)}</p>
         <p className="flex gap-4 text-sm text-fg-subtle">
           <span className="tabular">
             {formatNumber(listings.total, locale)} {t("offers")}
@@ -82,25 +96,58 @@ export default async function CategoryPage({
         </p>
       </header>
 
+      {children.length > 0 ? (
+        <nav aria-label={t("types")} className="space-y-2 pt-6">
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-fg-subtle">{t("types")}</h2>
+          <ul className="flex flex-wrap gap-2">
+            {children.map((child) => (
+              <li key={child.id}>
+                <Link
+                  href={`/${locale}/kategorie/${child.slug}`}
+                  className="inline-flex items-center gap-2 rounded-[var(--radius-full)] border border-border bg-bg-elevated px-3 py-1.5 text-sm text-fg transition-colors hover:border-[var(--primary)]"
+                >
+                  {pick(child.name, locale)}
+                  {child.listingCount > 0 ? (
+                    <span className="tabular text-xs text-fg-subtle">{formatNumber(child.listingCount, locale)}</span>
+                  ) : null}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      ) : null}
+
       <div className="space-y-12 py-8">
         <Section
           title={t("offers")}
           action={
             <Link href={`/${locale}/suche?kategorie=${slug}`} className="text-sm text-primary hover:underline">
-              {locale === "de" ? "Alle mit Filtern" : "All with filters"} →
+              {tc("allWithFilters")} →
             </Link>
           }
         >
-          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {listings.items.map((listing) => (
-              <li key={listing.id}>
-                <ListingCardItem listing={listing} locale={locale} />
-              </li>
-            ))}
-          </ul>
+          {listings.items.length === 0 ? (
+            <EmptyState
+              title={t("emptyOffers")}
+              action={
+                <ButtonLink href={`/${locale}/verkaufen`} variant="secondary" size="sm">
+                  {tn("sell")}
+                </ButtonLink>
+              }
+            />
+          ) : (
+            <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {listings.items.map((listing) => (
+                <li key={listing.id}>
+                  <ListingCardItem listing={listing} locale={locale} />
+                </li>
+              ))}
+            </ul>
+          )}
         </Section>
 
         {/* The knowledge base side: models exist whether or not anything is for sale. */}
+        {models.length > 0 ? (
         <Section title={tm("record")} description={`${models.length} ${t("models")} ${t("inCategory")}`}>
           <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {models.map((model) => (
@@ -131,6 +178,7 @@ export default async function CategoryPage({
             ))}
           </ul>
         </Section>
+        ) : null}
       </div>
     </main>
   );

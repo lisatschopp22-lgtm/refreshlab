@@ -251,3 +251,21 @@ fields. The qualified page lists verified listings with a warranty as a
 stand-in (14 in the seed), the store lists condition `for_parts` (11).
 Consumables cannot be listed at all, because a listing needs an equipment
 model. The new pages have no Playwright test yet.
+
+## Catalogue: device types, consumables and 291 manufacturers
+
+The catalogue now covers what large laboratory suppliers carry, read from
+Carl Roth, VWR, Faust and TH.GEYER as orientation.
+
+* **22 categories, 147 device types**: `/de/kategorie/zentrifugen` lists its
+  device types; `/de/kategorie/tischzentrifugen` shows only those. 52 seeded
+  models are filed under their device type.
+* **12 groups of consumables with 70 kinds**, shown on
+  `/de/verbrauchsmaterialien`. Chemicals are not among them.
+* **291 manufacturers**, grouped from A to Z on `/de/katalog`.
+* Proposing a new model now offers the device types as well.
+* `npm run db:catalogue` brings a database in use up to date without wiping
+  it; `npm run db:seed` uses the same sync.
+
+Skipped: device types have no introduction of their own and borrow their
+parent's. Nothing can be listed under consumables yet.

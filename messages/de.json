@@ -124,6 +124,8 @@
     "welcomeText": "Handfestes Verbrauchsmaterial, das nicht als gefährlich eingestuft ist: Pipettenspitzen, Filter, Handschuhe und Glaswaren wie Erlenmeyerkolben, Bechergläser und andere Glasbehälter.",
     "excludedTitle": "Das gehört nicht hierher",
     "excludedText": "Chemikalien und alles, was als gefährlich eingestuft ist. Bei einer Chemikalie kann niemand garantieren, dass im Behälter wirklich das ist, was verkauft wird. Geht dabei etwas schief, sind die Folgen zu gross.",
+    "rangeTitle": "Was hier gehandelt wird",
+    "rangeText": "Die Gliederung folgt dem Sortiment grosser Laborhändler – ohne Chemikalien.",
     "emptyTitle": "Noch keine Verbrauchsmaterialien im Angebot",
     "emptyText": "Dieser Bereich ist im Aufbau: Verbrauchsmaterial lässt sich noch nicht einstellen. Geräte finden Sie bereits heute auf dem Marktplatz.",
     "emptyCta": "Geräte entdecken"
@@ -225,7 +227,10 @@
     "offers": "Angebote",
     "models": "Modelle",
     "inCategory": "in dieser Kategorie",
-    "allManufacturers": "Alle Hersteller in dieser Kategorie"
+    "allManufacturers": "Alle Hersteller in dieser Kategorie",
+    "types": "Gerätetypen",
+    "emptyOffers": "Zurzeit gibt es in dieser Kategorie kein Angebot.",
+    "manufacturersAll": "Hersteller von A bis Z"
   },
   "manufacturer": {
     "title": "Hersteller",
@@ -327,6 +332,7 @@
     "modelNotFound": "Modell nicht gefunden?",
     "proposeModel": "Neues Modell vorschlagen",
     "proposeNote": "Der Vorschlag wird geprüft, bevor er im Katalog erscheint. Ihr Inserat können Sie trotzdem sofort veröffentlichen.",
+    "categoryGeneral": "allgemein",
     "conditionTitle": "In welchem Zustand ist das Gerät?",
     "conditionNotes": "Beschreibung des Zustands",
     "conditionNotesHint": "Nennen Sie auch Mängel. Das erspart später Rückfragen und Streit.",

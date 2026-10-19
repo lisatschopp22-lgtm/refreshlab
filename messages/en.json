@@ -124,6 +124,8 @@
     "welcomeText": "Tangible consumables that are not classified as hazardous: pipette tips, filters, gloves and glassware such as Erlenmeyer flasks, beakers and other glass containers.",
     "excludedTitle": "What does not belong here",
     "excludedText": "Chemicals, and anything classified as hazardous. With a chemical, nobody can guarantee that the container really holds what is being sold. If something goes wrong, the consequences are too serious.",
+    "rangeTitle": "What is traded here",
+    "rangeText": "The structure follows the range of large laboratory suppliers – without chemicals.",
     "emptyTitle": "No consumables on offer yet",
     "emptyText": "This section is being set up: consumables cannot be listed yet. Equipment is already available on the marketplace today.",
     "emptyCta": "Browse equipment"
@@ -225,7 +227,10 @@
     "offers": "listings",
     "models": "models",
     "inCategory": "in this category",
-    "allManufacturers": "All manufacturers in this category"
+    "allManufacturers": "All manufacturers in this category",
+    "types": "Device types",
+    "emptyOffers": "There is nothing on offer in this category at the moment.",
+    "manufacturersAll": "Manufacturers from A to Z"
   },
   "manufacturer": {
     "title": "Manufacturers",
@@ -327,6 +332,7 @@
     "modelNotFound": "Model not found?",
     "proposeModel": "Propose a new model",
     "proposeNote": "The proposal is reviewed before it appears in the catalogue. You can still publish your listing immediately.",
+    "categoryGeneral": "general",
     "conditionTitle": "What condition is the instrument in?",
     "conditionNotes": "Condition description",
     "conditionNotesHint": "Name the defects too. It saves questions and arguments later.",

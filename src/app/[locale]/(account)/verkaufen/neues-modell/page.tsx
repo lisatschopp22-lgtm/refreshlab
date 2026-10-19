@@ -1,6 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { requireUser } from "@/auth/session";
-import { listCategories, listManufacturers } from "@/db/queries/catalogue";
+import { listCategoryTree, listManufacturers } from "@/db/queries/catalogue";
 import { pick } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
 import { Card, CardBody } from "@/ui/card";
@@ -16,7 +16,7 @@ export default async function ProposeModelPage({ params }: { params: Promise<{ l
 
   const user = await requireUser(locale);
   const t = await getTranslations({ locale, namespace: "sell" });
-  const [categories, manufacturers] = await Promise.all([listCategories(), listManufacturers()]);
+  const [categories, manufacturers] = await Promise.all([listCategoryTree(), listManufacturers()]);
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -28,12 +28,17 @@ export default async function ProposeModelPage({ params }: { params: Promise<{ l
         <CardBody>
           <ProposeModelForm
             locale={locale}
-            categories={categories.map((c) => ({ id: c.id, name: pick(c.name, locale) }))}
+            categories={categories.map((c) => ({
+              id: c.id,
+              name: pick(c.name, locale),
+              children: c.children.map((child) => ({ id: child.id, name: pick(child.name, locale) })),
+            }))}
             manufacturers={manufacturers.map((m) => ({ id: m.id, name: m.name }))}
             organisations={user.organisations.filter((o) => o.canPublish)}
             labels={{
               manufacturer: t("manufacturer"),
               category: locale === "de" ? "Kategorie" : "Category",
+              categoryGeneral: t("categoryGeneral"),
               name: locale === "de" ? "Modellbezeichnung" : "Model name",
               note: t("proposeNote"),
               submit: t("continueToCondition"),

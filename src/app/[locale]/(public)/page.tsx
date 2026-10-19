@@ -114,7 +114,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
         <Section title={t("categoriesTitle")} description={t("categoriesSubtitle")}>
           <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {categories.map((category) => (
+            {/* The catalogue lists every category; the home page only those with something to buy. */}
+            {categories.filter((category) => category.listingCount > 0).map((category) => (
               <li key={category.slug}>
                 <Link
                   href={`/${locale}/kategorie/${category.slug}`}

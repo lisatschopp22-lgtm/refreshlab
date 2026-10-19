@@ -19,6 +19,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx src/db/migrate.ts",
     "db:seed": "tsx src/db/seed.ts",
+    "db:catalogue": "tsx src/db/catalogue.ts",
     "db:reset": "supabase db reset && npm run db:migrate && npm run db:seed",
     "db:studio": "drizzle-kit studio",
     "images:fetch": "node scripts/fetch-reference-images.mjs",

@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Ban, CircleCheck } from "lucide-react";
+import { listConsumableCategories } from "@/db/queries/catalogue";
+import { pick } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
 import { Breadcrumbs } from "@/ui/breadcrumbs";
 import { ButtonLink } from "@/ui/button";
-import { Card, CardBody } from "@/ui/card";
+import { Card, CardBody, Section } from "@/ui/card";
 import { EmptyState } from "@/ui/empty-state";
 
 export async function generateMetadata({
@@ -28,6 +30,7 @@ export default async function ConsumablesPage({ params }: { params: Promise<{ lo
   setRequestLocale(locale);
 
   const t = await getTranslations({ locale, namespace: "consumables" });
+  const range = await listConsumableCategories();
 
   return (
     <main className="mx-auto max-w-[1200px] px-4 py-6">
@@ -65,6 +68,30 @@ export default async function ConsumablesPage({ params }: { params: Promise<{ lo
             </Card>
           </li>
         </ul>
+
+        <Section title={t("rangeTitle")} description={t("rangeText")}>
+          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {range.map((group) => (
+              <li key={group.id}>
+                <Card className="h-full">
+                  <CardBody className="space-y-2.5">
+                    <h3 className="font-semibold text-fg">{pick(group.name, locale)}</h3>
+                    <ul className="flex flex-wrap gap-1.5">
+                      {group.children.map((kind) => (
+                        <li
+                          key={kind.id}
+                          className="rounded-[var(--radius-full)] bg-bg-sunken px-2.5 py-1 text-xs text-fg-muted"
+                        >
+                          {pick(kind.name, locale)}
+                        </li>
+                      ))}
+                    </ul>
+                  </CardBody>
+                </Card>
+              </li>
+            ))}
+          </ul>
+        </Section>
 
         {/* Listings hang on equipment models, so there is nothing to show here yet. */}
         <EmptyState

@@ -13,7 +13,7 @@ export function ProposeModelForm({
   labels,
 }: {
   locale: string;
-  categories: { id: string; name: string }[];
+  categories: { id: string; name: string; children: { id: string; name: string }[] }[];
   manufacturers: { id: string; name: string }[];
   organisations: { id: string; name: string }[];
   labels: Record<string, string>;
@@ -47,9 +47,16 @@ export function ProposeModelForm({
             —
           </option>
           {categories.map((category) => (
-            <option key={category.id} value={category.id}>
-              {category.name}
-            </option>
+            <optgroup key={category.id} label={category.name}>
+              <option value={category.id}>
+                {category.name} ({labels.categoryGeneral})
+              </option>
+              {category.children.map((child) => (
+                <option key={child.id} value={child.id}>
+                  {child.name}
+                </option>
+              ))}
+            </optgroup>
           ))}
         </Select>
       </Field>
