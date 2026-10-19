@@ -42,7 +42,7 @@ function optionLabels(t: (key: string) => string) {
   const keys = [
     "title", "palette", "theme", "font", "density", "radius", "depth", "contrast", "logo",
     "shuffle", "reset", "copyLink", "close",
-    "system", "light", "dark",
+    "system", "light", "cream", "vanilla", "linen", "sand", "greige", "latte", "dark",
     "inter", "plex", "grotesk", "serif",
     "compact", "comfortable", "roomy",
     "sharp", "soft", "round",

@@ -72,7 +72,7 @@ reset it, and copy a link that reproduces exactly what is on screen.
 | Dimension | Options |
 |---|---|
 | `palette` | `botanical`, `moss`, `clinical`, `ocean`, `aqua`, `ember`, `copper`, `crimson`, `plum`, `graphite`, `slate`, `ink` |
-| `theme` | `system`, `light`, `dark` |
+| `theme` | warm paper: `cream`, `vanilla`, `linen`, `sand` (default), `greige`, `latte`; `light`, `dark`, `system` (follows the operating system) |
 | `font` | `inter`, `plex`, `grotesk` (Space Grotesk headings), `serif` (Source Serif headings), `system` |
 | `radius` | `sharp`, `soft`, `round` |
 | `depth` | `flat`, `raised`, `lifted` |

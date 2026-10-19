@@ -39,7 +39,18 @@ export const paletteInk: Record<Palette, { hue: number; chroma: number }> = {
   ink: { hue: 0, chroma: 0.004 },
 };
 
-export const themes = ["system", "light", "dark"] as const;
+/** Light, six warm paper tones from lightest to darkest, dark, and the OS. */
+export const themes = [
+  "system",
+  "light",
+  "cream",
+  "vanilla",
+  "linen",
+  "sand",
+  "greige",
+  "latte",
+  "dark",
+] as const;
 export type Theme = (typeof themes)[number];
 
 export const fonts = ["inter", "plex", "grotesk", "serif", "system"] as const;
@@ -99,7 +110,8 @@ export type DesignPrefs = {
 export const defaultPrefs: DesignPrefs = {
   // Deliberately not a decision: any palette is one click away.
   palette: "botanical",
-  theme: "system",
+  // Warm and soft: white read as too bright, dark as too harsh.
+  theme: "sand",
   font: "inter",
   density: "comfortable",
   radius: "soft",
@@ -121,7 +133,9 @@ export const dimensions = {
   logo: logos,
 } as const satisfies Record<keyof DesignPrefs, readonly string[]>;
 
-export const COOKIE = "rl-design";
+// Renamed when the cookie stopped storing defaults: the old one had frozen
+// every default as if it were a choice.
+export const COOKIE = "rl-design-v2";
 
 function pick<K extends keyof DesignPrefs>(
   key: K,
@@ -148,8 +162,14 @@ export function parsePrefs(raw: string | undefined): DesignPrefs {
   };
 }
 
+/**
+ * Only what differs from the defaults. A cookie that stored every default
+ * would freeze them, and a new default would never reach anyone who had
+ * visited before.
+ */
 export function serialisePrefs(prefs: DesignPrefs) {
   return (Object.keys(dimensions) as (keyof DesignPrefs)[])
+    .filter((key) => prefs[key] !== defaultPrefs[key])
     .map((key) => `${key}:${prefs[key]}`)
     .join(",");
 }
