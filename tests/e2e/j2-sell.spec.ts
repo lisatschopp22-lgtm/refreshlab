@@ -72,8 +72,8 @@ test("a new user can register, create an organisation and publish a listing", as
   await page.getByRole("button", { name: "Weiter zur Prüfung" }).click();
   await page.waitForURL(/\/verkaufen\/.*\/pruefen/, { timeout: 20_000 });
 
-  // --- step 4: the fee is shown before publishing, then publish
-  await expect(page.getByText("Plattformgebühr")).toBeVisible();
+  // --- step 4: the seller's share of the fee is shown before publishing, then publish
+  await expect(page.getByText("Plattformgebühr Verkäufer")).toBeVisible();
   await page.getByRole("button", { name: "Veröffentlichen" }).click();
   await page.waitForURL(/\/de\/geraete\//, { timeout: 20_000 });
   await expect(page.getByRole("heading", { level: 1 })).toContainText(title);

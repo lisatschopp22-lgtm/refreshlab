@@ -15,6 +15,14 @@ export function formatNumber(value: number, locale: Locale = "de") {
   return new Intl.NumberFormat(locale === "de" ? "de-CH" : "en-CH").format(value);
 }
 
+/** Takes percent points: 3 becomes "3%". */
+export function formatPercent(value: number, locale: Locale = "de") {
+  return new Intl.NumberFormat(locale === "de" ? "de-CH" : "en-CH", {
+    style: "percent",
+    maximumFractionDigits: 2,
+  }).format(value / 100);
+}
+
 export function formatDate(date: Date | string | null, locale: Locale = "de") {
   if (!date) return "";
   const d = typeof date === "string" ? new Date(date) : date;

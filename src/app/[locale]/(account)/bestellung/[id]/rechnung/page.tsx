@@ -87,6 +87,14 @@ export default async function InvoicePage({
                   </td>
                 </tr>
               ) : null}
+              {data.totals.buyerFeeCents > 0 ? (
+                <tr className="border-b border-border">
+                  <td className="py-2">{t("buyerFee")}</td>
+                  <td className="tabular py-2 text-right">
+                    {formatMoney(data.totals.buyerFeeCents, order.currency, locale)}
+                  </td>
+                </tr>
+              ) : null}
               <tr className="font-semibold">
                 <td className="py-2">{t("total")}</td>
                 <td className="tabular py-2 text-right">
@@ -99,8 +107,8 @@ export default async function InvoicePage({
           {/* Fees and taxes are stated separately, as the requirements ask. */}
           <div className="space-y-1 border-t border-border pt-4 text-xs text-fg-muted">
             <div className="flex justify-between">
-              <span>{t("platformFee")}</span>
-              <span className="tabular">{formatMoney(data.totals.feeCents, order.currency, locale)}</span>
+              <span>{t("sellerFee")}</span>
+              <span className="tabular">− {formatMoney(data.totals.sellerFeeCents, order.currency, locale)}</span>
             </div>
             <div className="flex justify-between">
               <span>{t("sellerReceives")}</span>

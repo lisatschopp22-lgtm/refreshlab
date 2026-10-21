@@ -1,5 +1,6 @@
 import { db } from "@/db/client";
 import { paymentEvents } from "@/db/schema/transactions";
+import { sellerNetCents } from "@/domain/fees";
 import type { CheckoutSession, Order, PaymentMethod, PaymentProvider, WebhookResult } from "./types";
 
 const API = "https://api.stripe.com/v1";
@@ -47,6 +48,16 @@ export class StripePaymentProvider implements PaymentProvider {
       "line_items[0][price_data][unit_amount]": String(order.amountCents + order.shippingCents),
       "line_items[0][price_data][product_data][name]": order.reference,
       "line_items[0][quantity]": "1",
+      // The buyer's share of the platform fee is its own line on the receipt.
+      ...(order.buyerFeeCents > 0
+        ? {
+            "line_items[1][price_data][currency]": order.currency.toLowerCase(),
+            "line_items[1][price_data][unit_amount]": String(order.buyerFeeCents),
+            "line_items[1][price_data][product_data][name]":
+              locale === "de" ? "Plattformgebühr Käufer" : "Platform fee, buyer",
+            "line_items[1][quantity]": "1",
+          }
+        : {}),
       client_reference_id: order.id,
       success_url: `${site}/${locale}/bestellung/${order.id}?paid=1`,
       cancel_url: `${site}/${locale}/bestellung/${order.id}?cancelled=1`,
@@ -118,7 +129,7 @@ export class StripePaymentProvider implements PaymentProvider {
 
   async releasePayout(order: Order) {
     await this.call("/transfers", {
-      amount: String(order.amountCents - order.feeCents),
+      amount: String(sellerNetCents(order.amountCents, order.sellerFeeCents)),
       currency: order.currency.toLowerCase(),
       destination: order.providerRef ?? "",
       transfer_group: order.reference,

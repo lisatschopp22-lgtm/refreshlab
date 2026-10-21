@@ -6,7 +6,7 @@ import { offers, orders, paymentEvents } from "@/db/schema/transactions";
 import type { SessionUser } from "@/auth/session";
 import { assert, canActAsBuyer, canActAsSeller, canViewOrder, isAdmin } from "./permissions";
 import { enqueue, recordAudit } from "./audit";
-import { calculateFee, sellerNetCents } from "./fees";
+import { calculateFees, sellerNetCents } from "./fees";
 import { feeRule } from "./settings";
 import { flags as readFlags } from "./settings";
 
@@ -107,8 +107,7 @@ export async function createOrder(
     throw new OrderError("offers_only");
   }
 
-  const rule = await feeRule();
-  const fee = calculateFee(amountCents, listing!.currency, rule);
+  const fees = calculateFees(amountCents, listing!.currency, await feeRule());
   const reference = await nextReference();
 
   const [order] = await db.transaction(async (tx) => {
@@ -122,7 +121,8 @@ export async function createOrder(
         sellerId: listing!.sellerProfileId,
         sellerOrgId: listing!.sellerOrgId,
         amountCents,
-        feeCents: fee.cents,
+        sellerFeeCents: fees.seller.cents,
+        buyerFeeCents: fees.buyer.cents,
         currency: listing!.currency,
         status: "pending_payment",
         paymentProvider: process.env.PAYMENT_PROVIDER ?? "fake",
@@ -217,7 +217,8 @@ export async function moveOrder(
     patch.disputeReason = detail?.reason ?? null;
   }
   if (to === "refunded") {
-    patch.refundedCents = detail?.refundCents ?? order!.amountCents;
+    // A full refund returns everything the buyer paid, their share of the fee included.
+    patch.refundedCents = detail?.refundCents ?? orderTotals(order!).totalCents;
     patch.disputeResolution = detail?.note ?? null;
   }
   if (to === "completed" && order!.status === "disputed") {
@@ -282,9 +283,11 @@ export function orderTotals(order: typeof orders.$inferSelect) {
   return {
     itemCents: order.amountCents,
     shippingCents: order.shippingCents,
-    feeCents: order.feeCents,
-    totalCents: order.amountCents + order.shippingCents,
-    sellerNetCents: sellerNetCents(order.amountCents, order.feeCents),
+    buyerFeeCents: order.buyerFeeCents,
+    sellerFeeCents: order.sellerFeeCents,
+    /** What the buyer pays. */
+    totalCents: order.amountCents + order.shippingCents + order.buyerFeeCents,
+    sellerNetCents: sellerNetCents(order.amountCents, order.sellerFeeCents),
   };
 }
 

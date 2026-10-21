@@ -89,7 +89,10 @@ export const orders = pgTable(
     sellerOrgId: uuid("seller_org_id").references(() => organisations.id, { onDelete: "set null" }),
     amountCents: integer("amount_cents").notNull(),
     shippingCents: integer("shipping_cents").notNull().default(0),
-    feeCents: integer("fee_cents").notNull(),
+    /** The platform's share taken from the seller's payout. */
+    sellerFeeCents: integer("fee_cents").notNull(),
+    /** The platform's share the buyer pays on top of the price; 0 on orders from before the split. */
+    buyerFeeCents: integer("buyer_fee_cents").notNull().default(0),
     currency: currencyEnum("currency").notNull().default("CHF"),
     status: orderStatusEnum("status").notNull().default("pending_payment"),
     paymentMethod: paymentMethodEnum("payment_method"),

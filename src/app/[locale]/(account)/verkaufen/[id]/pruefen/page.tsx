@@ -4,9 +4,9 @@ import { requireUser } from "@/auth/session";
 import { getModelStatus } from "@/db/queries/catalogue";
 import { getEditableListing, hasSerialPhoto, readyToPublish } from "@/domain/listings";
 import { listingImagesFor } from "@/actions/listings";
-import { calculateFee } from "@/domain/fees";
-import { sellerNetCents } from "@/domain/fees";
-import { formatMoney } from "@/i18n/format";
+import { calculateFees, sellerNetCents } from "@/domain/fees";
+import { feeRule } from "@/domain/settings";
+import { formatMoney, formatPercent } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
 import { Badge } from "@/ui/badge";
 import { Card, CardBody, CardHeader } from "@/ui/card";
@@ -31,11 +31,15 @@ export default async function ReviewStep({
   const tc = await getTranslations({ locale, namespace: "conditions" });
   const to = await getTranslations({ locale, namespace: "orders" });
 
-  const [serialPhoto, modelStatus] = await Promise.all([hasSerialPhoto(id), getModelStatus(listing.modelId)]);
+  const [serialPhoto, modelStatus, rule] = await Promise.all([
+    hasSerialPhoto(id),
+    getModelStatus(listing.modelId),
+    feeRule(),
+  ]);
   const problems = readyToPublish(listing, images.length, serialPhoto);
   const newDevice = modelStatus === "pending";
-  const fee = calculateFee(listing.priceCents, listing.currency);
-  const net = sellerNetCents(listing.priceCents, fee.cents);
+  const fees = calculateFees(listing.priceCents, listing.currency, rule);
+  const net = sellerNetCents(listing.priceCents, fees.seller.cents);
 
   return (
     <div className="space-y-6">
@@ -81,9 +85,11 @@ export default async function ReviewStep({
               <dd className="tabular">{formatMoney(listing.priceCents, listing.currency, locale)}</dd>
             </div>
             <div className="flex justify-between gap-3">
-              <dt className="text-fg-muted">{to("platformFee")}</dt>
+              <dt className="text-fg-muted">
+                {to("sellerFee")} ({formatPercent(rule.sellerPercent, locale)})
+              </dt>
               <dd className="tabular text-fg-muted">
-                − {formatMoney(fee.cents, listing.currency, locale)}
+                − {formatMoney(fees.seller.cents, listing.currency, locale)}
               </dd>
             </div>
             <div className="flex justify-between gap-3 border-t border-border pt-1.5 font-medium">
@@ -91,6 +97,14 @@ export default async function ReviewStep({
               <dd className="tabular">{formatMoney(net, listing.currency, locale)}</dd>
             </div>
           </dl>
+          {fees.buyer.cents > 0 ? (
+            <p className="text-xs text-fg-subtle">
+              {t("buyerFeeNote", {
+                percent: formatPercent(rule.buyerPercent, locale),
+                amount: formatMoney(fees.buyer.cents, listing.currency, locale),
+              })}
+            </p>
+          ) : null}
         </CardBody>
       </Card>
 

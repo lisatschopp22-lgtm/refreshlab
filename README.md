@@ -146,8 +146,10 @@ variable, which always wins.
 | `buyerConfirmsReceipt` | `FLAG_BUYER_CONFIRMS` | Whether the buyer or an admin releases the payout |
 | `showDesignSwitcher` | `FLAG_DESIGN_SWITCHER` | The prototype-only palette control |
 
-The fee rule is editable in the same screen, with a table showing what the
-current setting means for sales from CHF 500 to CHF 500,000.
+The fee rule is editable in the same screen: the seller's share (3 % by
+default, taken from the payout) and the buyer's share (2 %, added to the
+price), with an optional cap and minimum for both together. A table shows what
+the current setting means for sales from CHF 500 to CHF 500,000.
 
 Decisions taken while building are logged in
 [`docs/decisions.md`](docs/decisions.md), and what each phase delivered is in

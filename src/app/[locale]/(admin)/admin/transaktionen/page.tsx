@@ -70,7 +70,7 @@ export default async function AdminOrdersPage({
               <Td className="tabular whitespace-nowrap">
                 {formatMoney(row.amountCents, row.currency, locale)}
                 <span className="block text-xs text-fg-subtle">
-                  {formatMoney(row.feeCents, row.currency, locale)}
+                  {formatMoney(row.sellerFeeCents + row.buyerFeeCents, row.currency, locale)}
                 </span>
               </Td>
               <Td className="tabular whitespace-nowrap text-xs text-fg-subtle">

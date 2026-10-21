@@ -22,7 +22,7 @@ import { setCommentStatus, deleteComment } from "@/domain/comments";
 import { resolveReport } from "@/domain/moderation";
 import { restoreListing, setListingStatus, softDeleteListing, updateListing } from "@/domain/listings";
 import { writeSetting } from "@/domain/settings";
-import { defaultFeeRule } from "@/domain/fees";
+import { defaultFeeRule, type FeeRule } from "@/domain/fees";
 import { defaultFlags } from "@/domain/flags";
 import { runOutbox } from "@/domain/outbox";
 import type { listings } from "@/db/schema/marketplace";
@@ -221,16 +221,19 @@ export async function saveSettingsAction(_prev: AdminState, formData: FormData):
   const locale = locOf(formData);
   const user = await requireAdmin(locale);
 
-  const percent = Number(formData.get("feePercent"));
+  const sellerPercent = Number(formData.get("feeSellerPercent"));
+  const buyerPercent = Number(formData.get("feeBuyerPercent"));
   const cap = String(formData.get("feeCap") ?? "").trim();
   const min = Number(formData.get("feeMin"));
-  if (!Number.isFinite(percent) || percent < 0 || percent > 100) return { error: "invalid" };
+  const isPercent = (value: number) => Number.isFinite(value) && value >= 0 && value <= 100;
+  if (!isPercent(sellerPercent) || !isPercent(buyerPercent)) return { error: "invalid" };
 
   await writeSetting(user, "fee_rule", {
-    percent,
+    sellerPercent,
+    buyerPercent,
     capCents: cap ? Math.round(Number(cap) * 100) : null,
     minCents: Number.isFinite(min) ? Math.round(min * 100) : defaultFeeRule.minCents,
-  });
+  } satisfies FeeRule);
 
   const flags = { ...defaultFlags };
   for (const key of Object.keys(defaultFlags) as (keyof typeof defaultFlags)[]) {

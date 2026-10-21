@@ -92,8 +92,8 @@ test("an offer is negotiated, paid, shipped and completed", async ({ browser }) 
     .click();
   await buyer.waitForURL(/\/de\/kaufen\//, { timeout: 20_000 });
 
-  // The fee and the seller's net are visible before paying.
-  await expect(buyer.getByText("Plattformgebühr")).toBeVisible();
+  // The buyer's share of the fee is part of the total before paying.
+  await expect(buyer.getByText("Plattformgebühr Käufer")).toBeVisible();
   await buyer.getByRole("button", { name: "Zahlung verbindlich starten" }).click();
   await buyer.waitForURL(/\/kaufen\/.*\/zahlung/, { timeout: 20_000 });
   await buyer.getByRole("button", { name: "Zahlung erfolgreich" }).click();
@@ -120,11 +120,12 @@ test("an offer is negotiated, paid, shipped and completed", async ({ browser }) 
 
   // --- the invoice separates fee from price for both parties
   await buyer.goto(`${orderUrl}/rechnung`);
-  await expect(buyer.getByText("Plattformgebühr")).toBeVisible();
+  await expect(buyer.getByText("Plattformgebühr Käufer")).toBeVisible();
+  await expect(buyer.getByText("Plattformgebühr Verkäufer")).toBeVisible();
   await expect(buyer.getByText("Auszahlung an Verkäufer")).toBeVisible();
 
   await seller.goto(`${orderUrl}/rechnung`);
-  await expect(seller.getByText("Plattformgebühr")).toBeVisible();
+  await expect(seller.getByText("Plattformgebühr Verkäufer")).toBeVisible();
 
   // --- the listing is now sold
   await buyer.goto(listing.url);

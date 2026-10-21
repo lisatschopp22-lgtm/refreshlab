@@ -3,7 +3,7 @@ import { db } from "@/db/client";
 import { settings } from "@/db/schema/operations";
 import type { SessionUser } from "@/auth/session";
 import { assert, isAdmin } from "./permissions";
-import { defaultFeeRule, type FeeRule } from "./fees";
+import { defaultFeeRule, normaliseFeeRule, type FeeRule } from "./fees";
 import { defaultFlags, flagsFromEnv, type Flags } from "./flags";
 import { recordAudit } from "./audit";
 
@@ -13,7 +13,7 @@ async function readSetting<T>(key: string, fallback: T): Promise<T> {
 }
 
 export async function feeRule(): Promise<FeeRule> {
-  return readSetting("fee_rule", defaultFeeRule);
+  return normaliseFeeRule(await readSetting<unknown>("fee_rule", defaultFeeRule));
 }
 
 /** Admin settings sit under the env overrides, which always win. */

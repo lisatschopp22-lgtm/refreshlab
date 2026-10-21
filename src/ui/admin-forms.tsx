@@ -85,7 +85,7 @@ export function SettingsForm({
   labels,
 }: {
   locale: string;
-  fee: { percent: number; capCents: number | null; minCents: number };
+  fee: { sellerPercent: number; buyerPercent: number; capCents: number | null; minCents: number };
   flags: Record<string, boolean>;
   labels: Record<string, string>;
 }) {
@@ -97,9 +97,29 @@ export function SettingsForm({
 
       <fieldset className="space-y-3">
         <legend className="text-sm font-semibold text-fg">{labels.feeRule}</legend>
-        <div className="grid gap-3 sm:grid-cols-3">
-          <Field label={labels.feePercent} htmlFor="feePercent">
-            <Input id="feePercent" name="feePercent" type="number" step="0.1" min="0" max="100" defaultValue={fee.percent} />
+        <p className="text-xs text-fg-subtle">{labels.feeHint}</p>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <Field label={labels.feeSellerPercent} hint="%" htmlFor="feeSellerPercent">
+            <Input
+              id="feeSellerPercent"
+              name="feeSellerPercent"
+              type="number"
+              step="0.1"
+              min="0"
+              max="100"
+              defaultValue={fee.sellerPercent}
+            />
+          </Field>
+          <Field label={labels.feeBuyerPercent} hint="%" htmlFor="feeBuyerPercent">
+            <Input
+              id="feeBuyerPercent"
+              name="feeBuyerPercent"
+              type="number"
+              step="0.1"
+              min="0"
+              max="100"
+              defaultValue={fee.buyerPercent}
+            />
           </Field>
           <Field label={labels.feeCap} hint="CHF" htmlFor="feeCap">
             <Input id="feeCap" name="feeCap" type="number" step="1" min="0" defaultValue={fee.capCents === null ? "" : fee.capCents / 100} />

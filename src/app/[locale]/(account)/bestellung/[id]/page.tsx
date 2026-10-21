@@ -240,13 +240,19 @@ export default async function OrderPage({
                 <dd className="tabular">{formatMoney(totals.shippingCents, order.currency, locale)}</dd>
               </div>
             ) : null}
+            {totals.buyerFeeCents > 0 ? (
+              <div className="flex justify-between gap-3">
+                <dt className="text-fg-muted">{t("buyerFee")}</dt>
+                <dd className="tabular">{formatMoney(totals.buyerFeeCents, order.currency, locale)}</dd>
+              </div>
+            ) : null}
             <div className="flex justify-between gap-3 border-t border-border pt-1.5 font-semibold">
               <dt>{t("total")}</dt>
               <dd className="tabular">{formatMoney(totals.totalCents, order.currency, locale)}</dd>
             </div>
             <div className="flex justify-between gap-3 pt-2 text-xs text-fg-subtle">
-              <dt>{t("platformFee")}</dt>
-              <dd className="tabular">− {formatMoney(totals.feeCents, order.currency, locale)}</dd>
+              <dt>{t("sellerFee")}</dt>
+              <dd className="tabular">− {formatMoney(totals.sellerFeeCents, order.currency, locale)}</dd>
             </div>
             <div className="flex justify-between gap-3 text-xs">
               <dt className="text-fg-muted">{t("sellerReceives")}</dt>

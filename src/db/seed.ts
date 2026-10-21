@@ -12,7 +12,7 @@ import { contentPages } from "./seed/content-data";
 import { clearStorageFolder, placeholderSvg, uploadSvg, type Variant } from "./seed/images";
 import { loadReferenceImages, pickImages } from "./seed/reference-images";
 import { uniqueSlug } from "@/domain/slug";
-import { calculateFee, defaultFeeRule } from "@/domain/fees";
+import { calculateFees, defaultFeeRule } from "@/domain/fees";
 import { defaultFlags } from "@/domain/flags";
 
 // ---------------------------------------------------------------- determinism
@@ -542,7 +542,7 @@ async function transactional(ctx: Awaited<ReturnType<typeof main>>) {
     const listing = orderPool[index % orderPool.length]!;
     const buyer = listing.sellerId === anna ? lea : anna;
     const amount = listing.priceCents;
-    const fee = calculateFee(amount, "CHF").cents;
+    const fees = calculateFees(amount, "CHF");
     const created = daysAgo(30 - index * 2);
 
     const [order] = await db
@@ -555,7 +555,8 @@ async function transactional(ctx: Awaited<ReturnType<typeof main>>) {
         sellerOrgId: listing.sellerOrgId,
         amountCents: amount,
         shippingCents: chance(0.6) ? 48_000 : 0,
-        feeCents: fee,
+        sellerFeeCents: fees.seller.cents,
+        buyerFeeCents: fees.buyer.cents,
         status: state,
         paymentMethod: amount > 1_000_000 ? "bank_transfer" : "card",
         paymentProvider: "fake",

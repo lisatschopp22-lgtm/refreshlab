@@ -82,8 +82,8 @@
     "trustDatabaseText": "Jedes Modell existiert einmal, mit Spezifikationen, Zubehör und Kommentaren aus der Praxis. Angebote hängen an diesem Datensatz.",
     "trustCondition": "Zustand, der vergleichbar ist",
     "trustConditionText": "Angaben der verkaufenden Person und unabhängig geprüfte Befunde werden getrennt ausgewiesen, nie vermischt.",
-    "trustFee": "Gebühren mit Obergrenze",
-    "trustFeeText": "Ein Prozent des Verkaufspreises, höchstens CHF 500. Bei teuren Geräten ist das ein Bruchteil üblicher Marktplatzprovisionen.",
+    "trustFee": "Klare Gebühren",
+    "trustFeeText": "{total} pro Verkauf: {seller} trägt die verkaufende Person, {buyer} die kaufende. Inserieren ist kostenlos.",
     "sellCtaTitle": "Steht bei Ihnen ein Gerät ungenutzt?",
     "sellCtaText": "Inserate sind kostenlos. Gebühren fallen erst an, wenn tatsächlich verkauft wird.",
     "browseAll": "Alle Angebote ansehen"
@@ -198,7 +198,8 @@
     "reservedNote": "Dieses Gerät ist reserviert.",
     "withdrawnNote": "Dieses Inserat wurde zurückgezogen.",
     "viewCount": "Aufrufe",
-    "publishedAt": "Veröffentlicht"
+    "publishedAt": "Veröffentlicht",
+    "buyerFeeNote": "zzgl. {percent} Plattformgebühr ({amount})"
   },
   "model": {
     "record": "Gerätedatensatz",
@@ -377,7 +378,8 @@
     "serialPhotoFailed": "Upload fehlgeschlagen. Bitte ein Foto als JPG, PNG oder WebP wählen.",
     "reviewNewDevice": "Neues Gerät: Wir prüfen, ob es Hersteller, Gerätetyp und Modell gibt. Ihr Inserat erscheint erst danach; bis dahin finden Sie es unter «Meine Inserate» mit dem Status «In Prüfung».",
     "submitForReview": "Zur Prüfung einreichen",
-    "pendingReviewNote": "Diese Inserate warten auf unsere Prüfung und sind noch nicht öffentlich. Neue Geräte und Hersteller prüfen wir zusätzlich; sobald alles stimmt, geht das Inserat online."
+    "pendingReviewNote": "Diese Inserate warten auf unsere Prüfung und sind noch nicht öffentlich. Neue Geräte und Hersteller prüfen wir zusätzlich; sobald alles stimmt, geht das Inserat online.",
+    "buyerFeeNote": "Die kaufende Person zahlt zusätzlich {percent} Plattformgebühr ({amount}). Ihr Preis bleibt davon unberührt."
   },
   "messages": {
     "title": "Nachrichten",
@@ -461,7 +463,6 @@
     "payNow": "Zahlung verbindlich starten",
     "itemPrice": "Gerät",
     "shipping": "Transport",
-    "platformFee": "Plattformgebühr",
     "total": "Total",
     "sellerReceives": "Auszahlung an Verkäufer",
     "markShipped": "Als versendet markieren",
@@ -481,7 +482,10 @@
     "paySuccess": "Zahlung erfolgreich",
     "payFail": "Zahlung fehlschlagen lassen",
     "awaitingTransfer": "Wir warten auf den Zahlungseingang.",
-    "markTransferReceived": "Zahlungseingang bestätigen"
+    "markTransferReceived": "Zahlungseingang bestätigen",
+    "sellerFee": "Plattformgebühr Verkäufer",
+    "buyerFee": "Plattformgebühr Käufer",
+    "buyerPays": "Käufer zahlt"
   },
   "orderStatus": {
     "pending_payment": "Zahlung ausstehend",
@@ -545,7 +549,6 @@
     "newPage": "Neue Seite",
     "published": "Veröffentlicht",
     "feeRule": "Gebührenmodell",
-    "feePercent": "Prozentsatz",
     "feeCap": "Obergrenze",
     "feeMin": "Mindestgebühr",
     "flags": "Funktionsschalter",
@@ -565,7 +568,10 @@
     "pendingManufacturers": "Neue Hersteller",
     "pendingManufacturersHint": "Von Verkäufern angelegt. Freigeben, wenn es die Firma gibt; zusammenführen, wenn sie unter anderem Namen schon besteht.",
     "mergeManufacturer": "Zusammenführen",
-    "modelCount": "{count, plural, one {# Modell} other {# Modelle}}"
+    "modelCount": "{count, plural, one {# Modell} other {# Modelle}}",
+    "feeHint": "Beide Anteile gehen an die Plattform: Der Anteil Verkäufer wird von der Auszahlung abgezogen, der Anteil Käufer zum Preis addiert. Obergrenze und Mindestgebühr gelten für beide zusammen; ohne Obergrenze bleibt das Feld leer.",
+    "feeSellerPercent": "Anteil Verkäufer",
+    "feeBuyerPercent": "Anteil Käufer"
   },
   "report": {
     "title": "Inhalt melden",

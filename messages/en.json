@@ -82,8 +82,8 @@
     "trustDatabaseText": "Every model exists once, with specifications, accessories and comments from practice. Listings hang off that record.",
     "trustCondition": "Condition you can compare",
     "trustConditionText": "Seller statements and independently verified findings are shown separately, never mixed.",
-    "trustFee": "A capped fee",
-    "trustFeeText": "One percent of the sale price, at most CHF 500. On expensive instruments that is a fraction of the usual marketplace commission.",
+    "trustFee": "A clear fee",
+    "trustFeeText": "{total} per sale: the seller pays {seller}, the buyer {buyer}. Listing is free.",
     "sellCtaTitle": "Is an instrument sitting unused?",
     "sellCtaText": "Listings are free. Fees only apply once something actually sells.",
     "browseAll": "Browse all listings"
@@ -198,7 +198,8 @@
     "reservedNote": "This instrument is reserved.",
     "withdrawnNote": "This listing has been withdrawn.",
     "viewCount": "views",
-    "publishedAt": "Published"
+    "publishedAt": "Published",
+    "buyerFeeNote": "plus {percent} platform fee ({amount})"
   },
   "model": {
     "record": "Equipment record",
@@ -377,7 +378,8 @@
     "serialPhotoFailed": "Upload failed. Please choose a photo as JPG, PNG or WebP.",
     "reviewNewDevice": "New instrument: we check that the manufacturer, the device type and the model exist. Your listing appears only after that; until then you will find it under “My listings” with the status “In review”.",
     "submitForReview": "Submit for review",
-    "pendingReviewNote": "These listings are waiting for our check and are not public yet. New instruments and manufacturers are checked as well; once everything is right, the listing goes live."
+    "pendingReviewNote": "These listings are waiting for our check and are not public yet. New instruments and manufacturers are checked as well; once everything is right, the listing goes live.",
+    "buyerFeeNote": "The buyer pays a {percent} platform fee on top ({amount}). Your price is not affected."
   },
   "messages": {
     "title": "Messages",
@@ -461,7 +463,6 @@
     "payNow": "Start the payment",
     "itemPrice": "Instrument",
     "shipping": "Transport",
-    "platformFee": "Platform fee",
     "total": "Total",
     "sellerReceives": "Payout to seller",
     "markShipped": "Mark as shipped",
@@ -481,7 +482,10 @@
     "paySuccess": "Pay successfully",
     "payFail": "Make the payment fail",
     "awaitingTransfer": "We are waiting for the transfer to arrive.",
-    "markTransferReceived": "Confirm payment received"
+    "markTransferReceived": "Confirm payment received",
+    "sellerFee": "Platform fee, seller",
+    "buyerFee": "Platform fee, buyer",
+    "buyerPays": "Buyer pays"
   },
   "orderStatus": {
     "pending_payment": "Awaiting payment",
@@ -545,7 +549,6 @@
     "newPage": "New page",
     "published": "Published",
     "feeRule": "Fee model",
-    "feePercent": "Percentage",
     "feeCap": "Cap",
     "feeMin": "Minimum fee",
     "flags": "Feature flags",
@@ -565,7 +568,10 @@
     "pendingManufacturers": "New manufacturers",
     "pendingManufacturersHint": "Added by sellers. Approve when the company exists; merge when it already exists under another name.",
     "mergeManufacturer": "Merge",
-    "modelCount": "{count, plural, one {# model} other {# models}}"
+    "modelCount": "{count, plural, one {# model} other {# models}}",
+    "feeHint": "Both shares go to the platform: the seller's share comes off the payout, the buyer's share is added to the price. Cap and minimum apply to both together; leave the cap empty for none.",
+    "feeSellerPercent": "Seller share",
+    "feeBuyerPercent": "Buyer share"
   },
   "report": {
     "title": "Report content",

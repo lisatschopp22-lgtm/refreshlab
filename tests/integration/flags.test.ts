@@ -4,7 +4,7 @@ import { db } from "@/db/client";
 import { settings } from "@/db/schema/operations";
 import { defaultFlags } from "@/domain/flags";
 import { flags, feeRule } from "@/domain/settings";
-import { calculateFee, defaultFeeRule } from "@/domain/fees";
+import { calculateFees, defaultFeeRule } from "@/domain/fees";
 
 async function setStored(key: string, value: unknown) {
   await db
@@ -41,11 +41,17 @@ describe("settings", () => {
   });
 
   it("applies a changed fee rule to the calculation", async () => {
-    await setStored("fee_rule", { percent: 3, capCents: null, minCents: 0 });
-    const rule = await feeRule();
-    expect(calculateFee(1_000_000, "CHF", rule).cents).toBe(30_000);
+    await setStored("fee_rule", { sellerPercent: 4, buyerPercent: 1, capCents: null, minCents: 0 });
+    const fees = calculateFees(1_000_000, "CHF", await feeRule());
+    expect(fees.seller.cents).toBe(40_000);
+    expect(fees.buyer.cents).toBe(10_000);
 
     await setStored("fee_rule", defaultFeeRule);
-    expect(calculateFee(1_000_000, "CHF", await feeRule()).cents).toBe(10_000);
+    expect(calculateFees(1_000_000, "CHF", await feeRule()).total.cents).toBe(50_000);
+  });
+
+  it("ignores a rule stored before the split", async () => {
+    await setStored("fee_rule", { percent: 1, capCents: 50_000, minCents: 2_000 });
+    expect(await feeRule()).toEqual(defaultFeeRule);
   });
 });

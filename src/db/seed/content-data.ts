@@ -21,7 +21,7 @@ Gleichzeitig arbeiten viele Labore unter wirtschaftlichem Druck. Allgemeine Aukt
 
 * **Eine Gerätedatenbank statt Einzelinserate.** Jedes Modell existiert einmal, mit Spezifikationen, Zubehör und Handbüchern. Angebote hängen an diesem Datensatz.
 * **Zustand, der vergleichbar ist.** Angaben der verkaufenden Person und unabhängig geprüfte Befunde werden getrennt ausgewiesen.
-* **Gebühren mit Obergrenze.** Ein Prozent, höchstens 500 Franken pro Verkauf.
+* **Klare Gebühren.** 5 Prozent pro Verkauf: 3 Prozent trägt die verkaufende, 2 Prozent die kaufende Person.
 
 ## Hinweis zum Prototyp
 
@@ -36,7 +36,7 @@ At the same time many labs work under economic pressure. General auction platfor
 
 * **An equipment database, not isolated adverts.** Every model exists once, with specifications, accessories and manuals. Listings hang off that record.
 * **Condition you can compare.** Seller statements and independently verified findings are shown separately.
-* **A capped fee.** One percent, at most CHF 500 per sale.
+* **A clear fee.** 5 percent per sale: the seller pays 3 percent, the buyer 2 percent.
 
 ## Note on this prototype
 
@@ -66,7 +66,7 @@ This installation is a local prototype. Payments are simulated and nothing is bi
 
 ## Gebühren
 
-Ein Prozent des Verkaufspreises, höchstens CHF 500. Das Einstellen von Inseraten ist kostenlos.`,
+5 Prozent des Verkaufspreises: 3 Prozent werden von der Auszahlung an die verkaufende Person abgezogen, 2 Prozent zahlt die kaufende Person zusätzlich zum Preis. Das Einstellen von Inseraten ist kostenlos.`,
       en: `## For buyers
 
 1. Search for equipment and filter by condition, location and price.
@@ -85,7 +85,7 @@ Ein Prozent des Verkaufspreises, höchstens CHF 500. Das Einstellen von Inserate
 
 ## Fees
 
-One percent of the sale price, capped at CHF 500. Publishing a listing is free.`,
+5 percent of the sale price: 3 percent comes off the seller's payout, and the buyer pays 2 percent on top of the price. Publishing a listing is free.`,
     },
   },
   {
@@ -115,7 +115,7 @@ Standardmässig die verkaufende Person. Für empfindliche Geräte empfehlen wir 
 
 ## Was kostet refreshLab?
 
-Ein Prozent des Verkaufspreises, höchstens CHF 500. Inserate sind kostenlos.`,
+5 Prozent des Verkaufspreises: 3 Prozent zahlt die verkaufende Person, 2 Prozent die kaufende. Inserate sind kostenlos.`,
       en: `## Who may sell?
 
 Laboratories, universities, companies and individuals. Professional sellers can run an organisation account with several members.
@@ -138,7 +138,7 @@ The seller by default. For sensitive instruments we recommend a specialist carri
 
 ## What does refreshLab cost?
 
-One percent of the sale price, at most CHF 500. Listings are free.`,
+5 percent of the sale price: the seller pays 3 percent, the buyer 2 percent. Listings are free.`,
     },
   },
   {
@@ -203,7 +203,7 @@ Angebote müssen den Zustand wahrheitsgemäss beschreiben. Erforderliche Nachwei
 
 ## 3. Gebühren
 
-Ein Prozent des Verkaufspreises, höchstens CHF 500, fällig bei erfolgreichem Verkauf.
+5 Prozent des Verkaufspreises, fällig bei erfolgreichem Verkauf. 3 Prozent werden von der Auszahlung an die anbietende Person abgezogen, 2 Prozent werden der kaufenden Person zusätzlich zum Kaufpreis berechnet.
 
 ## 4. Auszahlung
 
@@ -224,7 +224,7 @@ Listings must describe the condition truthfully. Required records, in particular
 
 ## 3. Fees
 
-One percent of the sale price, capped at CHF 500, due on a successful sale.
+5 percent of the sale price, due on a successful sale. 3 percent is deducted from the seller's payout and 2 percent is charged to the buyer on top of the purchase price.
 
 ## 4. Payout
 

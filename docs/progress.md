@@ -299,3 +299,21 @@ Playwright journey for the review path yet; J2 now uploads a serial photo.
 
 Tried by hand with the seeded seller: the fields below the photo still save
 with the form, and older texts stay in place.
+
+## Fees split between seller and buyer
+
+* **5 % per sale**: 3 % comes off the seller's payout, 2 % is added to
+  what the buyer pays. Admin → Einstellungen sets both shares, an optional
+  cap and a minimum, with a table of examples.
+* **Shown where it matters**: the listing ("zzgl. 2% Plattformgebühr"),
+  step 4 of selling (seller's share, payout, and what the buyer adds),
+  checkout, order page and invoice (both shares, total, payout).
+* **Stored per order**: new column `buyer_fee_cents`; the existing
+  `fee_cents` is the seller's share. Stripe gets the buyer's share as a
+  second line item and transfers the net after the seller's share.
+* The home page states the rule from the settings; the seeded pages were
+  reworded by the migration.
+
+Tried by hand: a CHF 400 purchase as the seeded buyer showed CHF 8 buyer fee,
+CHF 408 total, CHF 12 seller fee and CHF 388 payout on checkout, order page
+and invoice. The test order was cancelled and removed afterwards.

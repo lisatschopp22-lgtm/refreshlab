@@ -8,7 +8,7 @@ import { db } from "@/db/client";
 import { orders, paymentEvents } from "@/db/schema/transactions";
 import { requireUser } from "@/auth/session";
 import { makeOffer, noteOfferInConversation, OfferError, respondToOffer } from "@/domain/offers";
-import { createOrder, moveOrder, OrderError } from "@/domain/orders";
+import { createOrder, moveOrder, OrderError, orderTotals } from "@/domain/orders";
 import { parseAmountToCents } from "@/domain/money";
 import { formatMoney } from "@/i18n/format";
 import { paymentProvider } from "@/integrations/payments";
@@ -168,7 +168,7 @@ export async function moveOrderAction(_prev: TxState, formData: FormData): Promi
       await paymentProvider().releasePayout(order);
     }
     if (parsed.data === "refunded") {
-      await paymentProvider().refund(order, order.refundedCents || order.amountCents);
+      await paymentProvider().refund(order, order.refundedCents || orderTotals(order).totalCents);
     }
   } catch (error) {
     if (error instanceof OrderError) return { error: error.message };

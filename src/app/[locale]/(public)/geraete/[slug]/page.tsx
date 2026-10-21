@@ -6,8 +6,9 @@ import { Clock, FileText, Gauge, MapPin, MessageSquare, Share2, ShieldCheck } fr
 import { getListingBySlug, relatedListings } from "@/db/queries/listings";
 import { modelPriceRange } from "@/db/queries/catalogue";
 import { conditionGrade } from "@/domain/conditions";
-import { flags as readFlags } from "@/domain/settings";
-import { formatDate, formatMoney, formatNumber, pick } from "@/i18n/format";
+import { calculateFees } from "@/domain/fees";
+import { feeRule, flags as readFlags } from "@/domain/settings";
+import { formatDate, formatMoney, formatNumber, formatPercent, pick } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
 import { storageUrl } from "@/ui/storage-image";
 import { Badge } from "@/ui/badge";
@@ -69,7 +70,8 @@ export default async function ListingPage({
   const tc = await getTranslations({ locale, namespace: "common" });
   const tm = await getTranslations({ locale, namespace: "model" });
   const tcond = await getTranslations({ locale, namespace: "conditions" });
-  const flags = await readFlags();
+  const [flags, rule] = await Promise.all([readFlags(), feeRule()]);
+  const buyerFee = calculateFees(listing.priceCents, listing.currency, rule).buyer;
 
   const [related, priceRange] = await Promise.all([
     relatedListings(listing.id, listing.modelId, category.id, 4),
@@ -306,6 +308,14 @@ export default async function ListingPage({
                 <p className="mt-0.5 text-xs text-fg-subtle">
                   {t("plusShipping")} · {t("vatNote")}
                 </p>
+                {isBuyable && buyerFee.cents > 0 ? (
+                  <p className="mt-0.5 text-xs text-fg-subtle">
+                    {t("buyerFeeNote", {
+                      percent: formatPercent(rule.buyerPercent, locale),
+                      amount: formatMoney(buyerFee.cents, listing.currency, locale),
+                    })}
+                  </p>
+                ) : null}
               </div>
 
               {isBuyable ? (

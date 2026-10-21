@@ -108,13 +108,15 @@ export default async function CheckoutPage({
                   : "—"}
               </dd>
             </div>
+            {totals.buyerFeeCents > 0 ? (
+              <div className="flex justify-between gap-3">
+                <dt className="text-fg-muted">{t("buyerFee")}</dt>
+                <dd className="tabular">{formatMoney(totals.buyerFeeCents, data.order.currency, locale)}</dd>
+              </div>
+            ) : null}
             <div className="flex justify-between gap-3 border-t border-border pt-1.5 text-base font-semibold">
               <dt>{t("total")}</dt>
               <dd className="tabular">{formatMoney(totals.totalCents, data.order.currency, locale)}</dd>
-            </div>
-            <div className="flex justify-between gap-3 pt-2 text-xs text-fg-subtle">
-              <dt>{t("platformFee")}</dt>
-              <dd className="tabular">{formatMoney(totals.feeCents, data.order.currency, locale)}</dd>
             </div>
           </dl>
         </CardBody>

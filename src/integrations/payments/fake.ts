@@ -1,5 +1,6 @@
 import { db } from "@/db/client";
 import { paymentEvents } from "@/db/schema/transactions";
+import { sellerNetCents } from "@/domain/fees";
 import type { CheckoutSession, Order, PaymentMethod, PaymentProvider, WebhookResult } from "./types";
 
 /**
@@ -40,7 +41,7 @@ export class FakePaymentProvider implements PaymentProvider {
     await this.record(
       order.id,
       "payout.released",
-      { amountCents: order.amountCents - order.feeCents },
+      { amountCents: sellerNetCents(order.amountCents, order.sellerFeeCents) },
       `${order.id}-payout`,
     );
   }

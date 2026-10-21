@@ -3,7 +3,7 @@ import { requireAdmin } from "@/auth/session";
 import { feeRule } from "@/domain/settings";
 import { defaultFlags } from "@/domain/flags";
 import { flags as readFlags } from "@/domain/settings";
-import { calculateFee } from "@/domain/fees";
+import { calculateFees } from "@/domain/fees";
 import { formatMoney } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
 import { Card, CardBody, CardHeader } from "@/ui/card";
@@ -37,7 +37,9 @@ export default async function AdminSettingsPage({ params }: { params: Promise<{ 
             )}
             labels={{
               feeRule: t("feeRule"),
-              feePercent: t("feePercent"),
+              feeHint: t("feeHint"),
+              feeSellerPercent: t("feeSellerPercent"),
+              feeBuyerPercent: t("feeBuyerPercent"),
               feeCap: t("feeCap"),
               feeMin: t("feeMin"),
               flags: t("flags"),
@@ -67,20 +69,24 @@ export default async function AdminSettingsPage({ params }: { params: Promise<{ 
             <thead>
               <tr>
                 <Th>{to("itemPrice")}</Th>
-                <Th>{to("platformFee")}</Th>
+                <Th>{to("sellerFee")}</Th>
+                <Th>{to("buyerFee")}</Th>
+                <Th>{to("buyerPays")}</Th>
                 <Th>{to("sellerReceives")}</Th>
                 <Th>%</Th>
               </tr>
             </thead>
             <tbody>
               {examples.map((cents) => {
-                const fee = calculateFee(cents, "CHF", rule).cents;
+                const fees = calculateFees(cents, "CHF", rule);
                 return (
                   <tr key={cents}>
                     <Td className="tabular">{formatMoney(cents, "CHF", locale)}</Td>
-                    <Td className="tabular">{formatMoney(fee, "CHF", locale)}</Td>
-                    <Td className="tabular">{formatMoney(cents - fee, "CHF", locale)}</Td>
-                    <Td className="tabular text-fg-subtle">{((fee / cents) * 100).toFixed(2)}</Td>
+                    <Td className="tabular">{formatMoney(fees.seller.cents, "CHF", locale)}</Td>
+                    <Td className="tabular">{formatMoney(fees.buyer.cents, "CHF", locale)}</Td>
+                    <Td className="tabular">{formatMoney(cents + fees.buyer.cents, "CHF", locale)}</Td>
+                    <Td className="tabular">{formatMoney(cents - fees.seller.cents, "CHF", locale)}</Td>
+                    <Td className="tabular text-fg-subtle">{((fees.total.cents / cents) * 100).toFixed(2)}</Td>
                   </tr>
                 );
               })}

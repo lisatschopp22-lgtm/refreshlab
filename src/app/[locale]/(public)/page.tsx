@@ -3,7 +3,8 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ArrowRight, Database, Gauge, Search, ShieldCheck } from "lucide-react";
 import { catalogueCounts, listCategories } from "@/db/queries/catalogue";
 import { searchProvider } from "@/integrations/search";
-import { formatNumber, pick } from "@/i18n/format";
+import { feeRule } from "@/domain/settings";
+import { formatNumber, formatPercent, pick } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
 import { ButtonLink } from "@/ui/button";
 import { Card, CardBody, Section } from "@/ui/card";
@@ -22,11 +23,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const tq = await getTranslations({ locale, namespace: "qualified" });
 
   const search = searchProvider();
-  const [categories, counts, latest, featured] = await Promise.all([
+  const [categories, counts, latest, featured, rule] = await Promise.all([
     listCategories(),
     catalogueCounts(),
     search.search({ sort: "newest", perPage: 8 }),
     search.search({ verifiedOnly: true, perPage: 4 }),
+    feeRule(),
   ]);
 
   return (
@@ -170,7 +172,15 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             {[
               { icon: Database, title: t("trustDatabase"), text: t("trustDatabaseText") },
               { icon: ShieldCheck, title: t("trustCondition"), text: t("trustConditionText") },
-              { icon: Gauge, title: t("trustFee"), text: t("trustFeeText") },
+              {
+                icon: Gauge,
+                title: t("trustFee"),
+                text: t("trustFeeText", {
+                  total: formatPercent(rule.sellerPercent + rule.buyerPercent, locale),
+                  seller: formatPercent(rule.sellerPercent, locale),
+                  buyer: formatPercent(rule.buyerPercent, locale),
+                }),
+              },
             ].map((item) => (
               <li key={item.title}>
                 <Card className="h-full">
