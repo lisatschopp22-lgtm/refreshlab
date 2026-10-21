@@ -37,7 +37,7 @@ export default async function ConditionStep({
       </div>
 
       <Card>
-        <CardHeader title={t("step2")} description={t("conditionNotesHint")} />
+        <CardHeader title={t("step2")} />
         <CardBody>
           <ConditionForm
             locale={locale}
@@ -46,8 +46,6 @@ export default async function ConditionStep({
               title: listing.title,
               condition: listing.condition,
               conditionNotes: listing.conditionNotes ?? "",
-              scopeOfDelivery: listing.scopeOfDelivery ?? "",
-              description: listing.description ?? "",
               year: listing.year,
               operatingHours: listing.operatingHours,
             }}
@@ -57,9 +55,6 @@ export default async function ConditionStep({
               conditionTitle: t("conditionTitle"),
               conditionNotes: t("conditionNotes"),
               conditionNotesHint: t("conditionNotesHint"),
-              scopeOfDelivery: t("scopeOfDelivery"),
-              scopeHint: t("scopeHint"),
-              description: t("description"),
               year: t("year"),
               operatingHours: t("operatingHours"),
               continueToPrice: t("continueToPrice"),
@@ -67,6 +62,24 @@ export default async function ConditionStep({
               draftSaved: t("draftSaved"),
               tooShort: locale === "de" ? "Bitte etwas ausführlicher." : "Please add more detail.",
             }}
+            serialPhoto={
+              <section className="space-y-2 border-t border-border pt-5">
+                <h3 className="text-sm font-medium text-fg">{t("serialPhotoTitle")}</h3>
+                <p className="text-xs text-fg-subtle">{t("serialPhotoHint")}</p>
+                <SerialPhotoUploader
+                  locale={locale}
+                  listingId={id}
+                  photo={serialPhoto ? { url: serialPhoto.url, filename: serialPhoto.filename } : null}
+                  labels={{
+                    title: t("serialPhotoTitle"),
+                    upload: t("serialPhotoUpload"),
+                    replace: t("serialPhotoReplace"),
+                    saved: t("serialPhotoSaved"),
+                    uploadFailed: t("serialPhotoFailed"),
+                  }}
+                />
+              </section>
+            }
           />
         </CardBody>
       </Card>
@@ -83,24 +96,6 @@ export default async function ConditionStep({
               imagesHint: t("imagesHint"),
               remove: locale === "de" ? "Entfernen" : "Remove",
               uploadFailed: locale === "de" ? "Upload fehlgeschlagen." : "Upload failed.",
-            }}
-          />
-        </CardBody>
-      </Card>
-
-      <Card>
-        <CardHeader title={t("serialPhotoTitle")} description={t("serialPhotoHint")} />
-        <CardBody>
-          <SerialPhotoUploader
-            locale={locale}
-            listingId={id}
-            photo={serialPhoto ? { url: serialPhoto.url, filename: serialPhoto.filename } : null}
-            labels={{
-              title: t("serialPhotoTitle"),
-              upload: t("serialPhotoUpload"),
-              replace: t("serialPhotoReplace"),
-              saved: t("serialPhotoSaved"),
-              uploadFailed: t("serialPhotoFailed"),
             }}
           />
         </CardBody>

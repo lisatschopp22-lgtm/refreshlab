@@ -289,3 +289,13 @@ Tried by hand with the seeded seller and admin: propose with a new
 manufacturer, upload a photo and the serial plate, submit, see it in review,
 approve, see it go live. The test rows were removed afterwards. There is no
 Playwright journey for the review path yet; J2 now uploads a serial photo.
+
+## Condition step, shorter
+
+* The serial number photo now sits directly under the condition notes in
+  step 2 of selling, followed by year and operating hours.
+* "Lieferumfang" and "Beschreibung" are gone from the form; the hint under
+  the condition notes asks for what is included instead.
+
+Tried by hand with the seeded seller: the fields below the photo still save
+with the form, and older texts stay in place.

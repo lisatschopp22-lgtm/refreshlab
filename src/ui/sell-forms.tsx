@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, type ReactNode } from "react";
 import { Trash2, Upload } from "lucide-react";
 import {
   deleteImageAction,
@@ -27,6 +27,7 @@ export function ConditionForm({
   defaults,
   conditions,
   labels,
+  serialPhoto,
 }: {
   locale: string;
   listingId: string;
@@ -34,68 +35,75 @@ export function ConditionForm({
     title: string;
     condition: string;
     conditionNotes: string;
-    scopeOfDelivery: string;
-    description: string;
     year: number | null;
     operatingHours: number | null;
   };
   conditions: { value: string; label: string }[];
   labels: Record<string, string>;
+  /** Sits right under the condition notes. It uploads through its own form. */
+  serialPhoto?: ReactNode;
 }) {
   const [state, action, pending] = useActionState<FormState, FormData>(saveConditionAction, empty);
+  // Forms cannot nest, so the fields below the serial photo join this form by id.
+  const formId = `condition-${listingId}`;
 
   return (
-    <form action={action} className="space-y-5">
-      <input type="hidden" name="locale" value={locale} />
-      <input type="hidden" name="listingId" value={listingId} />
+    <div className="space-y-5">
+      <form id={formId} action={action} className="space-y-5">
+        <input type="hidden" name="locale" value={locale} />
+        <input type="hidden" name="listingId" value={listingId} />
 
-      <Field label={labels.titleField} htmlFor="title" required error={fieldError(state, "title", labels.tooShort!)}>
-        <Input id="title" name="title" defaultValue={defaults.title} required minLength={3} />
-      </Field>
+        <Field label={labels.titleField} htmlFor="title" required error={fieldError(state, "title", labels.tooShort!)}>
+          <Input id="title" name="title" defaultValue={defaults.title} required minLength={3} />
+        </Field>
 
-      <Field label={labels.conditionTitle} htmlFor="condition" required>
-        <Select id="condition" name="condition" defaultValue={defaults.condition}>
-          {conditions.map((condition) => (
-            <option key={condition.value} value={condition.value}>
-              {condition.label}
-            </option>
-          ))}
-        </Select>
-      </Field>
+        <Field label={labels.conditionTitle} htmlFor="condition" required>
+          <Select id="condition" name="condition" defaultValue={defaults.condition}>
+            {conditions.map((condition) => (
+              <option key={condition.value} value={condition.value}>
+                {condition.label}
+              </option>
+            ))}
+          </Select>
+        </Field>
 
-      <Field
-        label={labels.conditionNotes}
-        hint={labels.conditionNotesHint}
-        htmlFor="conditionNotes"
-        required
-        error={fieldError(state, "conditionNotes", labels.tooShort!)}
-      >
-        <Textarea
-          id="conditionNotes"
-          name="conditionNotes"
-          defaultValue={defaults.conditionNotes}
+        <Field
+          label={labels.conditionNotes}
+          hint={labels.conditionNotesHint}
+          htmlFor="conditionNotes"
           required
-          minLength={10}
-          rows={4}
-        />
-      </Field>
+          error={fieldError(state, "conditionNotes", labels.tooShort!)}
+        >
+          <Textarea
+            id="conditionNotes"
+            name="conditionNotes"
+            defaultValue={defaults.conditionNotes}
+            required
+            minLength={10}
+            rows={5}
+          />
+        </Field>
+      </form>
 
-      <Field label={labels.scopeOfDelivery} hint={labels.scopeHint} htmlFor="scopeOfDelivery">
-        <Textarea id="scopeOfDelivery" name="scopeOfDelivery" defaultValue={defaults.scopeOfDelivery} rows={3} />
-      </Field>
-
-      <Field label={labels.description} htmlFor="description">
-        <Textarea id="description" name="description" defaultValue={defaults.description} rows={3} />
-      </Field>
+      {serialPhoto}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label={labels.year} htmlFor="year">
-          <Input id="year" name="year" type="number" min={1950} max={2030} defaultValue={defaults.year ?? ""} />
+          <Input
+            id="year"
+            name="year"
+            form={formId}
+            type="number"
+            min={1950}
+            max={2030}
+            defaultValue={defaults.year ?? ""}
+          />
         </Field>
         <Field label={labels.operatingHours} htmlFor="operatingHours">
           <Input
             id="operatingHours"
             name="operatingHours"
+            form={formId}
             type="number"
             min={0}
             defaultValue={defaults.operatingHours ?? ""}
@@ -104,15 +112,23 @@ export function ConditionForm({
       </div>
 
       <div className="flex flex-wrap gap-2 border-t border-border pt-4">
-        <Button type="submit" size="lg" disabled={pending}>
+        <Button type="submit" form={formId} size="lg" disabled={pending}>
           {labels.continueToPrice}
         </Button>
-        <Button type="submit" name="intent" value="draft" variant="secondary" size="lg" disabled={pending}>
+        <Button
+          type="submit"
+          form={formId}
+          name="intent"
+          value="draft"
+          variant="secondary"
+          size="lg"
+          disabled={pending}
+        >
           {labels.saveDraft}
         </Button>
         {state.ok ? <span className="self-center text-sm text-success">{labels.draftSaved}</span> : null}
       </div>
-    </form>
+    </div>
   );
 }
 

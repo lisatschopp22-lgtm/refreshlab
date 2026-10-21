@@ -123,8 +123,6 @@ export async function saveConditionAction(_prev: FormState, formData: FormData):
       title: z.string().min(3).max(160),
       condition: z.enum(conditionValues),
       conditionNotes: z.string().min(10).max(4000),
-      scopeOfDelivery: z.string().max(2000).optional(),
-      description: z.string().max(4000).optional(),
       year: z.coerce.number().int().min(1950).max(2030).optional(),
       operatingHours: z.coerce.number().int().min(0).max(500_000).optional(),
     })
@@ -132,8 +130,6 @@ export async function saveConditionAction(_prev: FormState, formData: FormData):
       title: formData.get("title"),
       condition: formData.get("condition"),
       conditionNotes: formData.get("conditionNotes"),
-      scopeOfDelivery: formData.get("scopeOfDelivery") || undefined,
-      description: formData.get("description") || undefined,
       year: formData.get("year") || undefined,
       operatingHours: formData.get("operatingHours") || undefined,
     });
@@ -142,12 +138,12 @@ export async function saveConditionAction(_prev: FormState, formData: FormData):
     return { error: "invalid", fields: parsed.error.issues.map((i) => String(i.path[0])) };
   }
 
+  // Scope of delivery and description are no longer asked for: the condition
+  // notes cover both. Older listings keep what they already have.
   await updateListing(user, listingId, {
     title: parsed.data.title,
     condition: parsed.data.condition,
     conditionNotes: parsed.data.conditionNotes,
-    scopeOfDelivery: parsed.data.scopeOfDelivery ?? "",
-    description: parsed.data.description ?? "",
     year: parsed.data.year ?? null,
     operatingHours: parsed.data.operatingHours ?? null,
   });
