@@ -21,7 +21,7 @@ Gleichzeitig arbeiten viele Labore unter wirtschaftlichem Druck. Allgemeine Aukt
 
 * **Eine Gerätedatenbank statt Einzelinserate.** Jedes Modell existiert einmal, mit Spezifikationen, Zubehör und Handbüchern. Angebote hängen an diesem Datensatz.
 * **Zustand, der vergleichbar ist.** Angaben der verkaufenden Person und unabhängig geprüfte Befunde werden getrennt ausgewiesen.
-* **Klare Gebühren.** 5 Prozent pro Verkauf: 3 Prozent trägt die verkaufende, 2 Prozent die kaufende Person.
+* **Faire Gebühren.** Je 3 Prozent für die verkaufende und die kaufende Person. Wer viel handelt, zahlt weniger, bis hinunter auf 2,5 Prozent.
 
 ## Hinweis zum Prototyp
 
@@ -36,7 +36,7 @@ At the same time many labs work under economic pressure. General auction platfor
 
 * **An equipment database, not isolated adverts.** Every model exists once, with specifications, accessories and manuals. Listings hang off that record.
 * **Condition you can compare.** Seller statements and independently verified findings are shown separately.
-* **A clear fee.** 5 percent per sale: the seller pays 3 percent, the buyer 2 percent.
+* **A fair fee.** 3 percent each for seller and buyer. The more you trade, the less you pay, down to 2.5 percent.
 
 ## Note on this prototype
 
@@ -66,7 +66,7 @@ This installation is a local prototype. Payments are simulated and nothing is bi
 
 ## Gebühren
 
-5 Prozent des Verkaufspreises: 3 Prozent werden von der Auszahlung an die verkaufende Person abgezogen, 2 Prozent zahlt die kaufende Person zusätzlich zum Preis. Das Einstellen von Inseraten ist kostenlos.`,
+Je 3 Prozent des Verkaufspreises: Die verkaufende Person erhält die Auszahlung abzüglich ihres Anteils, die kaufende Person zahlt ihren Anteil zusätzlich zum Preis. Nach je 100 abgeschlossenen Transaktionen sinkt der eigene Satz um 0,1 Prozentpunkte, bis auf 2,5 Prozent. Mit Händlern und grossen Firmen kann refreshLab Sondersätze vereinbaren. Das Einstellen von Inseraten ist kostenlos.`,
       en: `## For buyers
 
 1. Search for equipment and filter by condition, location and price.
@@ -85,7 +85,7 @@ This installation is a local prototype. Payments are simulated and nothing is bi
 
 ## Fees
 
-5 percent of the sale price: 3 percent comes off the seller's payout, and the buyer pays 2 percent on top of the price. Publishing a listing is free.`,
+3 percent of the sale price from each side: the seller's share comes off the payout, and the buyer pays theirs on top of the price. After every 100 completed transactions your own rate drops by 0.1 percentage points, down to 2.5 percent. refreshLab can agree special rates with dealers and large companies. Publishing a listing is free.`,
     },
   },
   {
@@ -115,7 +115,7 @@ Standardmässig die verkaufende Person. Für empfindliche Geräte empfehlen wir 
 
 ## Was kostet refreshLab?
 
-5 Prozent des Verkaufspreises: 3 Prozent zahlt die verkaufende Person, 2 Prozent die kaufende. Inserate sind kostenlos.`,
+Je 3 Prozent des Verkaufspreises für die verkaufende und die kaufende Person. Wer viel handelt, zahlt weniger: Nach je 100 abgeschlossenen Transaktionen sinkt der Satz um 0,1 Prozentpunkte, bis auf 2,5 Prozent. Inserate sind kostenlos.`,
       en: `## Who may sell?
 
 Laboratories, universities, companies and individuals. Professional sellers can run an organisation account with several members.
@@ -138,7 +138,7 @@ The seller by default. For sensitive instruments we recommend a specialist carri
 
 ## What does refreshLab cost?
 
-5 percent of the sale price: the seller pays 3 percent, the buyer 2 percent. Listings are free.`,
+3 percent of the sale price each for seller and buyer. The more you trade, the less you pay: after every 100 completed transactions the rate drops by 0.1 percentage points, down to 2.5 percent. Listings are free.`,
     },
   },
   {
@@ -203,7 +203,7 @@ Angebote müssen den Zustand wahrheitsgemäss beschreiben. Erforderliche Nachwei
 
 ## 3. Gebühren
 
-5 Prozent des Verkaufspreises, fällig bei erfolgreichem Verkauf. 3 Prozent werden von der Auszahlung an die anbietende Person abgezogen, 2 Prozent werden der kaufenden Person zusätzlich zum Kaufpreis berechnet.
+Je 3 Prozent des Verkaufspreises für die anbietende und die kaufende Person, fällig bei erfolgreichem Verkauf. Der Anteil der anbietenden Person wird von der Auszahlung abgezogen, der Anteil der kaufenden Person zusätzlich zum Kaufpreis berechnet. Nach je 100 abgeschlossenen Transaktionen in derselben Rolle sinkt der Satz um 0,1 Prozentpunkte, höchstens um 0,5 Prozentpunkte. Mit Händlern und Firmen können abweichende Sätze vereinbart werden.
 
 ## 4. Auszahlung
 
@@ -224,7 +224,7 @@ Listings must describe the condition truthfully. Required records, in particular
 
 ## 3. Fees
 
-5 percent of the sale price, due on a successful sale. 3 percent is deducted from the seller's payout and 2 percent is charged to the buyer on top of the purchase price.
+3 percent of the sale price each for seller and buyer, due on a successful sale. The seller's share is deducted from the payout, the buyer's share is charged on top of the purchase price. After every 100 completed transactions in the same role the rate drops by 0.1 percentage points, by at most 0.5 percentage points. Different rates may be agreed with dealers and companies.
 
 ## 4. Payout
 

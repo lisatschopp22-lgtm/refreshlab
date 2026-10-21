@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { savePageAction, saveSettingsAction, type AdminState } from "@/actions/admin";
 import { Button } from "./button";
 import { Checkbox, Field, Input, Textarea } from "./field";
+import type { FeeRule } from "@/domain/fees";
 
 const empty: AdminState = {};
 
@@ -85,7 +86,7 @@ export function SettingsForm({
   labels,
 }: {
   locale: string;
-  fee: { sellerPercent: number; buyerPercent: number; capCents: number | null; minCents: number };
+  fee: FeeRule;
   flags: Record<string, boolean>;
   labels: Record<string, string>;
 }) {
@@ -98,29 +99,63 @@ export function SettingsForm({
       <fieldset className="space-y-3">
         <legend className="text-sm font-semibold text-fg">{labels.feeRule}</legend>
         <p className="text-xs text-fg-subtle">{labels.feeHint}</p>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <Field label={labels.feeSellerPercent} hint="%" htmlFor="feeSellerPercent">
-            <Input
-              id="feeSellerPercent"
-              name="feeSellerPercent"
-              type="number"
-              step="0.1"
-              min="0"
-              max="100"
-              defaultValue={fee.sellerPercent}
-            />
-          </Field>
-          <Field label={labels.feeBuyerPercent} hint="%" htmlFor="feeBuyerPercent">
-            <Input
-              id="feeBuyerPercent"
-              name="feeBuyerPercent"
-              type="number"
-              step="0.1"
-              min="0"
-              max="100"
-              defaultValue={fee.buyerPercent}
-            />
-          </Field>
+        <div className="grid gap-5 sm:grid-cols-2">
+          {(["Seller", "Buyer"] as const).map((side) => {
+            const percent = side === "Seller" ? fee.sellerPercent : fee.buyerPercent;
+            const tiers = side === "Seller" ? fee.sellerTiers : fee.buyerTiers;
+            return (
+              <div key={side} className="space-y-3 rounded-[var(--radius-md)] border border-border p-3">
+                <p className="text-sm font-medium text-fg">{labels[`fee${side}`]}</p>
+                <Field label={labels.feeBase} hint="%" htmlFor={`fee${side}Percent`}>
+                  <Input
+                    id={`fee${side}Percent`}
+                    name={`fee${side}Percent`}
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="100"
+                    defaultValue={percent}
+                  />
+                </Field>
+                <div className="grid grid-cols-3 gap-2">
+                  <Field label={labels.feeStep} htmlFor={`fee${side}Step`}>
+                    <Input
+                      id={`fee${side}Step`}
+                      name={`fee${side}Step`}
+                      type="number"
+                      step="1"
+                      min="0"
+                      defaultValue={tiers.stepTransactions}
+                    />
+                  </Field>
+                  <Field label={labels.feeStepPercent} hint="%" htmlFor={`fee${side}StepPercent`}>
+                    <Input
+                      id={`fee${side}StepPercent`}
+                      name={`fee${side}StepPercent`}
+                      type="number"
+                      step="0.05"
+                      min="0"
+                      max="100"
+                      defaultValue={tiers.stepPercent}
+                    />
+                  </Field>
+                  <Field label={labels.feeMax} hint="%" htmlFor={`fee${side}Max`}>
+                    <Input
+                      id={`fee${side}Max`}
+                      name={`fee${side}Max`}
+                      type="number"
+                      step="0.05"
+                      min="0"
+                      max="100"
+                      defaultValue={tiers.maxPercent}
+                    />
+                  </Field>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
           <Field label={labels.feeCap} hint="CHF" htmlFor="feeCap">
             <Input id="feeCap" name="feeCap" type="number" step="1" min="0" defaultValue={fee.capCents === null ? "" : fee.capCents / 100} />
           </Field>

@@ -4,10 +4,16 @@ import { eq, inArray } from "drizzle-orm";
 import { db } from "@/db/client";
 import { organisationMembers, organisations, profiles } from "@/db/schema/identity";
 import { requireUser } from "@/auth/session";
+import { specialRatesOf } from "@/db/queries/special-rates";
+import { completedSales } from "@/domain/fee-standing";
+import { nextTier, tierRate } from "@/domain/fees";
+import { feeRule } from "@/domain/settings";
+import { formatDate, formatPercent } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
 import { Badge } from "@/ui/badge";
 import { Card, CardBody, CardHeader } from "@/ui/card";
 import { AddMemberForm, CreateOrganisationForm } from "@/ui/profile-forms";
+import { SpecialRateRequestForm } from "@/ui/special-rate-form";
 
 export const metadata = { robots: { index: false } };
 
@@ -19,6 +25,7 @@ export default async function OrganisationPage({ params }: { params: Promise<{ l
   const user = await requireUser(locale);
   const t = await getTranslations({ locale, namespace: "account" });
   const tc = await getTranslations({ locale, namespace: "common" });
+  const tf = await getTranslations({ locale, namespace: "fees" });
 
   const ids = user.organisations.map((o) => o.id);
   const rows = ids.length
@@ -36,6 +43,14 @@ export default async function OrganisationPage({ params }: { params: Promise<{ l
         .innerJoin(profiles, eq(profiles.id, organisationMembers.profileId))
         .where(inArray(organisationMembers.organisationId, ids))
     : [];
+
+  const [rule, rates, sales] = await Promise.all([
+    feeRule(),
+    specialRatesOf(ids),
+    Promise.all(ids.map((id) => completedSales({ profileId: user.id, organisationId: id }))),
+  ]);
+  const rateText = (bp: number) => formatPercent(bp / 100, locale);
+  const sideText = (side: "seller" | "buyer") => (side === "seller" ? tf("sideSeller") : tf("sideBuyer"));
 
   const types = [
     { value: "lab", label: locale === "de" ? "Labor" : "Laboratory" },
@@ -94,6 +109,87 @@ export default async function OrganisationPage({ params }: { params: Promise<{ l
                   }}
                 />
               ) : null}
+              {(() => {
+                const own = rates.filter((row) => row.organisationId === organisation.id);
+                const approved = (side: "seller" | "buyer") =>
+                  own.find((row) => row.side === side && row.status === "approved" && row.rateBp !== null);
+                const open = (side: "seller" | "buyer") =>
+                  own.find((row) => row.side === side && row.status === "requested");
+                const rejected = own.find((row) => row.status === "rejected");
+                const completed = sales[ids.indexOf(organisation.id)] ?? 0;
+                const tier = tierRate(rule.sellerPercent, rule.sellerTiers, completed);
+                const next = nextTier(rule.sellerPercent, rule.sellerTiers, completed);
+                const sellerRate = approved("seller");
+                const buyerRate = approved("buyer");
+                // Selling at a special rate is for dealers; buying at one, for any organisation.
+                const sides = (organisation.type === "dealer" ? (["seller", "buyer"] as const) : (["buyer"] as const))
+                  .filter((side) => !open(side))
+                  .map((side) => ({ value: side, label: sideText(side) }));
+                return (
+                  <div className="space-y-2 border-t border-border pt-4">
+                    <h3 className="text-sm font-medium text-fg">{tf("orgTitle")}</h3>
+                    <ul className="space-y-1 text-sm text-fg-muted">
+                      <li>
+                        <span className="text-fg">{tf("selling")}:</span>{" "}
+                        {sellerRate
+                          ? tf("specialSince", {
+                              rate: rateText(sellerRate.rateBp!),
+                              date: formatDate(sellerRate.decidedAt, locale),
+                            })
+                          : `${rateText(tier)} · ${tf("sales", { count: completed })} · ${
+                              next ? tf("nextSales", { count: next.at, rate: rateText(next.rateBp) }) : tf("lowest")
+                            }`}
+                      </li>
+                      <li>
+                        <span className="text-fg">{tf("buying")}:</span>{" "}
+                        {buyerRate
+                          ? tf("specialSince", {
+                              rate: rateText(buyerRate.rateBp!),
+                              date: formatDate(buyerRate.decidedAt, locale),
+                            })
+                          : tf("orgBuyingMembers")}
+                      </li>
+                    </ul>
+                    {(["seller", "buyer"] as const).map((side) => {
+                      const request = open(side);
+                      return request ? (
+                        <p key={side} className="rounded-[var(--radius-md)] bg-info-subtle px-3 py-2 text-sm text-info">
+                          {tf("pending", { side: sideText(side), date: formatDate(request.createdAt, locale) })}
+                        </p>
+                      ) : null;
+                    })}
+                    {rejected && !open(rejected.side) ? (
+                      <p className="text-xs text-fg-subtle">
+                        {tf("rejected", { side: sideText(rejected.side), date: formatDate(rejected.decidedAt, locale) })}
+                        {rejected.decisionNote ? ` ${rejected.decisionNote}` : ""}
+                      </p>
+                    ) : null}
+                    {isOwner && sides.length ? (
+                      <details className="rounded-[var(--radius-md)] border border-border p-3">
+                        <summary className="cursor-pointer text-sm font-medium text-primary">{tf("requestTitle")}</summary>
+                        <div className="mt-3 space-y-3">
+                          <p className="text-xs text-fg-subtle">{tf("requestIntro")}</p>
+                          <SpecialRateRequestForm
+                            locale={locale}
+                            organisationId={organisation.id}
+                            sides={sides}
+                            labels={{
+                              side: tf("requestSide"),
+                              expectedPerYear: tf("expectedPerYear"),
+                              message: tf("message"),
+                              submit: tf("submit"),
+                              requested: tf("requested"),
+                              already_requested: tf("errorAlreadyRequested"),
+                              not_dealer: tf("errorNotDealer"),
+                              generic: tc("error"),
+                            }}
+                          />
+                        </div>
+                      </details>
+                    ) : null}
+                  </div>
+                );
+              })()}
               <p className="text-xs text-fg-subtle">
                 <Link href={`/${locale}/anbieter/${organisation.slug}`} className="text-primary hover:underline">
                   {locale === "de" ? "Öffentliches Profil ansehen" : "View public profile"} →

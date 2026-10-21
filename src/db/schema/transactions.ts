@@ -95,6 +95,11 @@ export const orders = pgTable(
     sellerFeeCents: integer("fee_cents").notNull(),
     /** The platform's share the buyer pays on top of the price; 0 on orders from before the split. */
     buyerFeeCents: integer("buyer_fee_cents").notNull().default(0),
+    /** The rates applied, in basis points (300 is 3 %), after volume tiers or a special rate. */
+    sellerFeeBp: integer("seller_fee_bp"),
+    buyerFeeBp: integer("buyer_fee_bp"),
+    /** Set when the buyer bought for an organisation with a special buying rate. */
+    buyerOrgId: uuid("buyer_org_id").references(() => organisations.id, { onDelete: "set null" }),
     currency: currencyEnum("currency").notNull().default("CHF"),
     status: orderStatusEnum("status").notNull().default("pending_payment"),
     paymentMethod: paymentMethodEnum("payment_method"),
@@ -159,6 +164,42 @@ export const sellerAccounts = pgTable(
   (t) => [index("seller_accounts_profile_idx").on(t.profileId)],
 );
 
+export const feeSideEnum = pgEnum("fee_side", ["seller", "buyer"]);
+export const specialRateStatusEnum = pgEnum("special_rate_status", ["requested", "approved", "rejected", "ended"]);
+
+/**
+ * An organisation's own rate in place of the volume tiers: as a seller for a
+ * dealer, as a buyer for a company such as a large pharma group. The
+ * organisation asks for one and an admin approves it with a rate, changes it
+ * later or ends it; an admin can also set one without a request. At most one
+ * is approved per organisation and side.
+ */
+export const specialRates = pgTable(
+  "special_rates",
+  {
+    id: id(),
+    organisationId: uuid("organisation_id")
+      .notNull()
+      .references(() => organisations.id, { onDelete: "cascade" }),
+    side: feeSideEnum("side").notNull(),
+    status: specialRateStatusEnum("status").notNull().default("requested"),
+    /** The approved rate in basis points: 200 is 2 %. */
+    rateBp: integer("rate_bp"),
+    expectedPerYear: integer("expected_per_year"),
+    message: text("message"),
+    requestedBy: uuid("requested_by").references(() => profiles.id, { onDelete: "set null" }),
+    decidedBy: uuid("decided_by").references(() => profiles.id, { onDelete: "set null" }),
+    decidedAt: timestamp("decided_at", { withTimezone: true }),
+    decisionNote: text("decision_note"),
+    endedAt: timestamp("ended_at", { withTimezone: true }),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    index("special_rates_organisation_idx").on(t.organisationId, t.side),
+    check("special_rates_bp_range", sql`${t.rateBp} is null or ${t.rateBp} between 0 and 10000`),
+  ],
+);
+
 /** The side of the deal a rating comes from: the buyer rates the seller and the other way round. */
 export const ratingSideEnum = pgEnum("rating_side", ["buyer", "seller"]);
 
@@ -220,3 +261,4 @@ export type Order = typeof orders.$inferSelect;
 export type PaymentEvent = typeof paymentEvents.$inferSelect;
 export type SellerAccount = typeof sellerAccounts.$inferSelect;
 export type Rating = typeof ratings.$inferSelect;
+export type SpecialRate = typeof specialRates.$inferSelect;

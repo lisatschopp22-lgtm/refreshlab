@@ -7,6 +7,7 @@ import type { SessionUser } from "@/auth/session";
 import { assert, canActAsBuyer, canActAsSeller, canViewOrder, isAdmin } from "./permissions";
 import { enqueue, recordAudit } from "./audit";
 import { calculateFees, sellerNetCents } from "./fees";
+import { feePartiesFor } from "./fee-standing";
 import { feeRule } from "./settings";
 import { flags as readFlags } from "./settings";
 
@@ -107,7 +108,12 @@ export async function createOrder(
     throw new OrderError("offers_only");
   }
 
-  const fees = calculateFees(amountCents, listing!.currency, await feeRule());
+  // The rates depend on how much each side has traded and on special rates.
+  const parties = await feePartiesFor(
+    { profileId: listing!.sellerProfileId, organisationId: listing!.sellerOrgId },
+    { id: user.id, organisationIds: user.organisations.map((o) => o.id) },
+  );
+  const fees = calculateFees(amountCents, listing!.currency, await feeRule(), parties);
   const reference = await nextReference();
 
   const [order] = await db.transaction(async (tx) => {
@@ -123,6 +129,9 @@ export async function createOrder(
         amountCents,
         sellerFeeCents: fees.seller.cents,
         buyerFeeCents: fees.buyer.cents,
+        sellerFeeBp: fees.sellerBp,
+        buyerFeeBp: fees.buyerBp,
+        buyerOrgId: parties.buyerOrgId,
         currency: listing!.currency,
         status: "pending_payment",
         paymentProvider: process.env.PAYMENT_PROVIDER ?? "fake",
@@ -154,6 +163,7 @@ export async function getOrder(user: SessionUser, orderId: string) {
       buyerName: sql<string>`(select display_name from profiles where id = ${orders.buyerId})`,
       sellerName: sql<string>`(select display_name from profiles where id = ${orders.sellerId})`,
       sellerOrgName: organisations.name,
+      buyerOrgName: sql<string | null>`(select name from organisations where id = ${orders.buyerOrgId})`,
     })
     .from(orders)
     .innerJoin(listings, eq(listings.id, orders.listingId))

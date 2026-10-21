@@ -90,6 +90,15 @@ export function canModerateRatings(user: SessionUser | null) {
   return isAdmin(user);
 }
 
+/** An organisation's owner may ask for a special rate; only an admin approves, changes or ends one. */
+export function canRequestSpecialRate(user: SessionUser | null, organisationId: string) {
+  return !!user && !user.suspendedAt && ownerOf(user, organisationId);
+}
+
+export function canManageSpecialRates(user: SessionUser | null) {
+  return isAdmin(user);
+}
+
 /** You cannot bid on your own instrument, nor message yourself. */
 export function canOfferOn(user: SessionUser | null, listing: OwnedResource) {
   if (!user || user.suspendedAt) return false;

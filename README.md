@@ -147,10 +147,13 @@ variable, which always wins.
 | `showDesignSwitcher` | `FLAG_DESIGN_SWITCHER` | The prototype-only palette control |
 | `ratingsRevealTogether` | `FLAG_RATINGS_TOGETHER` | Whether the two ratings of a deal appear together, or each as soon as it is given |
 
-The fee rule is editable in the same screen: the seller's share (3 % by
-default, taken from the payout) and the buyer's share (2 %, added to the
-price), with an optional cap and minimum for both together. A table shows what
-the current setting means for sales from CHF 500 to CHF 500,000.
+The fee rule is editable in the same screen: 3 % from the seller (taken from
+the payout) and 3 % from the buyer (added to the price) by default, each 0.1
+points lower for every 100 completed transactions in that role and at most 0.5
+lower, with an optional cap and minimum for both together. Tables show what the
+rule means for typical sales and for each step. Special rates for dealers
+(selling) and companies (buying) are requested by the organisation and approved
+under Admin → Sonderkonditionen.
 
 Decisions taken while building are logged in
 [`docs/decisions.md`](docs/decisions.md), and what each phase delivered is in

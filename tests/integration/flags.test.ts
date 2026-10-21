@@ -53,17 +53,17 @@ describe("settings", () => {
   });
 
   it("applies a changed fee rule to the calculation", async () => {
-    await setStored("fee_rule", { sellerPercent: 4, buyerPercent: 1, capCents: null, minCents: 0 });
+    await setStored("fee_rule", { ...defaultFeeRule, sellerPercent: 4, buyerPercent: 1 });
     const fees = calculateFees(1_000_000, "CHF", await feeRule());
     expect(fees.seller.cents).toBe(40_000);
     expect(fees.buyer.cents).toBe(10_000);
 
     await setStored("fee_rule", defaultFeeRule);
-    expect(calculateFees(1_000_000, "CHF", await feeRule()).total.cents).toBe(50_000);
+    expect(calculateFees(1_000_000, "CHF", await feeRule()).total.cents).toBe(60_000);
   });
 
-  it("ignores a rule stored before the split", async () => {
-    await setStored("fee_rule", { percent: 1, capCents: 50_000, minCents: 2_000 });
+  it("ignores a rule stored before the volume tiers", async () => {
+    await setStored("fee_rule", { sellerPercent: 3, buyerPercent: 2, capCents: null, minCents: 0 });
     expect(await feeRule()).toEqual(defaultFeeRule);
   });
 });

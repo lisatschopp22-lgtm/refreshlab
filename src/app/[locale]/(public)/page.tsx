@@ -176,7 +176,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 icon: Gauge,
                 title: t("trustFee"),
                 text: t("trustFeeText", {
-                  total: formatPercent(rule.sellerPercent + rule.buyerPercent, locale),
                   seller: formatPercent(rule.sellerPercent, locale),
                   buyer: formatPercent(rule.buyerPercent, locale),
                 }),

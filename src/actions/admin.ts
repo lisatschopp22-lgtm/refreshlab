@@ -22,7 +22,7 @@ import { setCommentStatus, deleteComment } from "@/domain/comments";
 import { resolveReport } from "@/domain/moderation";
 import { restoreListing, setListingStatus, softDeleteListing, updateListing } from "@/domain/listings";
 import { writeSetting } from "@/domain/settings";
-import { defaultFeeRule, type FeeRule } from "@/domain/fees";
+import { defaultFeeRule, type FeeRule, type FeeTiers } from "@/domain/fees";
 import { defaultFlags } from "@/domain/flags";
 import { runOutbox } from "@/domain/outbox";
 import type { listings } from "@/db/schema/marketplace";
@@ -221,16 +221,32 @@ export async function saveSettingsAction(_prev: AdminState, formData: FormData):
   const locale = locOf(formData);
   const user = await requireAdmin(locale);
 
-  const sellerPercent = Number(formData.get("feeSellerPercent"));
-  const buyerPercent = Number(formData.get("feeBuyerPercent"));
-  const cap = String(formData.get("feeCap") ?? "").trim();
-  const min = Number(formData.get("feeMin"));
+  const number = (name: string) => Number(formData.get(name));
   const isPercent = (value: number) => Number.isFinite(value) && value >= 0 && value <= 100;
-  if (!isPercent(sellerPercent) || !isPercent(buyerPercent)) return { error: "invalid" };
+  const tiers = (side: "Seller" | "Buyer"): FeeTiers | null => {
+    const stepTransactions = number(`fee${side}Step`);
+    const stepPercent = number(`fee${side}StepPercent`);
+    const maxPercent = number(`fee${side}Max`);
+    if (!Number.isInteger(stepTransactions) || stepTransactions < 0) return null;
+    if (!isPercent(stepPercent) || !isPercent(maxPercent)) return null;
+    return { stepTransactions, stepPercent, maxPercent };
+  };
+
+  const sellerPercent = number("feeSellerPercent");
+  const buyerPercent = number("feeBuyerPercent");
+  const sellerTiers = tiers("Seller");
+  const buyerTiers = tiers("Buyer");
+  const cap = String(formData.get("feeCap") ?? "").trim();
+  const min = number("feeMin");
+  if (!isPercent(sellerPercent) || !isPercent(buyerPercent) || !sellerTiers || !buyerTiers) {
+    return { error: "invalid" };
+  }
 
   await writeSetting(user, "fee_rule", {
     sellerPercent,
     buyerPercent,
+    sellerTiers,
+    buyerTiers,
     capCents: cap ? Math.round(Number(cap) * 100) : null,
     minCents: Number.isFinite(min) ? Math.round(min * 100) : defaultFeeRule.minCents,
   } satisfies FeeRule);

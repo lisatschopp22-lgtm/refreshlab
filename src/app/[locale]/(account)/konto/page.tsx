@@ -4,7 +4,10 @@ import { Star } from "lucide-react";
 import { requireUser } from "@/auth/session";
 import { dashboardSummary } from "@/db/queries/account";
 import { pendingRatings } from "@/db/queries/ratings";
-import { formatNumber } from "@/i18n/format";
+import { approvedRates, completedPurchases, completedSales } from "@/domain/fee-standing";
+import { nextTier, tierRate } from "@/domain/fees";
+import { feeRule } from "@/domain/settings";
+import { formatNumber, formatPercent } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
 import { ButtonLink } from "@/ui/button";
 import { Card, CardBody, Section } from "@/ui/card";
@@ -23,11 +26,25 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
   const tn = await getTranslations({ locale, namespace: "nav" });
   const ts = await getTranslations({ locale, namespace: "search" });
   const tr = await getTranslations({ locale, namespace: "ratings" });
+  const tf = await getTranslations({ locale, namespace: "fees" });
 
-  const [summary, toRate] = await Promise.all([
-    dashboardSummary(user.id, user.organisations.map((o) => o.id)),
+  const organisationIds = user.organisations.map((o) => o.id);
+  const [summary, toRate, rule, purchases, privateSales, buyerRates] = await Promise.all([
+    dashboardSummary(user.id, organisationIds),
     pendingRatings(user),
+    feeRule(),
+    completedPurchases(user.id),
+    completedSales({ profileId: user.id, organisationId: null }),
+    approvedRates(organisationIds, "buyer"),
   ]);
+
+  const rateText = (bp: number) => formatPercent(bp / 100, locale);
+  const buyingFor = buyerRates[0]
+    ? { rateBp: buyerRates[0].rateBp, name: user.organisations.find((o) => o.id === buyerRates[0]!.organisationId)?.name }
+    : null;
+  const buyerNext = nextTier(rule.buyerPercent, rule.buyerTiers, purchases);
+  const sellerNext = nextTier(rule.sellerPercent, rule.sellerTiers, privateSales);
+  const sameTiers = JSON.stringify(rule.sellerTiers) === JSON.stringify(rule.buyerTiers);
 
   const tiles = [
     { label: t("activeListings"), value: summary.listings.active, href: `/${locale}/konto/inserate` },
@@ -75,6 +92,44 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
           </CardBody>
         </Card>
       ) : null}
+
+      <Card>
+        <CardBody className="space-y-2 text-sm">
+          <h2 className="font-semibold text-fg">{tf("title")}</h2>
+          <ul className="space-y-1 text-fg-muted">
+            <li>
+              <span className="text-fg">{tf("buying")}:</span>{" "}
+              {buyingFor
+                ? tf("specialFor", { rate: rateText(buyingFor.rateBp), name: buyingFor.name ?? "" })
+                : `${rateText(tierRate(rule.buyerPercent, rule.buyerTiers, purchases))} · ${tf("purchases", {
+                    count: purchases,
+                  })} · ${
+                    buyerNext ? tf("nextPurchases", { count: buyerNext.at, rate: rateText(buyerNext.rateBp) }) : tf("lowest")
+                  }`}
+            </li>
+            <li>
+              <span className="text-fg">{tf("selling")}:</span>{" "}
+              {`${rateText(tierRate(rule.sellerPercent, rule.sellerTiers, privateSales))} · ${tf("sales", {
+                count: privateSales,
+              })} · ${sellerNext ? tf("nextSales", { count: sellerNext.at, rate: rateText(sellerNext.rateBp) }) : tf("lowest")}`}
+            </li>
+          </ul>
+          {sameTiers && rule.sellerTiers.stepTransactions > 0 && rule.sellerTiers.maxPercent > 0 ? (
+            <p className="text-xs text-fg-subtle">
+              {tf("tiersHint", {
+                step: rule.sellerTiers.stepTransactions,
+                stepRate: formatPercent(rule.sellerTiers.stepPercent, locale),
+                maxRate: formatPercent(rule.sellerTiers.maxPercent, locale),
+              })}
+            </p>
+          ) : null}
+          {user.organisations.length ? (
+            <Link href={`/${locale}/konto/organisation`} className="text-xs text-primary hover:underline">
+              {tf("organisationLink")} →
+            </Link>
+          ) : null}
+        </CardBody>
+      </Card>
 
       {summary.listings.draft > 0 || summary.listings.pending > 0 ? (
         <Card>

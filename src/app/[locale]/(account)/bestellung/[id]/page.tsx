@@ -8,7 +8,7 @@ import { PermissionError } from "@/domain/permissions";
 import { orderRatings } from "@/domain/ratings";
 import { confirmTransferAction } from "@/actions/transactions";
 import { hideRatingAction } from "@/actions/ratings";
-import { formatDate, formatDateTime, formatMoney } from "@/i18n/format";
+import { formatDate, formatDateTime, formatMoney, formatRateSuffix } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
 import { Badge } from "@/ui/badge";
 import { buttonClass } from "@/ui/button";
@@ -97,6 +97,7 @@ export default async function OrderPage({
           </p>
           <p className="mt-0.5 text-xs text-fg-subtle">
             {t("seller")}: {data.sellerOrgName ?? data.sellerName} · {t("buyer")}: {data.buyerName}
+            {data.buyerOrgName ? ` (${data.buyerOrgName})` : ""}
           </p>
         </div>
         <Badge tone={statusTone[order.status]}>{ts(order.status)}</Badge>
@@ -361,7 +362,10 @@ export default async function OrderPage({
             ) : null}
             {totals.buyerFeeCents > 0 ? (
               <div className="flex justify-between gap-3">
-                <dt className="text-fg-muted">{t("buyerFee")}</dt>
+                <dt className="text-fg-muted">
+                  {t("buyerFee")}
+                  {formatRateSuffix(order.buyerFeeBp, locale)}
+                </dt>
                 <dd className="tabular">{formatMoney(totals.buyerFeeCents, order.currency, locale)}</dd>
               </div>
             ) : null}
@@ -370,7 +374,10 @@ export default async function OrderPage({
               <dd className="tabular">{formatMoney(totals.totalCents, order.currency, locale)}</dd>
             </div>
             <div className="flex justify-between gap-3 pt-2 text-xs text-fg-subtle">
-              <dt>{t("sellerFee")}</dt>
+              <dt>
+                {t("sellerFee")}
+                {formatRateSuffix(order.sellerFeeBp, locale)}
+              </dt>
               <dd className="tabular">− {formatMoney(totals.sellerFeeCents, order.currency, locale)}</dd>
             </div>
             <div className="flex justify-between gap-3 text-xs">

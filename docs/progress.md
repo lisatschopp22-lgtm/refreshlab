@@ -340,3 +340,25 @@ confirm receipt, rate from both sides (each rating stays hidden until the
 other is in), see the stars on listing and profile, hide and show as admin.
 The test purchase and its ratings were removed afterwards. J4 now rates from
 both sides; Playwright could not run here.
+
+## Volume tiers and special rates
+
+* **3 % from each side**, with a tier for those who trade a lot: 0.1 points
+  off for every 100 completed transactions in that role, at most 0.5. Admin →
+  Einstellungen sets base rates and tiers and shows a table of the steps.
+* **Account overview**: "Ihre Plattformgebühren" shows the own rate when
+  buying and selling, the completed transactions and where the next step is.
+* **Special rates**: an organisation's owner asks for one on
+  `/de/konto/organisation` (selling for dealers only, buying for any
+  organisation). Admin → Sonderkonditionen lists open requests to approve
+  with a rate or reject, the rates in force to change or end, a form to set
+  one directly, and the history. Both sides get an e-mail.
+* **Orders** store the rates applied; checkout, order page and invoice show
+  them, and a purchase at a company's buying rate names the company.
+* The home page and the seeded pages describe the new rule. BioRefurb's
+  example request is waiting in the admin area.
+
+Tried by hand: the dealer's request, the admin's dealer-only rule, setting
+and changing a buying rate for LifeScience Basel AG, and a purchase by one of
+its members at that rate (checkout and invoice). The test purchase and the
+test rate were removed afterwards.

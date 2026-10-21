@@ -319,6 +319,9 @@ export default async function ListingPage({
                       percent: formatPercent(rule.buyerPercent, locale),
                       amount: formatMoney(buyerFee.cents, listing.currency, locale),
                     })}
+                    {rule.buyerTiers.stepTransactions > 0 && rule.buyerTiers.maxPercent > 0
+                      ? ` · ${t("buyerFeeTiers", { count: rule.buyerTiers.stepTransactions })}`
+                      : ""}
                   </p>
                 ) : null}
               </div>

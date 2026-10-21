@@ -15,6 +15,11 @@ export function formatNumber(value: number, locale: Locale = "de") {
   return new Intl.NumberFormat(locale === "de" ? "de-CH" : "en-CH").format(value);
 }
 
+/** A rate stored in basis points, 290 becoming " (2.9%)"; empty when unknown, as on old orders. */
+export function formatRateSuffix(basisPoints: number | null | undefined, locale: Locale = "de") {
+  return basisPoints === null || basisPoints === undefined ? "" : ` (${formatPercent(basisPoints / 100, locale)})`;
+}
+
 /** Takes percent points: 3 becomes "3%". */
 export function formatPercent(value: number, locale: Locale = "de") {
   return new Intl.NumberFormat(locale === "de" ? "de-CH" : "en-CH", {

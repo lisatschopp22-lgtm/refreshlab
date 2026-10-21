@@ -6,6 +6,7 @@ import { getEditableListing, hasSerialPhoto, readyToPublish } from "@/domain/lis
 import { listingImagesFor } from "@/actions/listings";
 import { calculateFees, sellerNetCents } from "@/domain/fees";
 import { feeRule } from "@/domain/settings";
+import { feePartiesFor } from "@/domain/fee-standing";
 import { formatMoney, formatPercent } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
 import { Badge } from "@/ui/badge";
@@ -30,15 +31,18 @@ export default async function ReviewStep({
   const t = await getTranslations({ locale, namespace: "sell" });
   const tc = await getTranslations({ locale, namespace: "conditions" });
   const to = await getTranslations({ locale, namespace: "orders" });
+  const tf = await getTranslations({ locale, namespace: "fees" });
 
-  const [serialPhoto, modelStatus, rule] = await Promise.all([
+  const [serialPhoto, modelStatus, rule, parties] = await Promise.all([
     hasSerialPhoto(id),
     getModelStatus(listing.modelId),
     feeRule(),
+    feePartiesFor({ profileId: listing.sellerProfileId, organisationId: listing.sellerOrgId }),
   ]);
   const problems = readyToPublish(listing, images.length, serialPhoto);
   const newDevice = modelStatus === "pending";
-  const fees = calculateFees(listing.priceCents, listing.currency, rule);
+  // The buyer is not known yet, so their share is shown at the full rate.
+  const fees = calculateFees(listing.priceCents, listing.currency, rule, { seller: parties.seller });
   const net = sellerNetCents(listing.priceCents, fees.seller.cents);
 
   return (
@@ -86,7 +90,8 @@ export default async function ReviewStep({
             </div>
             <div className="flex justify-between gap-3">
               <dt className="text-fg-muted">
-                {to("sellerFee")} ({formatPercent(rule.sellerPercent, locale)})
+                {to("sellerFee")} ({formatPercent(fees.sellerBp / 100, locale)}
+                {parties.seller.specialRateBp != null ? ` · ${tf("special")}` : ""})
               </dt>
               <dd className="tabular text-fg-muted">
                 − {formatMoney(fees.seller.cents, listing.currency, locale)}

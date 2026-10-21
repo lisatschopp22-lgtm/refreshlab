@@ -3,8 +3,8 @@ import { requireAdmin } from "@/auth/session";
 import { feeRule } from "@/domain/settings";
 import { defaultFlags } from "@/domain/flags";
 import { flags as readFlags } from "@/domain/settings";
-import { calculateFees } from "@/domain/fees";
-import { formatMoney } from "@/i18n/format";
+import { calculateFees, tierRate } from "@/domain/fees";
+import { formatMoney, formatPercent } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
 import { Card, CardBody, CardHeader } from "@/ui/card";
 import { SettingsForm } from "@/ui/admin-forms";
@@ -38,8 +38,12 @@ export default async function AdminSettingsPage({ params }: { params: Promise<{ 
             labels={{
               feeRule: t("feeRule"),
               feeHint: t("feeHint"),
-              feeSellerPercent: t("feeSellerPercent"),
-              feeBuyerPercent: t("feeBuyerPercent"),
+              feeSeller: t("feeSeller"),
+              feeBuyer: t("feeBuyer"),
+              feeBase: t("feeBase"),
+              feeStep: t("feeStep"),
+              feeStepPercent: t("feeStepPercent"),
+              feeMax: t("feeMax"),
               feeCap: t("feeCap"),
               feeMin: t("feeMin"),
               flags: t("flags"),
@@ -87,6 +91,36 @@ export default async function AdminSettingsPage({ params }: { params: Promise<{ 
                     <Td className="tabular">{formatMoney(cents + fees.buyer.cents, "CHF", locale)}</Td>
                     <Td className="tabular">{formatMoney(cents - fees.seller.cents, "CHF", locale)}</Td>
                     <Td className="tabular text-fg-subtle">{((fees.total.cents / cents) * 100).toFixed(2)}</Td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </Table>
+        </CardBody>
+      </Card>
+
+      <Card>
+        <CardHeader title={t("feeTiers")} description={t("feeTiersHint")} />
+        <CardBody className="p-0">
+          <Table>
+            <thead>
+              <tr>
+                <Th>{t("feeCompleted")}</Th>
+                <Th>{t("feeSeller")}</Th>
+                <Th>{t("feeBuyer")}</Th>
+                <Th>{t("feeTogether")}</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {[0, 100, 200, 300, 400, 500].map((completed) => {
+                const seller = tierRate(rule.sellerPercent, rule.sellerTiers, completed);
+                const buyer = tierRate(rule.buyerPercent, rule.buyerTiers, completed);
+                return (
+                  <tr key={completed}>
+                    <Td className="tabular">{completed}</Td>
+                    <Td className="tabular">{formatPercent(seller / 100, locale)}</Td>
+                    <Td className="tabular">{formatPercent(buyer / 100, locale)}</Td>
+                    <Td className="tabular text-fg-subtle">{formatPercent((seller + buyer) / 100, locale)}</Td>
                   </tr>
                 );
               })}

@@ -1,10 +1,10 @@
 import { and, asc, eq, isNull, lt, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { messages } from "@/db/schema/community";
-import { profiles } from "@/db/schema/identity";
+import { organisations, profiles } from "@/db/schema/identity";
 import { listings } from "@/db/schema/marketplace";
 import { outbox } from "@/db/schema/operations";
-import { orders, ratings } from "@/db/schema/transactions";
+import { orders, ratings, specialRates } from "@/db/schema/transactions";
 import { searchProvider } from "@/integrations/search";
 import { layout, mailer } from "@/integrations/email";
 import { flags } from "./settings";
@@ -145,6 +145,63 @@ const handlers: Record<string, Handler> = {
           : `Zur Transaktion ${row.reference} liegt eine Bewertung vor.`,
         `${siteUrl}/de/bestellung/${row.orderId}`,
         "Transaktion ansehen",
+      ),
+    });
+  },
+
+  /** A dealer or company asked for a special rate: every admin hears of it. */
+  "special_rate.requested": async (payload) => {
+    const [row] = await db
+      .select({ side: specialRates.side, organisation: organisations.name })
+      .from(specialRates)
+      .innerJoin(organisations, eq(organisations.id, specialRates.organisationId))
+      .where(eq(specialRates.id, payload.specialRateId as string))
+      .limit(1);
+    if (!row) return;
+    const admins = await db.select({ email: profiles.email }).from(profiles).where(eq(profiles.role, "admin"));
+    const side = row.side === "seller" ? "Verkaufen" : "Einkaufen";
+    for (const admin of admins) {
+      await mailer().send({
+        to: admin.email,
+        subject: `Antrag auf Sonderkonditionen: ${row.organisation}`,
+        ...layout(
+          "Neuer Antrag auf Sonderkonditionen",
+          `${row.organisation} beantragt einen Sondersatz beim ${side}.`,
+          `${siteUrl}/de/admin/sonderkonditionen`,
+          "Antrag prüfen",
+        ),
+      });
+    }
+  },
+
+  /** The organisation that asked learns the outcome. */
+  "special_rate.decided": async (payload) => {
+    const [row] = await db
+      .select({
+        status: specialRates.status,
+        rateBp: specialRates.rateBp,
+        note: specialRates.decisionNote,
+        organisation: organisations.name,
+        email: profiles.email,
+      })
+      .from(specialRates)
+      .innerJoin(organisations, eq(organisations.id, specialRates.organisationId))
+      .innerJoin(profiles, eq(profiles.id, specialRates.requestedBy))
+      .where(eq(specialRates.id, payload.specialRateId as string))
+      .limit(1);
+    if (!row) return;
+    const approved = row.status === "approved" && row.rateBp !== null;
+    const text = approved
+      ? `Für ${row.organisation} gilt ab sofort ein Sondersatz von ${(row.rateBp! / 100).toFixed(2)} %.`
+      : `Der Antrag von ${row.organisation} auf Sonderkonditionen wurde abgelehnt.`;
+    await mailer().send({
+      to: row.email,
+      subject: approved ? "Ihr Sondersatz ist genehmigt" : "Ihr Antrag auf Sonderkonditionen",
+      ...layout(
+        approved ? "Sondersatz genehmigt" : "Antrag abgelehnt",
+        row.note ? `${text} ${row.note}` : text,
+        `${siteUrl}/de/konto/organisation`,
+        "Organisation ansehen",
       ),
     });
   },

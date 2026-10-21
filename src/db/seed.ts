@@ -557,6 +557,8 @@ async function transactional(ctx: Awaited<ReturnType<typeof main>>) {
         shippingCents: chance(0.6) ? 48_000 : 0,
         sellerFeeCents: fees.seller.cents,
         buyerFeeCents: fees.buyer.cents,
+        sellerFeeBp: fees.sellerBp,
+        buyerFeeBp: fees.buyerBp,
         status: state,
         paymentMethod: amount > 1_000_000 ? "bank_transfer" : "card",
         paymentProvider: "fake",
@@ -618,6 +620,24 @@ async function transactional(ctx: Awaited<ReturnType<typeof main>>) {
         idempotencyKey: `seed-${order!.id}-paid`,
       });
     }
+  }
+
+  // The dealer has asked for a special selling rate; an admin decides.
+  const [biorefurb] = await db
+    .select({ id: s.organisations.id })
+    .from(s.organisations)
+    .where(sql`${s.organisations.slug} = 'biorefurb'`)
+    .limit(1);
+  if (biorefurb) {
+    await db.insert(s.specialRates).values({
+      organisationId: biorefurb.id,
+      side: "seller",
+      expectedPerYear: 4000,
+      message:
+        "Wir bereiten jährlich rund 4000 Geräte auf und möchten unseren ganzen Bestand über refreshLab anbieten. Wir bitten um einen Satz, der zu diesem Volumen passt.",
+      requestedBy: jonas,
+      createdAt: daysAgo(2),
+    });
   }
 
   console.log("→ creating reports, watchlist and saved searches");

@@ -5,7 +5,7 @@ import { ShieldCheck } from "lucide-react";
 import { requireUser } from "@/auth/session";
 import { getOrder, milestoneIndex, orderTotals } from "@/domain/orders";
 import { PermissionError } from "@/domain/permissions";
-import { formatMoney } from "@/i18n/format";
+import { formatMoney, formatRateSuffix } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
 import { Card, CardBody, CardHeader } from "@/ui/card";
 import { MilestoneBar } from "@/ui/milestone-bar";
@@ -33,6 +33,7 @@ export default async function CheckoutPage({
 
   const t = await getTranslations({ locale, namespace: "orders" });
   const tc = await getTranslations({ locale, namespace: "common" });
+  const tf = await getTranslations({ locale, namespace: "fees" });
   const totals = orderTotals(data.order);
 
   if (data.order.status !== "pending_payment") {
@@ -94,7 +95,12 @@ export default async function CheckoutPage({
 
       <Card>
         <CardHeader title={t("total")} />
-        <CardBody>
+        <CardBody className="space-y-3">
+          {data.buyerOrgName ? (
+            <p className="rounded-[var(--radius-md)] bg-success-subtle px-3 py-2 text-sm text-success">
+              {tf("buyingFor", { name: data.buyerOrgName })}
+            </p>
+          ) : null}
           <dl className="space-y-1.5 text-sm">
             <div className="flex justify-between gap-3">
               <dt className="text-fg-muted">{t("itemPrice")}</dt>
@@ -110,7 +116,10 @@ export default async function CheckoutPage({
             </div>
             {totals.buyerFeeCents > 0 ? (
               <div className="flex justify-between gap-3">
-                <dt className="text-fg-muted">{t("buyerFee")}</dt>
+                <dt className="text-fg-muted">
+                  {t("buyerFee")}
+                  {formatRateSuffix(data.order.buyerFeeBp, locale)}
+                </dt>
                 <dd className="tabular">{formatMoney(totals.buyerFeeCents, data.order.currency, locale)}</dd>
               </div>
             ) : null}

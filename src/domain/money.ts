@@ -25,6 +25,16 @@ export function percentOf(amount: Money, percent: number): Money {
   return money(Math.round((amount.cents * percent) / 100), amount.currency);
 }
 
+/** A rate in basis points, 300 being 3 %. Whole numbers until the last step, so a half cent always rounds up. */
+export function basisPointsOf(amount: Money, basisPoints: number): Money {
+  return money(Math.round((amount.cents * basisPoints) / 10_000), amount.currency);
+}
+
+/** The part of `total` that `part` is of `whole`, for splitting by weight. */
+export function shareOf(total: Money, part: number, whole: number): Money {
+  return money(Math.round((total.cents * part) / whole), total.currency);
+}
+
 export function min(a: Money, b: Money): Money {
   assertSame(a, b);
   return a.cents <= b.cents ? a : b;

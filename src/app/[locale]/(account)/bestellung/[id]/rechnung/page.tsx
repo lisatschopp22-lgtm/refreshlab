@@ -3,7 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { requireUser } from "@/auth/session";
 import { invoiceData } from "@/domain/orders";
 import { PermissionError } from "@/domain/permissions";
-import { formatDate, formatMoney } from "@/i18n/format";
+import { formatDate, formatMoney, formatRateSuffix } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
 import { Card, CardBody } from "@/ui/card";
 
@@ -59,7 +59,8 @@ export default async function InvoicePage({
             </div>
             <div>
               <p className="text-xs uppercase tracking-wide text-fg-subtle">{t("buyer")}</p>
-              <p className="font-medium text-fg">{data.buyer?.displayName}</p>
+              {data.buyerOrgName ? <p className="font-medium text-fg">{data.buyerOrgName}</p> : null}
+              <p className={data.buyerOrgName ? "text-fg-muted" : "font-medium text-fg"}>{data.buyer?.displayName}</p>
               <p className="text-fg-muted">{data.buyer?.city}</p>
               <p className="text-fg-muted">{data.buyer?.email}</p>
             </div>
@@ -89,7 +90,10 @@ export default async function InvoicePage({
               ) : null}
               {data.totals.buyerFeeCents > 0 ? (
                 <tr className="border-b border-border">
-                  <td className="py-2">{t("buyerFee")}</td>
+                  <td className="py-2">
+                    {t("buyerFee")}
+                    {formatRateSuffix(order.buyerFeeBp, locale)}
+                  </td>
                   <td className="tabular py-2 text-right">
                     {formatMoney(data.totals.buyerFeeCents, order.currency, locale)}
                   </td>
@@ -107,7 +111,10 @@ export default async function InvoicePage({
           {/* Fees and taxes are stated separately, as the requirements ask. */}
           <div className="space-y-1 border-t border-border pt-4 text-xs text-fg-muted">
             <div className="flex justify-between">
-              <span>{t("sellerFee")}</span>
+              <span>
+                {t("sellerFee")}
+                {formatRateSuffix(order.sellerFeeBp, locale)}
+              </span>
               <span className="tabular">− {formatMoney(data.totals.sellerFeeCents, order.currency, locale)}</span>
             </div>
             <div className="flex justify-between">
