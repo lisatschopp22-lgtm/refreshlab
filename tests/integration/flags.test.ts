@@ -1,4 +1,4 @@
-import { afterAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { settings } from "@/db/schema/operations";
@@ -14,9 +14,21 @@ async function setStored(key: string, value: unknown) {
 }
 
 describe("settings", () => {
+  // The tests run against the local database in use, so whatever an admin has
+  // set there is put back afterwards rather than reset to the defaults.
+  const keys = ["flags", "fee_rule"];
+  let saved: { key: string; value: unknown }[] = [];
+
+  beforeAll(async () => {
+    saved = await db.select({ key: settings.key, value: settings.value }).from(settings);
+  });
+
   afterAll(async () => {
-    await setStored("flags", defaultFlags);
-    await setStored("fee_rule", defaultFeeRule);
+    for (const key of keys) {
+      const before = saved.find((row) => row.key === key);
+      if (before) await setStored(key, before.value);
+      else await db.delete(settings).where(eq(settings.key, key));
+    }
   });
 
   it("reads the stored flags", async () => {
