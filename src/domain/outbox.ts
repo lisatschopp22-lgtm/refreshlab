@@ -4,9 +4,10 @@ import { messages } from "@/db/schema/community";
 import { profiles } from "@/db/schema/identity";
 import { listings } from "@/db/schema/marketplace";
 import { outbox } from "@/db/schema/operations";
-import { orders } from "@/db/schema/transactions";
+import { orders, ratings } from "@/db/schema/transactions";
 import { searchProvider } from "@/integrations/search";
 import { layout, mailer } from "@/integrations/email";
+import { flags } from "./settings";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 const MAX_ATTEMPTS = 3;
@@ -105,18 +106,47 @@ const handlers: Record<string, Handler> = {
       .select({ id: profiles.id, email: profiles.email })
       .from(profiles)
       .where(sql`${profiles.id} in (${order.buyerId}, ${order.sellerId})`);
+    // A completed deal opens the rating period for both sides.
+    const text =
+      order.status === "completed"
+        ? `Der Status hat sich geändert: ${order.status}. Bitte bewerten Sie jetzt die andere Seite.`
+        : `Der Status hat sich geändert: ${order.status}.`;
     for (const person of people) {
       await mailer().send({
         to: person.email,
         subject: `Transaktion ${order.reference}: ${order.status}`,
         ...layout(
           `Transaktion ${order.reference}`,
-          `Der Status hat sich geändert: ${order.status}.`,
+          text,
           `${siteUrl}/de/bestellung/${order.id}`,
           "Transaktion ansehen",
         ),
       });
     }
+  },
+
+  "rating.created": async (payload) => {
+    const [row] = await db
+      .select({ orderId: ratings.orderId, reference: orders.reference, email: profiles.email })
+      .from(ratings)
+      .innerJoin(orders, eq(orders.id, ratings.orderId))
+      .innerJoin(profiles, eq(profiles.id, ratings.rateeProfileId))
+      .where(eq(ratings.id, payload.ratingId as string))
+      .limit(1);
+    if (!row) return;
+    const { ratingsRevealTogether } = await flags();
+    await mailer().send({
+      to: row.email,
+      subject: `Neue Bewertung zu ${row.reference}`,
+      ...layout(
+        "Sie haben eine Bewertung erhalten",
+        ratingsRevealTogether
+          ? `Zur Transaktion ${row.reference} liegt eine Bewertung vor. Sie sehen sie, sobald Sie ebenfalls bewertet haben oder die Frist abgelaufen ist.`
+          : `Zur Transaktion ${row.reference} liegt eine Bewertung vor.`,
+        `${siteUrl}/de/bestellung/${row.orderId}`,
+        "Transaktion ansehen",
+      ),
+    });
   },
 };
 

@@ -18,8 +18,9 @@ export async function feeRule(): Promise<FeeRule> {
 
 /** Admin settings sit under the env overrides, which always win. */
 export async function flags(): Promise<Flags> {
-  const stored = await readSetting("flags", defaultFlags);
-  return flagsFromEnv(stored);
+  // A flag added after the settings were saved takes its default.
+  const stored = await readSetting<Partial<Flags>>("flags", defaultFlags);
+  return flagsFromEnv({ ...defaultFlags, ...stored });
 }
 
 export async function writeSetting(user: SessionUser, key: string, value: unknown) {

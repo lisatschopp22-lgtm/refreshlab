@@ -131,6 +131,23 @@ test("an offer is negotiated, paid, shipped and completed", async ({ browser }) 
   await buyer.goto(listing.url);
   await expect(buyer.getByText("Dieses Gerät ist verkauft.")).toBeVisible();
 
+  // --- both sides rate each other, and the two ratings appear together
+  await buyer.goto(orderUrl);
+  await buyer.getByRole("radio", { name: "4 Sterne – gut" }).check();
+  await buyer.getByLabel("Kommentar (freiwillig)").fill("Gerät wie beschrieben, sorgfältig verpackt.");
+  await buyer.getByRole("button", { name: "Bewertung abgeben" }).click();
+  await expect(buyer.getByRole("button", { name: "Bewertung abgeben" })).toHaveCount(0, { timeout: 20_000 });
+  await expect(buyer.getByText("Die andere Seite hat noch nicht bewertet.")).toBeVisible();
+
+  await seller.goto(orderUrl);
+  await expect(seller.getByText(/Die andere Seite hat bereits bewertet/)).toBeVisible();
+  await seller.getByRole("radio", { name: "5 Sterne – sehr gut" }).check();
+  await seller.getByRole("button", { name: "Bewertung abgeben" }).click();
+  await expect(seller.getByText("Gerät wie beschrieben, sorgfältig verpackt.")).toBeVisible({ timeout: 20_000 });
+
+  await buyer.reload();
+  await expect(buyer.getByRole("img", { name: "5 von 5 Sternen" })).toBeVisible();
+
   await sellerContext.close();
   await buyerContext.close();
 });

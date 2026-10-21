@@ -5,13 +5,18 @@ import { FileText, ShieldCheck } from "lucide-react";
 import { requireUser } from "@/auth/session";
 import { actorFor, getOrder, milestoneIndex, nextStatuses, orderTotals } from "@/domain/orders";
 import { PermissionError } from "@/domain/permissions";
+import { orderRatings } from "@/domain/ratings";
 import { confirmTransferAction } from "@/actions/transactions";
-import { formatDateTime, formatMoney } from "@/i18n/format";
+import { hideRatingAction } from "@/actions/ratings";
+import { formatDate, formatDateTime, formatMoney } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
 import { Badge } from "@/ui/badge";
 import { buttonClass } from "@/ui/button";
 import { Card, CardBody, CardHeader } from "@/ui/card";
+import { Input } from "@/ui/field";
 import { MilestoneBar } from "@/ui/milestone-bar";
+import { RatingForm } from "@/ui/rating-form";
+import { Stars } from "@/ui/ratings";
 import { OrderActionButton } from "@/ui/transaction-forms";
 
 export const metadata = { robots: { index: false } };
@@ -49,12 +54,15 @@ export default async function OrderPage({
   const ts = await getTranslations({ locale, namespace: "orderStatus" });
   const tc = await getTranslations({ locale, namespace: "common" });
   const th = await getTranslations({ locale, namespace: "humour" });
+  const tr = await getTranslations({ locale, namespace: "ratings" });
 
   const order = data.order;
   const totals = orderTotals(order);
   const actor = actorFor(user, order);
   const available = nextStatuses(order.status, actor);
   const isAdmin = user.role === "admin";
+  const rating = order.status === "completed" ? await orderRatings(user, order) : null;
+  const ratingDeadline = rating?.periodEnds ? formatDate(rating.periodEnds, locale) : "";
 
   const labels = {
     trackingReference: t("trackingReference"),
@@ -108,6 +116,117 @@ export default async function OrderPage({
         <p className="rounded-[var(--radius-md)] bg-success-subtle px-3 py-2.5 text-sm text-success">
           {th("orderCompleted")}
         </p>
+      ) : null}
+
+      {rating && (rating.side || rating.all.length) ? (
+        <Card>
+          <CardHeader title={tr("title")} />
+          <CardBody className="space-y-4 text-sm">
+            {rating.side ? (
+              <>
+                {rating.mine ? (
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium text-fg-subtle">{tr("yours")}</p>
+                    <Stars score={rating.mine.score} label={tr("starsLabel", { score: rating.mine.score })} />
+                    {rating.mine.comment ? <p className="leading-relaxed text-fg-muted">{rating.mine.comment}</p> : null}
+                    {rating.mine.hiddenAt ? <p className="text-xs text-danger">{tr("hiddenByAdmin")}</p> : null}
+                  </div>
+                ) : rating.open ? (
+                  <div className="space-y-3">
+                    <p className="font-medium text-fg">
+                      {rating.side === "buyer"
+                        ? tr("askBuyer", { name: data.sellerOrgName ?? data.sellerName })
+                        : tr("askSeller", { name: data.buyerName })}
+                    </p>
+                    <RatingForm
+                      locale={locale}
+                      orderId={id}
+                      labels={{
+                        score: tr("score"),
+                        star1: tr("star1"),
+                        star2: tr("star2"),
+                        star3: tr("star3"),
+                        star4: tr("star4"),
+                        star5: tr("star5"),
+                        comment: tr("comment"),
+                        commentHint: tr("commentHint"),
+                        submit: tr("submit"),
+                        no_score: tr("errorNoScore"),
+                        closed: tr("errorClosed"),
+                        already_rated: tr("errorAlreadyRated"),
+                        not_allowed: tr("errorNotAllowed"),
+                        generic: tc("error"),
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <p className="text-fg-muted">{tr("closed", { date: ratingDeadline })}</p>
+                )}
+
+                <div className="space-y-1 border-t border-border pt-4">
+                  <p className="text-xs font-medium text-fg-subtle">{tr("theirs")}</p>
+                  {rating.theirs ? (
+                    <>
+                      <Stars score={rating.theirs.score} label={tr("starsLabel", { score: rating.theirs.score })} />
+                      {rating.theirs.comment ? (
+                        <p className="leading-relaxed text-fg-muted">{rating.theirs.comment}</p>
+                      ) : null}
+                    </>
+                  ) : (
+                    <p className="text-fg-muted">
+                      {rating.theirsState === "waiting"
+                        ? tr("theirsWaiting", { date: ratingDeadline })
+                        : rating.theirsState === "hidden"
+                          ? tr("theirsHidden")
+                          : tr("theirsNone")}
+                    </p>
+                  )}
+                </div>
+
+                {rating.open && (!rating.mine || rating.theirsState === "none") ? (
+                  <p className="text-xs text-fg-subtle">
+                    {rating.together ? tr("togetherNote", { date: ratingDeadline }) : tr("periodNote", { date: ratingDeadline })}
+                  </p>
+                ) : null}
+              </>
+            ) : null}
+
+            {rating.all.length ? (
+              <div className={rating.side ? "space-y-3 border-t border-border pt-4" : "space-y-3"}>
+                <p className="text-xs font-medium text-fg-subtle">{tr("moderation")}</p>
+                {rating.all.map((entry) => (
+                  <div key={entry.id} className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="min-w-0 space-y-1">
+                      <p className="text-xs text-fg-subtle">
+                        {entry.side === "buyer" ? tr("fromBuyer") : tr("fromSeller")}
+                      </p>
+                      <Stars score={entry.score} label={tr("starsLabel", { score: entry.score })} />
+                      {entry.comment ? <p className="leading-relaxed text-fg-muted">{entry.comment}</p> : null}
+                      {entry.hiddenAt ? (
+                        <p className="text-xs text-danger">
+                          {tr("hidden")}
+                          {entry.hiddenReason ? `: ${entry.hiddenReason}` : ""}
+                        </p>
+                      ) : null}
+                    </div>
+                    <form action={hideRatingAction} className="flex items-center gap-2">
+                      <input type="hidden" name="locale" value={locale} />
+                      <input type="hidden" name="orderId" value={id} />
+                      <input type="hidden" name="ratingId" value={entry.id} />
+                      <input type="hidden" name="hidden" value={entry.hiddenAt ? "0" : "1"} />
+                      {entry.hiddenAt ? null : (
+                        <Input name="reason" aria-label={tr("hideReason")} placeholder={tr("hideReason")} className="h-8 w-40" />
+                      )}
+                      <button type="submit" className={buttonClass("secondary", "sm")}>
+                        {entry.hiddenAt ? tr("show") : tr("hide")}
+                      </button>
+                    </form>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </CardBody>
+        </Card>
       ) : null}
 
       {order.disputeReason ? (

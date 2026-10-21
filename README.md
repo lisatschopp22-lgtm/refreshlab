@@ -145,6 +145,7 @@ variable, which always wins.
 | `showPriceRangeOnModel` | `FLAG_PRICE_RANGE` | Whether the market price range is shown |
 | `buyerConfirmsReceipt` | `FLAG_BUYER_CONFIRMS` | Whether the buyer or an admin releases the payout |
 | `showDesignSwitcher` | `FLAG_DESIGN_SWITCHER` | The prototype-only palette control |
+| `ratingsRevealTogether` | `FLAG_RATINGS_TOGETHER` | Whether the two ratings of a deal appear together, or each as soon as it is given |
 
 The fee rule is editable in the same screen: the seller's share (3 % by
 default, taken from the payout) and the buyer's share (2 %, added to the

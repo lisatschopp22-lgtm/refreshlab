@@ -5,6 +5,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Clock, FileText, Gauge, MapPin, MessageSquare, Share2, ShieldCheck } from "lucide-react";
 import { getListingBySlug, relatedListings } from "@/db/queries/listings";
 import { modelPriceRange } from "@/db/queries/catalogue";
+import { ratingSummary } from "@/db/queries/ratings";
 import { conditionGrade } from "@/domain/conditions";
 import { calculateFees } from "@/domain/fees";
 import { feeRule, flags as readFlags } from "@/domain/settings";
@@ -21,6 +22,7 @@ import { buyNowAction } from "@/actions/transactions";
 import { buttonClass } from "@/ui/button";
 import { Card, CardBody, CardHeader } from "@/ui/card";
 import { Gallery } from "@/ui/gallery";
+import { RatingSummaryLine } from "@/ui/ratings";
 import { JsonLd, breadcrumbLd } from "@/ui/json-ld";
 import { Table, Td, Th } from "@/ui/table";
 import { ClaimSource, ConditionBadge, LocationLine, VerifiedBadge, WarrantyBadge } from "@/ui/trust";
@@ -70,13 +72,16 @@ export default async function ListingPage({
   const tc = await getTranslations({ locale, namespace: "common" });
   const tm = await getTranslations({ locale, namespace: "model" });
   const tcond = await getTranslations({ locale, namespace: "conditions" });
+  const tr = await getTranslations({ locale, namespace: "ratings" });
   const [flags, rule] = await Promise.all([readFlags(), feeRule()]);
   const buyerFee = calculateFees(listing.priceCents, listing.currency, rule).buyer;
 
-  const [related, priceRange] = await Promise.all([
+  const [related, priceRange, sellerRating] = await Promise.all([
     relatedListings(listing.id, listing.modelId, category.id, 4),
     modelPriceRange(listing.modelId),
+    ratingSummary(organisation ? { organisationId: organisation.id } : { profileId: seller.id, as: "seller" }),
   ]);
+  const sellerHref = organisation ? `/${locale}/anbieter/${organisation.slug}` : `/${locale}/profil/${seller.id}`;
 
   const specFields = category.specSchema ?? [];
   const isBuyable = listing.status === "active";
@@ -376,15 +381,19 @@ export default async function ListingPage({
             <CardHeader title={t("seller")} />
             <CardBody className="space-y-3 text-sm">
               <div>
-                <Link
-                  href={
-                    organisation
-                      ? `/${locale}/anbieter/${organisation.slug}`
-                      : `/${locale}/profil/${seller.id}`
-                  }
-                  className="font-medium text-fg hover:underline"
-                >
+                <Link href={sellerHref} className="font-medium text-fg hover:underline">
                   {organisation?.name ?? seller.displayName}
+                </Link>
+                <Link href={`${sellerHref}#bewertungen`} className="mt-1 block w-fit hover:underline">
+                  <RatingSummaryLine
+                    average={sellerRating.average}
+                    count={sellerRating.count}
+                    labels={{
+                      stars: tr("starsLabel", { score: sellerRating.average?.toFixed(1) ?? "0" }),
+                      count: tr("count", { count: sellerRating.count }),
+                      none: tr("none"),
+                    }}
+                  />
                 </Link>
                 {organisation?.verifiedAt || seller.verifiedAt ? (
                   <p className="mt-0.5 inline-flex items-center gap-1 text-xs text-success">

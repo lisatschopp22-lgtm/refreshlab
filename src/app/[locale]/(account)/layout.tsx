@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import {
   Building2, Heart, LayoutDashboard, LogOut, MessageSquare, Package,
-  Settings, ShieldCheck, Tag,
+  Settings, ShieldCheck, Star, Tag,
 } from "lucide-react";
 import { requireUser } from "@/auth/session";
 import { signOutAction } from "@/actions/auth";
@@ -30,6 +30,7 @@ export default async function AccountLayout({
     { href: `/${locale}/nachrichten`, label: t("messages"), icon: MessageSquare },
     { href: `/${locale}/konto/angebote`, label: t("offers"), icon: Package },
     { href: `/${locale}/konto/transaktionen`, label: t("orders"), icon: Package },
+    { href: `/${locale}/konto/bewertungen`, label: t("ratings"), icon: Star },
     { href: `/${locale}/konto/merkliste`, label: t("watchlist"), icon: Heart },
     { href: `/${locale}/konto/organisation`, label: "Organisation", icon: Building2 },
     { href: `/${locale}/konto/einstellungen`, label: t("settings"), icon: Settings },

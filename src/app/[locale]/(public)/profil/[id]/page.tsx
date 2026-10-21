@@ -5,12 +5,14 @@ import { eq } from "drizzle-orm";
 import { BadgeCheck, MapPin } from "lucide-react";
 import { db } from "@/db/client";
 import { profiles } from "@/db/schema/identity";
+import { ratingList, ratingSummary } from "@/db/queries/ratings";
 import { searchProvider } from "@/integrations/search";
 import { formatDate, formatNumber } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
 import { Breadcrumbs } from "@/ui/breadcrumbs";
 import { EmptyState } from "@/ui/empty-state";
 import { ListingCardItem } from "@/ui/listing-card";
+import { RatingList, RatingSummaryLine } from "@/ui/ratings";
 import { Section } from "@/ui/card";
 import { StorageImage } from "@/ui/storage-image";
 
@@ -39,7 +41,18 @@ export default async function PublicProfilePage({
 
   const t = await getTranslations({ locale, namespace: "listing" });
   const tc = await getTranslations({ locale, namespace: "category" });
-  const listings = await searchProvider().search({ sellerId: profile.id, perPage: 12, sort: "newest" });
+  const tr = await getTranslations({ locale, namespace: "ratings" });
+  const [listings, asSeller, asBuyer, received] = await Promise.all([
+    searchProvider().search({ sellerId: profile.id, perPage: 12, sort: "newest" }),
+    ratingSummary({ profileId: profile.id, as: "seller" }),
+    ratingSummary({ profileId: profile.id, as: "buyer" }),
+    ratingList({ profileId: profile.id }, 20),
+  ]);
+  const summaryLabels = (summary: { average: number | null; count: number }) => ({
+    stars: tr("starsLabel", { score: summary.average?.toFixed(1) ?? "0" }),
+    count: tr("count", { count: summary.count }),
+    none: tr("none"),
+  });
 
   return (
     <main className="mx-auto max-w-[1200px] px-4 py-6">
@@ -75,6 +88,20 @@ export default async function PublicProfilePage({
               {formatNumber(listings.total, locale)} {tc("offers")}
             </span>
           </p>
+          <p className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1">
+            {asSeller.count || !asBuyer.count ? (
+              <span className="inline-flex items-center gap-1.5">
+                <span className="text-xs text-fg-subtle">{tr("asSeller")}</span>
+                <RatingSummaryLine {...asSeller} labels={summaryLabels(asSeller)} />
+              </span>
+            ) : null}
+            {asBuyer.count ? (
+              <span className="inline-flex items-center gap-1.5">
+                <span className="text-xs text-fg-subtle">{tr("asBuyer")}</span>
+                <RatingSummaryLine {...asBuyer} labels={summaryLabels(asBuyer)} />
+              </span>
+            ) : null}
+          </p>
           {profile.bio ? <p className="mt-2 max-w-2xl text-fg-muted">{profile.bio}</p> : null}
         </div>
       </header>
@@ -91,6 +118,23 @@ export default async function PublicProfilePage({
             </ul>
           ) : (
             <EmptyState title={locale === "de" ? "Keine aktiven Angebote." : "No active listings."} />
+          )}
+        </Section>
+      </div>
+
+      <div id="bewertungen" className="scroll-mt-32 border-t border-border py-8">
+        <Section title={tr("title")}>
+          {received.length ? (
+            <RatingList
+              locale={locale}
+              items={received.map((item) => ({
+                ...item,
+                context: item.side === "buyer" ? tr("raterBuyer") : tr("raterSeller"),
+                starsLabel: tr("starsLabel", { score: String(item.score) }),
+              }))}
+            />
+          ) : (
+            <EmptyState title={tr("none")} />
           )}
         </Section>
       </div>

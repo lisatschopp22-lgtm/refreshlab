@@ -1,16 +1,18 @@
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
+  check,
   index,
   integer,
   jsonb,
   pgEnum,
   pgTable,
+  smallint,
   text,
   timestamp,
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
-import { createdAt, currencyEnum, id, updatedAt } from "./common";
+import { createdAt, currencyEnum, deletedAt, id, updatedAt } from "./common";
 import { organisations, profiles } from "./identity";
 import { listings } from "./marketplace";
 
@@ -157,6 +159,45 @@ export const sellerAccounts = pgTable(
   (t) => [index("seller_accounts_profile_idx").on(t.profileId)],
 );
 
+/** The side of the deal a rating comes from: the buyer rates the seller and the other way round. */
+export const ratingSideEnum = pgEnum("rating_side", ["buyer", "seller"]);
+
+/**
+ * After a completed deal each side rates the other once, with one to five
+ * stars and an optional comment. A seller who sold for an organisation is
+ * rated as that organisation, which is also how the listing presented them.
+ */
+export const ratings = pgTable(
+  "ratings",
+  {
+    id: id(),
+    orderId: uuid("order_id")
+      .notNull()
+      .references(() => orders.id, { onDelete: "cascade" }),
+    side: ratingSideEnum("side").notNull(),
+    raterId: uuid("rater_id")
+      .notNull()
+      .references(() => profiles.id, { onDelete: "cascade" }),
+    rateeProfileId: uuid("ratee_profile_id")
+      .notNull()
+      .references(() => profiles.id, { onDelete: "cascade" }),
+    rateeOrgId: uuid("ratee_org_id").references(() => organisations.id, { onDelete: "set null" }),
+    score: smallint("score").notNull(),
+    comment: text("comment"),
+    /** Set by an admin; the rating still counts as given but is not shown or averaged. */
+    hiddenAt: timestamp("hidden_at", { withTimezone: true }),
+    hiddenReason: text("hidden_reason"),
+    createdAt: createdAt(),
+    deletedAt: deletedAt(),
+  },
+  (t) => [
+    uniqueIndex("ratings_order_side_idx").on(t.orderId, t.side),
+    index("ratings_ratee_profile_idx").on(t.rateeProfileId),
+    index("ratings_ratee_org_idx").on(t.rateeOrgId),
+    check("ratings_score_range", sql`${t.score} between 1 and 5`),
+  ],
+);
+
 export const offersRelations = relations(offers, ({ one }) => ({
   listing: one(listings, { fields: [offers.listingId], references: [listings.id] }),
   buyer: one(profiles, { fields: [offers.buyerId], references: [profiles.id] }),
@@ -178,3 +219,4 @@ export type Offer = typeof offers.$inferSelect;
 export type Order = typeof orders.$inferSelect;
 export type PaymentEvent = typeof paymentEvents.$inferSelect;
 export type SellerAccount = typeof sellerAccounts.$inferSelect;
+export type Rating = typeof ratings.$inferSelect;

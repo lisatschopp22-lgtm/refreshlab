@@ -317,3 +317,26 @@ with the form, and older texts stay in place.
 Tried by hand: a CHF 400 purchase as the seeded buyer showed CHF 8 buyer fee,
 CHF 408 total, CHF 12 seller fee and CHF 388 payout on checkout, order page
 and invoice. The test order was cancelled and removed afterwards.
+
+## Ratings between buyer and seller
+
+* **After a completed purchase** the order page asks both sides for one to
+  five stars and an optional comment, open for 14 days. The two ratings
+  appear together once both have rated, or when the 14 days are over.
+* **Where they show**: under the seller's name on every listing, on the
+  personal profile (as seller and as buyer) and on the provider page, each
+  with the latest ratings.
+* **Account**: a new page `/de/konto/bewertungen` lists ratings still to give,
+  received and given; the overview points to open ones.
+* **E-mail**: completing an order asks both sides to rate; a new rating
+  notifies the person rated.
+* **Moderation**: an admin sees both ratings on the order page and can hide
+  one with a reason, or show it again.
+* The seed rates its completed order from both sides; the same two ratings
+  were added to the database in use.
+
+Tried by hand with the seeded buyer, seller and admin: buy, pay, ship,
+confirm receipt, rate from both sides (each rating stays hidden until the
+other is in), see the stars on listing and profile, hide and show as admin.
+The test purchase and its ratings were removed afterwards. J4 now rates from
+both sides; Playwright could not run here.

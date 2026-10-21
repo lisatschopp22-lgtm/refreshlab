@@ -31,6 +31,7 @@
   --color-success-subtle: var(--success-subtle);
   --color-warning: var(--warning);
   --color-warning-subtle: var(--warning-subtle);
+  --color-rating: var(--rating);
   --color-danger: var(--danger);
   --color-danger-subtle: var(--danger-subtle);
   --color-info: var(--info);

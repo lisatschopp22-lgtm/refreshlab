@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { Star } from "lucide-react";
 import { requireUser } from "@/auth/session";
 import { dashboardSummary } from "@/db/queries/account";
+import { pendingRatings } from "@/db/queries/ratings";
 import { formatNumber } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
 import { ButtonLink } from "@/ui/button";
@@ -20,8 +22,12 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
   const t = await getTranslations({ locale, namespace: "account" });
   const tn = await getTranslations({ locale, namespace: "nav" });
   const ts = await getTranslations({ locale, namespace: "search" });
+  const tr = await getTranslations({ locale, namespace: "ratings" });
 
-  const summary = await dashboardSummary(user.id, user.organisations.map((o) => o.id));
+  const [summary, toRate] = await Promise.all([
+    dashboardSummary(user.id, user.organisations.map((o) => o.id)),
+    pendingRatings(user),
+  ]);
 
   const tiles = [
     { label: t("activeListings"), value: summary.listings.active, href: `/${locale}/konto/inserate` },
@@ -57,6 +63,18 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
           </li>
         ))}
       </ul>
+
+      {toRate.length ? (
+        <Card>
+          <CardBody className="flex flex-wrap items-center gap-3 text-sm">
+            <Star className="size-4 fill-current text-rating" aria-hidden="true" />
+            <span className="text-fg">{tr("pendingNotice", { count: toRate.length })}</span>
+            <Link href={`/${locale}/konto/bewertungen`} className="text-primary hover:underline">
+              {tr("rateNow")} →
+            </Link>
+          </CardBody>
+        </Card>
+      ) : null}
 
       {summary.listings.draft > 0 || summary.listings.pending > 0 ? (
         <Card>

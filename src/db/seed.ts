@@ -577,6 +577,31 @@ async function transactional(ctx: Awaited<ReturnType<typeof main>>) {
       })
       .returning({ id: s.orders.id });
 
+    // Both sides of a completed deal have rated each other.
+    if (state === "completed") {
+      await db.insert(s.ratings).values([
+        {
+          orderId: order!.id,
+          side: "buyer",
+          raterId: buyer,
+          rateeProfileId: listing.sellerId,
+          rateeOrgId: listing.sellerOrgId,
+          score: 5,
+          comment: "Gerät wie beschrieben, sorgfältig verpackt und schnell verschickt. Gerne wieder.",
+          createdAt: daysAgo(9),
+        },
+        {
+          orderId: order!.id,
+          side: "seller",
+          raterId: listing.sellerId,
+          rateeProfileId: buyer,
+          score: 5,
+          comment: "Schnelle Zahlung und eine unkomplizierte Übergabe.",
+          createdAt: daysAgo(8),
+        },
+      ]);
+    }
+
     await db.insert(s.paymentEvents).values({
       orderId: order!.id,
       provider: "fake",

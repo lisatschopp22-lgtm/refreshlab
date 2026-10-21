@@ -77,6 +77,8 @@
   --success-subtle: var(--status-success-bg);
   --warning: var(--status-warning);
   --warning-subtle: var(--status-warning-bg);
+  /* Rating stars follow the warning hue in every theme. */
+  --rating: var(--warning);
   --danger: var(--status-danger);
   --danger-subtle: var(--status-danger-bg);
   --info: var(--status-info);

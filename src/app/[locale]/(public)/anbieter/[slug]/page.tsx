@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { BadgeCheck, MapPin } from "lucide-react";
 import { db } from "@/db/client";
 import { organisationMembers, organisations, profiles } from "@/db/schema/identity";
+import { ratingList, ratingSummary } from "@/db/queries/ratings";
 import { searchProvider } from "@/integrations/search";
 import { formatDate, formatNumber } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
@@ -13,6 +14,7 @@ import { Card, CardBody, CardHeader, Section } from "@/ui/card";
 import { EmptyState } from "@/ui/empty-state";
 import { JsonLd } from "@/ui/json-ld";
 import { ListingCardItem } from "@/ui/listing-card";
+import { RatingList, RatingSummaryLine } from "@/ui/ratings";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
@@ -50,14 +52,17 @@ export default async function OrganisationProfilePage({
 
   const t = await getTranslations({ locale, namespace: "listing" });
   const tc = await getTranslations({ locale, namespace: "category" });
+  const tr = await getTranslations({ locale, namespace: "ratings" });
 
-  const [listings, memberCount] = await Promise.all([
+  const [listings, memberCount, rating, received] = await Promise.all([
     searchProvider().search({ organisationId: organisation.id, perPage: 12, sort: "newest" }),
     db
       .select({ displayName: profiles.displayName })
       .from(organisationMembers)
       .innerJoin(profiles, eq(profiles.id, organisationMembers.profileId))
       .where(eq(organisationMembers.organisationId, organisation.id)),
+    ratingSummary({ organisationId: organisation.id }),
+    ratingList({ organisationId: organisation.id }, 20),
   ]);
 
   return (
@@ -106,6 +111,16 @@ export default async function OrganisationProfilePage({
                 {memberCount.length} {locale === "de" ? "Mitglieder" : "members"}
               </span>
             </p>
+            <p className="mt-2">
+              <RatingSummaryLine
+                {...rating}
+                labels={{
+                  stars: tr("starsLabel", { score: rating.average?.toFixed(1) ?? "0" }),
+                  count: tr("count", { count: rating.count }),
+                  none: tr("none"),
+                }}
+              />
+            </p>
             {organisation.about ? (
               <p className="mt-3 max-w-2xl leading-relaxed text-fg-muted">{organisation.about}</p>
             ) : null}
@@ -141,6 +156,22 @@ export default async function OrganisationProfilePage({
             </ul>
           ) : (
             <EmptyState title={locale === "de" ? "Keine aktiven Angebote." : "No active listings."} />
+          )}
+        </Section>
+      </div>
+
+      <div id="bewertungen" className="scroll-mt-32 border-t border-border py-8">
+        <Section title={tr("title")}>
+          {received.length ? (
+            <RatingList
+              locale={locale}
+              items={received.map((item) => ({
+                ...item,
+                starsLabel: tr("starsLabel", { score: String(item.score) }),
+              }))}
+            />
+          ) : (
+            <EmptyState title={tr("none")} />
           )}
         </Section>
       </div>

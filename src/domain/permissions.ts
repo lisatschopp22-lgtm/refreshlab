@@ -74,6 +74,22 @@ export function canActAsSeller(user: SessionUser | null, order: OwnedResource) {
   return order.sellerId === user.id || memberOf(user, order.sellerOrgId);
 }
 
+/**
+ * The side of a deal someone rates from: the buyer rates the seller, the
+ * seller (or a member of the selling organisation) rates the buyer. An admin
+ * moderates ratings but gives none.
+ */
+export function ratingSideOf(user: SessionUser | null, order: OwnedResource): "buyer" | "seller" | null {
+  if (!user || user.suspendedAt) return null;
+  if (order.buyerId === user.id) return "buyer";
+  if (order.sellerId === user.id || memberOf(user, order.sellerOrgId)) return "seller";
+  return null;
+}
+
+export function canModerateRatings(user: SessionUser | null) {
+  return isAdmin(user);
+}
+
 /** You cannot bid on your own instrument, nor message yourself. */
 export function canOfferOn(user: SessionUser | null, listing: OwnedResource) {
   if (!user || user.suspendedAt) return false;

@@ -18,6 +18,11 @@ export type Flags = {
   buyerConfirmsReceipt: boolean;
   /** Show the dev theme/palette switcher. */
   showDesignSwitcher: boolean;
+  /**
+   * The two ratings of a deal appear together: once both sides have rated, or
+   * when the rating period ends. Off, each rating shows as soon as it is given.
+   */
+  ratingsRevealTogether: boolean;
 };
 
 export const defaultFlags: Flags = {
@@ -28,6 +33,7 @@ export const defaultFlags: Flags = {
   showPriceRangeOnModel: true,
   buyerConfirmsReceipt: true,
   showDesignSwitcher: true,
+  ratingsRevealTogether: true,
 };
 
 function envFlag(name: string): boolean | undefined {
@@ -45,5 +51,6 @@ export function flagsFromEnv(base: Flags = defaultFlags): Flags {
     showPriceRangeOnModel: envFlag("FLAG_PRICE_RANGE") ?? base.showPriceRangeOnModel,
     buyerConfirmsReceipt: envFlag("FLAG_BUYER_CONFIRMS") ?? base.buyerConfirmsReceipt,
     showDesignSwitcher: envFlag("FLAG_DESIGN_SWITCHER") ?? base.showDesignSwitcher,
+    ratingsRevealTogether: envFlag("FLAG_RATINGS_TOGETHER") ?? base.ratingsRevealTogether,
   };
 }
