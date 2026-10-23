@@ -159,7 +159,18 @@
     "highlightQualified": "New in qualified equipment",
     "highlightQualifiedAll": "All qualified equipment",
     "highlightNewest": "Just listed",
-    "moreItems": "More equipment"
+    "moreItems": "More equipment",
+    "facetModel": "Model",
+    "facetYear": "Year",
+    "facetPriceChf": "Price (CHF)",
+    "apply": "Apply",
+    "showAll": "Show all {count}",
+    "activeFilters": "Active filters",
+    "removeFilter": "Remove filter {label}",
+    "rangeBetween": "{label} {from} – {to}",
+    "rangeFrom": "{label} from {from}",
+    "rangeTo": "{label} up to {to}",
+    "filters": "Filters"
   },
   "listing": {
     "buyNow": "Buy now",

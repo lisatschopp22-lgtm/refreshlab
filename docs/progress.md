@@ -377,3 +377,20 @@ Tried by hand with the seeded buyer: start a list from a listing, tick it
 into the first list as well, rename, move, delete the list, remove a listing,
 and take a listing out and back in with the heart. The test list was removed
 afterwards; the buyer's six saved listings are as they were.
+
+## Filters for manufacturer, model, year and price
+
+* **Hersteller**: several at once; the list shows the eight largest and
+  "Alle … anzeigen" for the rest.
+* **Modell**: a new group with counts, following the chosen manufacturers.
+* **Preis (CHF)** and **Baujahr**: "von" and "bis" fields with the range of
+  the current results as hints.
+* **Aktive Filter**: chips above the results, each removing its filter.
+* On a phone the filters fold behind a "Filter (n)" button, the sort links
+  wrap, and nothing in the results column widens the page; on a wide screen
+  the filter column scrolls on its own when it is taller than the window.
+
+Tried by hand: two manufacturers with a price and a year range (17
+results), then a model (3), the chips and their links, and the folded
+filters at tablet width. Unit tests cover the parameters, integration tests
+the year, manufacturer, model and range queries.

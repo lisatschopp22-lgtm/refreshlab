@@ -6,12 +6,18 @@ export type SortKey = "relevance" | "newest" | "price_asc" | "price_desc";
 export type SearchQuery = {
   q?: string;
   category?: string;
-  manufacturer?: string;
+  /** Manufacturer slugs; a listing matches any of them. */
+  manufacturers?: string[];
+  /** Model slugs; a listing matches any of them. */
+  models?: string[];
   condition?: Condition[];
   country?: string[];
   saleMode?: string[];
   minPriceCents?: number;
   maxPriceCents?: number;
+  /** Year of manufacture, both ends included. */
+  minYear?: number;
+  maxYear?: number;
   verifiedOnly?: boolean;
   warrantyOnly?: boolean;
   modelId?: string;
@@ -58,11 +64,13 @@ export type FacetValue = { value: string; label: string; count: number };
 export type SearchFacets = {
   category: FacetValue[];
   manufacturer: FacetValue[];
+  model: FacetValue[];
   condition: FacetValue[];
   country: FacetValue[];
   saleMode: FacetValue[];
   trust: { verified: number; warranty: number };
   priceRange: { minCents: number; maxCents: number } | null;
+  yearRange: { min: number; max: number } | null;
 };
 
 export type SearchResult = {

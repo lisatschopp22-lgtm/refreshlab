@@ -1,15 +1,25 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { BadgeCheck, LayoutGrid, List, Search as SearchIcon, SlidersHorizontal, Sparkles } from "lucide-react";
+import { BadgeCheck, LayoutGrid, List, Search as SearchIcon, SlidersHorizontal, Sparkles, X } from "lucide-react";
 import type { ComponentType, ReactNode } from "react";
 import { searchProvider, type ListingCard } from "@/integrations/search";
-import { hasAnyFilter, parseSearchParams, withParam, type RawParams } from "@/domain/search-params";
-import { formatNumber } from "@/i18n/format";
+import { namesForSlugs } from "@/db/queries/catalogue";
+import type { FacetValue } from "@/integrations/search/types";
+import {
+  hasAnyFilter,
+  parseSearchParams,
+  toggledHref,
+  withoutParams,
+  withParam,
+  type RawParams,
+} from "@/domain/search-params";
+import { formatMoney, formatNumber } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
 import { ButtonLink } from "@/ui/button";
 import { EmptyState } from "@/ui/empty-state";
 import { FacetRail } from "@/ui/facet-rail";
+import { FilterToggle } from "@/ui/filter-toggle";
 import { ListingCardItem } from "@/ui/listing-card";
 import { Pagination } from "@/ui/pagination";
 import { cn } from "@/ui/cn";
@@ -48,6 +58,8 @@ export default async function SearchPage({
   const t = await getTranslations({ locale, namespace: "search" });
   const tc = await getTranslations({ locale, namespace: "common" });
   const th = await getTranslations({ locale, namespace: "humour" });
+  const tcond = await getTranslations({ locale, namespace: "conditions" });
+  const tsale = await getTranslations({ locale, namespace: "saleMode" });
 
   const query = parseSearchParams(sp);
   const perPage = 24;
@@ -82,6 +94,73 @@ export default async function SearchPage({
   ];
   const activeSort = query.sort ?? (query.q ? "relevance" : "newest");
 
+  // Every active filter as a chip that takes it away again.
+  // A chosen manufacturer can drop out of the facet when a model narrows the list, so names come from the catalogue.
+  const names = await namesForSlugs({ manufacturers: query.manufacturers, models: query.models });
+  const labelOf = (values: FacetValue[], value: string) =>
+    names.get(value) ?? values.find((f) => f.value === value)?.label ?? value;
+  const range = (label: string, from?: string, to?: string) =>
+    from && to ? t("rangeBetween", { label, from, to }) : from ? t("rangeFrom", { label, from }) : t("rangeTo", { label, to: to ?? "" });
+  const facets = result.facets;
+  const chips: { key: string; label: string; href: string }[] = [
+    ...(query.category
+      ? [{ key: "kategorie", label: labelOf(facets.category, query.category), href: toggledHref(basePath, sp, "kategorie", query.category, false) }]
+      : []),
+    ...(query.manufacturers ?? []).map((value) => ({
+      key: `hersteller-${value}`,
+      label: labelOf(facets.manufacturer, value),
+      href: toggledHref(basePath, sp, "hersteller", value),
+    })),
+    ...(query.models ?? []).map((value) => ({
+      key: `modell-${value}`,
+      label: labelOf(facets.model, value),
+      href: toggledHref(basePath, sp, "modell", value),
+    })),
+    ...(query.minPriceCents || query.maxPriceCents
+      ? [
+          {
+            key: "preis",
+            label: range(
+              t("facetPrice"),
+              query.minPriceCents ? formatMoney(query.minPriceCents, "CHF", locale) : undefined,
+              query.maxPriceCents ? formatMoney(query.maxPriceCents, "CHF", locale) : undefined,
+            ),
+            href: withoutParams(basePath, sp, ["min", "max"]),
+          },
+        ]
+      : []),
+    ...(query.minYear || query.maxYear
+      ? [
+          {
+            key: "baujahr",
+            label: range(t("facetYear"), query.minYear?.toString(), query.maxYear?.toString()),
+            href: withoutParams(basePath, sp, ["baujahr_von", "baujahr_bis"]),
+          },
+        ]
+      : []),
+    ...(query.condition ?? []).map((value) => ({
+      key: `zustand-${value}`,
+      label: tcond(value),
+      href: toggledHref(basePath, sp, "zustand", value),
+    })),
+    ...(query.country ?? []).map((value) => ({
+      key: `land-${value}`,
+      label: value,
+      href: toggledHref(basePath, sp, "land", value),
+    })),
+    ...(query.saleMode ?? []).map((value) => ({
+      key: `art-${value}`,
+      label: tsale(value),
+      href: toggledHref(basePath, sp, "art", value),
+    })),
+    ...(query.verifiedOnly
+      ? [{ key: "geprueft", label: t("verifiedOnly"), href: toggledHref(basePath, sp, "geprueft", "1", false) }]
+      : []),
+    ...(query.warrantyOnly
+      ? [{ key: "garantie", label: t("warrantyOnly"), href: toggledHref(basePath, sp, "garantie", "1", false) }]
+      : []),
+  ];
+
   return (
     <main className="mx-auto max-w-[1200px] px-4 py-8">
       <form action={basePath} className="mb-6 flex max-w-2xl gap-2">
@@ -106,22 +185,29 @@ export default async function SearchPage({
 
       <div className="grid gap-8 lg:grid-cols-[230px_1fr]">
         {/* Facet rail, after mockup S2: counts visible, other values stay reachable. */}
-        <aside className="lg:sticky lg:top-30 lg:self-start">
-          <div className="mb-3 flex items-center justify-between lg:mb-1">
-            <h2 className="flex items-center gap-1.5 text-sm font-semibold">
-              <SlidersHorizontal className="size-4" aria-hidden="true" />
-              {t("facetCategory") === "Category" ? "Filters" : "Filter"}
-            </h2>
-            {hasAnyFilter(query) ? (
-              <Link href={query.q ? `${basePath}?q=${encodeURIComponent(query.q)}` : basePath} className="text-xs text-primary hover:underline">
-                {t("clearFilters")}
-              </Link>
-            ) : null}
-          </div>
-          <FacetRail facets={result.facets} params={sp} basePath={basePath} locale={locale} />
+        {/* Sticky on a wide screen, and scrolling on its own when it is taller than the window. */}
+        <aside className="lg:sticky lg:top-30 lg:max-h-[calc(100vh-8.5rem)] lg:self-start lg:overflow-y-auto lg:pr-1">
+          <FilterToggle label={t("filters")} active={chips.length}>
+            <div className="mb-3 flex items-center justify-between lg:mb-1">
+              <h2 className="hidden items-center gap-1.5 text-sm font-semibold lg:flex">
+                <SlidersHorizontal className="size-4" aria-hidden="true" />
+                {t("filters")}
+              </h2>
+              {hasAnyFilter(query) ? (
+                <Link
+                  href={query.q ? `${basePath}?q=${encodeURIComponent(query.q)}` : basePath}
+                  className="text-xs text-primary hover:underline"
+                >
+                  {t("clearFilters")}
+                </Link>
+              ) : null}
+            </div>
+            <FacetRail facets={result.facets} params={sp} basePath={basePath} locale={locale} />
+          </FilterToggle>
         </aside>
 
-        <section>
+        {/* min-w-0 keeps a long row inside the column instead of widening the page. */}
+        <section className="min-w-0">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
             <h1 className="text-lg font-semibold">
               {query.q ? (
@@ -136,7 +222,7 @@ export default async function SearchPage({
               )}
             </h1>
 
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <div className="flex rounded-[var(--radius-md)] border border-border p-0.5">
                 {(["grid", "list"] as const).map((value) => (
                   <Link
@@ -155,7 +241,7 @@ export default async function SearchPage({
               </div>
               <label className="flex items-center gap-1.5 text-sm text-fg-muted">
                 <span className="hidden sm:inline">{t("sort")}:</span>
-                <span className="flex gap-1">
+                <span className="flex flex-wrap gap-1">
                   {sortOptions.map((option) => (
                     <Link
                       key={option.value}
@@ -174,6 +260,23 @@ export default async function SearchPage({
               </label>
             </div>
           </div>
+
+          {chips.length ? (
+            <div className="mb-4 flex flex-wrap items-center gap-2">
+              <span className="text-xs text-fg-subtle">{t("activeFilters")}:</span>
+              {chips.map((chip) => (
+                <Link
+                  key={chip.key}
+                  href={chip.href}
+                  aria-label={t("removeFilter", { label: chip.label })}
+                  className="inline-flex items-center gap-1 rounded-[var(--radius-full)] border border-border bg-bg-elevated px-2.5 py-0.5 text-xs text-fg transition-colors hover:border-[var(--primary)]"
+                >
+                  {chip.label}
+                  <X className="size-3 text-fg-subtle" aria-hidden="true" />
+                </Link>
+              ))}
+            </div>
+          ) : null}
 
           {showHighlights ? (
             <div className="mb-8 space-y-4">

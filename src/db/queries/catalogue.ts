@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, isNull, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNull, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { categories, equipmentModels, manufacturers } from "@/db/schema/catalogue";
 import { listings } from "@/db/schema/marketplace";
@@ -113,6 +113,26 @@ export async function listManufacturers(categoryId?: string) {
 }
 
 /** "pending" while an administrator has not checked a model a seller added. */
+/** Display names for manufacturer and model slugs, such as the ones in a search URL. */
+export async function namesForSlugs(slugs: { manufacturers?: string[]; models?: string[] }) {
+  const [makers, models] = await Promise.all([
+    slugs.manufacturers?.length
+      ? db
+          .select({ slug: manufacturers.slug, name: manufacturers.name })
+          .from(manufacturers)
+          .where(inArray(manufacturers.slug, slugs.manufacturers))
+      : Promise.resolve([]),
+    slugs.models?.length
+      ? db
+          .select({ slug: equipmentModels.slug, name: sql<string>`${qualified("manufacturers.name")} || ' ' || ${qualified("equipment_models.name")}` })
+          .from(equipmentModels)
+          .innerJoin(manufacturers, eq(manufacturers.id, equipmentModels.manufacturerId))
+          .where(inArray(equipmentModels.slug, slugs.models))
+      : Promise.resolve([]),
+  ]);
+  return new Map([...makers, ...models].map((row) => [row.slug, row.name]));
+}
+
 export async function getModelStatus(modelId: string) {
   const [row] = await db
     .select({ status: equipmentModels.status })

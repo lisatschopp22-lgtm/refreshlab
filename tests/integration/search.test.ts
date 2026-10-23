@@ -61,6 +61,39 @@ describe("postgres search", () => {
     expect(result.items.every((i) => i.priceCents >= 500_000 && i.priceCents <= 1_500_000)).toBe(true);
   });
 
+  it("filters by year of manufacture", async () => {
+    const result = await search.search({ minYear: 2015, maxYear: 2020, perPage: 100 });
+    expect(result.total).toBeGreaterThan(0);
+    expect(result.items.every((i) => i.year !== null && i.year >= 2015 && i.year <= 2020)).toBe(true);
+  });
+
+  it("matches any of several manufacturers, and offers their models", async () => {
+    const all = await search.search({ perPage: 1 });
+    const [first, second] = all.facets.manufacturer;
+    const one = await search.search({ manufacturers: [first!.value], perPage: 1 });
+    const both = await search.search({ manufacturers: [first!.value, second!.value], perPage: 1 });
+    expect(both.total).toBe(first!.count + second!.count);
+    expect(one.facets.model.length).toBeGreaterThan(0);
+    expect(one.facets.model.every((m) => m.label.startsWith(first!.label))).toBe(true);
+  });
+
+  it("narrows to a model", async () => {
+    const all = await search.search({ perPage: 1 });
+    const model = all.facets.model[0]!;
+    const result = await search.search({ models: [model.value], perPage: 100 });
+    expect(result.total).toBe(model.count);
+  });
+
+  it("measures each range without its own bounds", async () => {
+    // The hints under "from" and "to" must not shrink to what was typed in.
+    const all = await search.search({ perPage: 1 });
+    const byYear = await search.search({ minYear: 2020, perPage: 1 });
+    const byPrice = await search.search({ minPriceCents: 1_000_000, perPage: 1 });
+    expect(all.facets.yearRange).not.toBeNull();
+    expect(byYear.facets.yearRange).toEqual(all.facets.yearRange);
+    expect(byPrice.facets.priceRange).toEqual(all.facets.priceRange);
+  });
+
   it("leaves excluded listings out of the items and total, but not the facets", async () => {
     // The landing view of the search page shows highlights above the list.
     const all = await search.search({ sort: "newest", perPage: 10 });

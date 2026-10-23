@@ -17,7 +17,7 @@ export async function GET(request: Request) {
   const result = await searchProvider().search({
     q: url.searchParams.get("q") ?? undefined,
     category: url.searchParams.get("category") ?? undefined,
-    manufacturer: url.searchParams.get("manufacturer") ?? undefined,
+    manufacturers: url.searchParams.get("manufacturer")?.split(",").filter(Boolean),
     page,
     perPage,
     sort: "newest",

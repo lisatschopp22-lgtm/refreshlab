@@ -49,7 +49,7 @@ export default async function ManufacturerPage({
 
   const [models, listings] = await Promise.all([
     listModelsForManufacturer(manufacturer.id),
-    searchProvider().search({ manufacturer: slug, perPage: 8, sort: "newest" }),
+    searchProvider().search({ manufacturers: [slug], perPage: 8, sort: "newest" }),
   ]);
 
   const breadcrumbs = [

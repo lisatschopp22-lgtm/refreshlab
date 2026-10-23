@@ -8,7 +8,10 @@ import type {
   SearchResult,
 } from "./types";
 
-type Dimension = "category" | "manufacturer" | "condition" | "country" | "saleMode";
+type Dimension = "category" | "manufacturer" | "model" | "condition" | "country" | "saleMode" | "price" | "year";
+
+/** Values typed into the URL become bound parameters, never part of the SQL. */
+const anyOf = (values: string[]) => sql.join(values.map((value) => sql`${value}`), sql`, `);
 
 const PER_PAGE = 24;
 
@@ -52,8 +55,11 @@ class PostgresSearchProvider implements SearchProvider {
     if (query.category && exclude !== "category") {
       where.push(sql`(c.slug = ${query.category} or parent.slug = ${query.category})`);
     }
-    if (query.manufacturer && exclude !== "manufacturer") {
-      where.push(sql`mf.slug = ${query.manufacturer}`);
+    if (query.manufacturers?.length && exclude !== "manufacturer") {
+      where.push(sql`mf.slug in (${anyOf(query.manufacturers)})`);
+    }
+    if (query.models?.length && exclude !== "model") {
+      where.push(sql`m.slug in (${anyOf(query.models)})`);
     }
     if (query.condition?.length && exclude !== "condition") {
       where.push(sql`l.condition in ${sql.raw(`(${query.condition.map((c) => `'${c}'`).join(",")})`)}`);
@@ -64,8 +70,14 @@ class PostgresSearchProvider implements SearchProvider {
     if (query.saleMode?.length && exclude !== "saleMode") {
       where.push(sql`l.sale_mode in ${sql.raw(`(${query.saleMode.map((c) => `'${c}'`).join(",")})`)}`);
     }
-    if (typeof query.minPriceCents === "number") where.push(sql`l.price_cents >= ${query.minPriceCents}`);
-    if (typeof query.maxPriceCents === "number") where.push(sql`l.price_cents <= ${query.maxPriceCents}`);
+    if (exclude !== "price") {
+      if (typeof query.minPriceCents === "number") where.push(sql`l.price_cents >= ${query.minPriceCents}`);
+      if (typeof query.maxPriceCents === "number") where.push(sql`l.price_cents <= ${query.maxPriceCents}`);
+    }
+    if (exclude !== "year") {
+      if (typeof query.minYear === "number") where.push(sql`l.year >= ${query.minYear}`);
+      if (typeof query.maxYear === "number") where.push(sql`l.year <= ${query.maxYear}`);
+    }
     if (query.verifiedOnly) where.push(sql`l.verified_at is not null`);
     if (query.warrantyOnly) where.push(sql`l.warranty_months > 0`);
     if (query.modelId) where.push(sql`l.model_id = ${query.modelId}`);
@@ -185,37 +197,48 @@ class PostgresSearchProvider implements SearchProvider {
     };
 
     const whereAll = this.whereSql(this.conditions(query));
-    const [category, manufacturer, condition, country, saleMode, trustRows] = await Promise.all([
-      group("category", sql`coalesce(parent.slug, c.slug)`, sql`coalesce(parent.name ->> 'de', c.name ->> 'de')`),
-      group("manufacturer", sql`mf.slug`, sql`mf.name`),
-      group("condition", sql`l.condition::text`, sql`l.condition::text`),
-      group("country", sql`l.location_country`, sql`l.location_country`),
-      group("saleMode", sql`l.sale_mode::text`, sql`l.sale_mode::text`),
-      db.execute(sql`
-        select
-          count(*) filter (where l.verified_at is not null)::int as verified,
-          count(*) filter (where l.warranty_months > 0)::int as warranty,
-          min(l.price_cents)::int as min_price,
-          max(l.price_cents)::int as max_price
-        ${this.from()} ${whereAll}
-      `),
-    ]);
+    // Each range is measured without its own bounds, so the hints show what is there to choose from.
+    const [category, manufacturer, model, condition, country, saleMode, trustRows, priceRows, yearRows] =
+      await Promise.all([
+        group("category", sql`coalesce(parent.slug, c.slug)`, sql`coalesce(parent.name ->> 'de', c.name ->> 'de')`),
+        group("manufacturer", sql`mf.slug`, sql`mf.name`),
+        group("model", sql`m.slug`, sql`mf.name || ' ' || m.name`),
+        group("condition", sql`l.condition::text`, sql`l.condition::text`),
+        group("country", sql`l.location_country`, sql`l.location_country`),
+        group("saleMode", sql`l.sale_mode::text`, sql`l.sale_mode::text`),
+        db.execute(sql`
+          select
+            count(*) filter (where l.verified_at is not null)::int as verified,
+            count(*) filter (where l.warranty_months > 0)::int as warranty
+          ${this.from()} ${whereAll}
+        `),
+        db.execute(sql`
+          select min(l.price_cents)::int as min, max(l.price_cents)::int as max
+          ${this.from()} ${this.whereSql(this.conditions(query, "price"))}
+        `),
+        db.execute(sql`
+          select min(l.year)::int as min, max(l.year)::int as max
+          ${this.from()} ${this.whereSql(this.conditions(query, "year"))}
+        `),
+      ]);
 
-    const trust = (trustRows as unknown as {
-      verified: number; warranty: number; min_price: number | null; max_price: number | null;
-    }[])[0];
+    const trust = (trustRows as unknown as { verified: number; warranty: number }[])[0];
+    const price = (priceRows as unknown as { min: number | null; max: number | null }[])[0];
+    const year = (yearRows as unknown as { min: number | null; max: number | null }[])[0];
 
     return {
       category,
       manufacturer,
+      model,
       condition,
       country,
       saleMode,
       trust: { verified: Number(trust?.verified ?? 0), warranty: Number(trust?.warranty ?? 0) },
       priceRange:
-        trust?.min_price != null && trust?.max_price != null
-          ? { minCents: Number(trust.min_price), maxCents: Number(trust.max_price) }
+        price?.min != null && price?.max != null
+          ? { minCents: Number(price.min), maxCents: Number(price.max) }
           : null,
+      yearRange: year?.min != null && year?.max != null ? { min: Number(year.min), max: Number(year.max) } : null,
     };
   }
 

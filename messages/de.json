@@ -159,7 +159,18 @@
     "highlightQualified": "Neu bei den qualifizierten Geräten",
     "highlightQualifiedAll": "Alle qualifizierten Geräte",
     "highlightNewest": "Neu eingestellt",
-    "moreItems": "Weitere Geräte"
+    "moreItems": "Weitere Geräte",
+    "facetModel": "Modell",
+    "facetYear": "Baujahr",
+    "facetPriceChf": "Preis (CHF)",
+    "apply": "Anwenden",
+    "showAll": "Alle {count} anzeigen",
+    "activeFilters": "Aktive Filter",
+    "removeFilter": "Filter {label} entfernen",
+    "rangeBetween": "{label} {from} – {to}",
+    "rangeFrom": "{label} ab {from}",
+    "rangeTo": "{label} bis {to}",
+    "filters": "Filter"
   },
   "listing": {
     "buyNow": "Kaufen",

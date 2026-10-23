@@ -19,6 +19,12 @@ function one(value: string | string[] | undefined): string | undefined {
   return v?.trim() || undefined;
 }
 
+/** A plausible year of manufacture, or nothing. */
+function year(value: string | string[] | undefined): number | undefined {
+  const n = Number(one(value));
+  return Number.isInteger(n) && n >= 1900 && n <= 2100 ? n : undefined;
+}
+
 function money(value: string | string[] | undefined): number | undefined {
   const v = one(value);
   if (!v) return undefined;
@@ -32,7 +38,8 @@ export function parseSearchParams(params: RawParams): SearchQuery {
   return {
     q: one(params.q),
     category: one(params.kategorie ?? params.category),
-    manufacturer: one(params.hersteller ?? params.manufacturer),
+    manufacturers: list(params.hersteller ?? params.manufacturer),
+    models: list(params.modell ?? params.model),
     condition: list(params.zustand ?? params.condition).filter((c): c is Condition =>
       (conditions as readonly string[]).includes(c),
     ),
@@ -40,6 +47,8 @@ export function parseSearchParams(params: RawParams): SearchQuery {
     saleMode: list(params.art ?? params.saleMode).filter((m) => ["fixed", "offer", "both"].includes(m)),
     minPriceCents: money(params.min),
     maxPriceCents: money(params.max),
+    minYear: year(params.baujahr_von),
+    maxYear: year(params.baujahr_bis),
     verifiedOnly: one(params.geprueft ?? params.verified) === "1",
     warrantyOnly: one(params.garantie ?? params.warranty) === "1",
     sort: sorts.includes(sort as SortKey) ? (sort as SortKey) : undefined,
@@ -94,10 +103,30 @@ export function withParam(basePath: string, params: RawParams, key: string, valu
   return query ? `${basePath}?${query}` : basePath;
 }
 
+/** The other parameters, for the hidden fields of a form that sets only some of them. */
+export function paramsExcept(params: RawParams, keys: string[]): [string, string][] {
+  const out: [string, string][] = [];
+  for (const [k, v] of Object.entries(params)) {
+    if (v === undefined || keys.includes(k) || k === "seite") continue;
+    const joined = Array.isArray(v) ? v.join(",") : v;
+    if (joined) out.push([k, joined]);
+  }
+  return out;
+}
+
+/** Drops several parameters at once, as the chip for a range does. */
+export function withoutParams(basePath: string, params: RawParams, keys: string[]) {
+  const query = new URLSearchParams(paramsExcept(params, keys)).toString();
+  return query ? `${basePath}?${query}` : basePath;
+}
+
 export function hasAnyFilter(query: SearchQuery) {
   return Boolean(
     query.category ||
-      query.manufacturer ||
+      query.manufacturers?.length ||
+      query.models?.length ||
+      query.minYear ||
+      query.maxYear ||
       query.condition?.length ||
       query.country?.length ||
       query.saleMode?.length ||
