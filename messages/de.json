@@ -788,5 +788,25 @@
     "buyingFor": "Sie kaufen für {name} zum Sondersatz.",
     "errorAlreadyRequested": "Für diese Seite ist bereits ein Antrag offen.",
     "errorNotDealer": "Sondersätze beim Verkaufen gibt es nur für Händler."
+  },
+  "lists": {
+    "defaultList": "Merkliste",
+    "chooseLists": "Merklisten wählen",
+    "inLists": "Gemerkt in",
+    "newList": "Neue Merkliste",
+    "create": "Anlegen",
+    "manage": "Merklisten verwalten",
+    "rename": "Umbenennen",
+    "save": "Speichern",
+    "delete": "Liste löschen",
+    "deleteHint": "Die Liste und die darin gemerkten Inserate werden entfernt.",
+    "remove": "Entfernen",
+    "moveTo": "Verschieben nach",
+    "move": "Verschieben",
+    "count": "{count, plural, one {# Inserat} other {# Inserate}}",
+    "empty": "Diese Merkliste ist leer.",
+    "errorName": "Bitte einen Namen mit höchstens 60 Zeichen eingeben.",
+    "errorTooMany": "Es sind höchstens 30 Merklisten möglich.",
+    "deleteConfirm": "Ja, Liste löschen"
   }
 }

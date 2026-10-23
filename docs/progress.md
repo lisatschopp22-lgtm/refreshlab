@@ -362,3 +362,18 @@ Tried by hand: the dealer's request, the admin's dealer-only rule, setting
 and changing a buying rate for LifeScience Basel AG, and a purchase by one of
 its members at that rate (checkout and invoice). The test purchase and the
 test rate were removed afterwards.
+
+## Several watchlists
+
+* **On a listing**: "Merken" saves to the first list with one click, as
+  before. The arrow next to it shows every list with a tick or a plus, and a
+  field to start a new list that the listing goes straight into.
+* **Account → Merkliste**: the lists as tabs with their counts, a field for a
+  new list, renaming, deleting with a confirmation, and per listing "Entfernen"
+  and "Verschieben nach" another list.
+* What was saved before sits in each person's first list.
+
+Tried by hand with the seeded buyer: start a list from a listing, tick it
+into the first list as well, rename, move, delete the list, remove a listing,
+and take a listing out and back in with the heart. The test list was removed
+afterwards; the buyer's six saved listings are as they were.

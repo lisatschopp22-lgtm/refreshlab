@@ -114,7 +114,7 @@ async function main() {
     truncate table
       audit_log, reports, outbox, payment_events, orders, offers, seller_accounts,
       messages, conversation_participants, conversations, blocks, comments,
-      saved_searches, watchlist, listing_attachments, listing_images, listings,
+      saved_searches, watchlist, watch_lists, listing_attachments, listing_images, listings,
       equipment_models, categories, manufacturers,
       organisation_members, organisations, content_pages, settings
     restart identity cascade;
@@ -662,8 +662,17 @@ async function transactional(ctx: Awaited<ReturnType<typeof main>>) {
     });
   }
 
+  // Anna keeps her first list and one she named for a move; one listing sits in both.
+  const [firstList] = await db.insert(s.watchLists).values({ profileId: anna }).returning({ id: s.watchLists.id });
+  const [moveList] = await db
+    .insert(s.watchLists)
+    .values({ profileId: anna, name: "Laborumzug 2027" })
+    .returning({ id: s.watchLists.id });
   for (const listing of activeListings.slice(0, 6)) {
-    await db.insert(s.watchlist).values({ profileId: anna, listingId: listing.id });
+    await db.insert(s.watchlist).values({ profileId: anna, listId: firstList!.id, listingId: listing.id });
+  }
+  for (const listing of activeListings.slice(5, 8)) {
+    await db.insert(s.watchlist).values({ profileId: anna, listId: moveList!.id, listingId: listing.id });
   }
   await db.insert(s.savedSearches).values([
     { profileId: anna, name: "Gekühlte Zentrifugen bis CHF 12'000",

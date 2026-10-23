@@ -124,6 +124,27 @@ export const listingAttachments = pgTable(
   (t) => [index("listing_attachments_listing_idx").on(t.listingId)],
 );
 
+/**
+ * A person's named lists of saved listings ("Merklisten"). The first one is
+ * created on the first save and has no name until it is renamed; the UI
+ * calls it "Merkliste".
+ */
+export const watchLists = pgTable(
+  "watch_lists",
+  {
+    id: id(),
+    profileId: uuid("profile_id")
+      .notNull()
+      .references(() => profiles.id, { onDelete: "cascade" }),
+    name: text("name"),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+    deletedAt: deletedAt(),
+  },
+  (t) => [index("watch_lists_profile_idx").on(t.profileId)],
+);
+
+/** A listing saved in one of a person's lists; the same listing may sit in several. */
 export const watchlist = pgTable(
   "watchlist",
   {
@@ -131,12 +152,18 @@ export const watchlist = pgTable(
     profileId: uuid("profile_id")
       .notNull()
       .references(() => profiles.id, { onDelete: "cascade" }),
+    listId: uuid("list_id")
+      .notNull()
+      .references(() => watchLists.id, { onDelete: "cascade" }),
     listingId: uuid("listing_id")
       .notNull()
       .references(() => listings.id, { onDelete: "cascade" }),
     createdAt: createdAt(),
   },
-  (t) => [uniqueIndex("watchlist_unique").on(t.profileId, t.listingId)],
+  (t) => [
+    uniqueIndex("watchlist_list_listing_idx").on(t.listId, t.listingId),
+    index("watchlist_profile_idx").on(t.profileId),
+  ],
 );
 
 export type SavedSearchQuery = {

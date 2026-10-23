@@ -43,6 +43,13 @@
       "when": 1792614334583,
       "tag": "0005_fee_tiers_special_rates",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792616882259,
+      "tag": "0006_watch_lists",
+      "breakpoints": true
     }
   ]
 }

@@ -788,5 +788,25 @@
     "buyingFor": "You are buying for {name} at its special rate.",
     "errorAlreadyRequested": "A request for this side is already open.",
     "errorNotDealer": "Special selling rates are for dealers only."
+  },
+  "lists": {
+    "defaultList": "Watchlist",
+    "chooseLists": "Choose lists",
+    "inLists": "Saved in",
+    "newList": "New list",
+    "create": "Create",
+    "manage": "Manage lists",
+    "rename": "Rename",
+    "save": "Save",
+    "delete": "Delete list",
+    "deleteHint": "The list and the listings saved in it are removed.",
+    "remove": "Remove",
+    "moveTo": "Move to",
+    "move": "Move",
+    "count": "{count, plural, one {# listing} other {# listings}}",
+    "empty": "This list is empty.",
+    "errorName": "Please enter a name of at most 60 characters.",
+    "errorTooMany": "You can keep at most 30 lists.",
+    "deleteConfirm": "Yes, delete the list"
   }
 }

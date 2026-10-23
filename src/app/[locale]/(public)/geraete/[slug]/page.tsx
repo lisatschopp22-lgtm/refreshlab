@@ -73,6 +73,7 @@ export default async function ListingPage({
   const tm = await getTranslations({ locale, namespace: "model" });
   const tcond = await getTranslations({ locale, namespace: "conditions" });
   const tr = await getTranslations({ locale, namespace: "ratings" });
+  const tw = await getTranslations({ locale, namespace: "lists" });
   const [flags, rule] = await Promise.all([readFlags(), feeRule()]);
   const buyerFee = calculateFees(listing.priceCents, listing.currency, rule).buyer;
 
@@ -369,8 +370,18 @@ export default async function ListingPage({
               <div className="flex gap-2 border-t border-border pt-3">
                 <WatchButton
                   listingId={listing.id}
+                  slug={listing.slug}
                   locale={locale}
-                  labels={{ watch: t("watch"), unwatch: t("unwatch") }}
+                  labels={{
+                    watch: t("watch"),
+                    unwatch: t("unwatch"),
+                    chooseLists: tw("chooseLists"),
+                    inLists: tw("inLists"),
+                    defaultList: tw("defaultList"),
+                    newList: tw("newList"),
+                    create: tw("create"),
+                    manage: tw("manage"),
+                  }}
                 />
                 <Button variant="ghost" size="sm" className="flex-1">
                   <Share2 className="size-3.5" aria-hidden="true" />

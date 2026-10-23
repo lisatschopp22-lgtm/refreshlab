@@ -8,7 +8,7 @@ import { db } from "@/db/client";
 import { equipmentModels, manufacturers } from "@/db/schema/catalogue";
 import { proposeModel } from "@/domain/catalogue";
 import { NEW_MANUFACTURER } from "@/domain/proposal";
-import { listingAttachments, listingImages, listings, watchlist } from "@/db/schema/marketplace";
+import { listingAttachments, listingImages, listings } from "@/db/schema/marketplace";
 import { requireUser } from "@/auth/session";
 import {
   createDraft,
@@ -299,23 +299,6 @@ export async function setStatusAction(formData: FormData) {
 
   revalidatePath(`/${locale}/konto/inserate`);
   revalidatePath("/", "layout");
-}
-
-export async function toggleWatchAction(formData: FormData) {
-  const locale = String(formData.get("locale") ?? "de");
-  const listingId = String(formData.get("listingId") ?? "");
-  const user = await requireUser(locale);
-
-  const [existing] = await db
-    .select()
-    .from(watchlist)
-    .where(and(eq(watchlist.profileId, user.id), eq(watchlist.listingId, listingId)))
-    .limit(1);
-
-  if (existing) await db.delete(watchlist).where(eq(watchlist.id, existing.id));
-  else await db.insert(watchlist).values({ profileId: user.id, listingId });
-
-  revalidatePath(`/${locale}/konto/merkliste`);
 }
 
 export async function listingImagesFor(listingId: string) {

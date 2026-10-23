@@ -1,4 +1,4 @@
-import { and, count, desc, eq, inArray, isNull, ne, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, isNull, ne, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { equipmentModels, manufacturers } from "@/db/schema/catalogue";
 import { conversationParticipants, conversations, messages } from "@/db/schema/community";
@@ -51,8 +51,9 @@ export async function dashboardSummary(userId: string, organisationIds: string[]
     })
     .from(orders);
 
+  // A listing saved in two lists still counts once.
   const [watched] = await db
-    .select({ value: count() })
+    .select({ value: sql<number>`count(distinct ${watchlist.listingId})::int` })
     .from(watchlist)
     .where(eq(watchlist.profileId, userId));
 
@@ -117,14 +118,17 @@ export async function myListings(userId: string, organisationIds: string[], stat
     .orderBy(desc(listings.updatedAt));
 }
 
-export async function myWatchlist(userId: string) {
+/** The listings saved in one of the person's lists, newest saved first. */
+export async function myWatchlist(userId: string, listId: string) {
   const rows = await db
     .select({ listingId: watchlist.listingId })
     .from(watchlist)
-    .where(eq(watchlist.profileId, userId));
+    .where(and(eq(watchlist.profileId, userId), eq(watchlist.listId, listId)))
+    .orderBy(desc(watchlist.createdAt));
   if (!rows.length) return [];
+  const position = new Map(rows.map((row, index) => [row.listingId, index]));
 
-  return db
+  const items = await db
     .select({
       id: listings.id,
       slug: listings.slug,
@@ -142,6 +146,7 @@ export async function myWatchlist(userId: string) {
     })
     .from(listings)
     .where(and(inArray(listings.id, rows.map((r) => r.listingId)), isNull(listings.deletedAt)));
+  return items.sort((a, b) => position.get(a.id)! - position.get(b.id)!);
 }
 
 export async function conversationsFor(userId: string) {

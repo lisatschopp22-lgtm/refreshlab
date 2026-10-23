@@ -90,6 +90,11 @@ export function canModerateRatings(user: SessionUser | null) {
   return isAdmin(user);
 }
 
+/** A list of saved listings belongs to its person alone, admins included. */
+export function canEditWatchList(user: SessionUser | null, list: { profileId: string }) {
+  return !!user && list.profileId === user.id;
+}
+
 /** An organisation's owner may ask for a special rate; only an admin approves, changes or ends one. */
 export function canRequestSpecialRate(user: SessionUser | null, organisationId: string) {
   return !!user && !user.suspendedAt && ownerOf(user, organisationId);
