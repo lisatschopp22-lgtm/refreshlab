@@ -412,3 +412,8 @@ the year, manufacturer, model and range queries.
 
 Checked at desktop and phone width: no sideways scrolling, the button leads
 to /de.
+
+* The opener now speaks of equipment, not only instruments: "Der Marktplatz
+  für Ihr nachhaltiges Labor-Equipment." A new section, "Projektarbeit der
+  Zukunft", shows what a project leaves behind (instruments, spare parts,
+  supplies ordered in excess) with links to the three parts of the marketplace.

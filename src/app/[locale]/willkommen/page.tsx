@@ -1,7 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ArrowRight, BadgeCheck, Leaf, Recycle, RefreshCw, Sprout, Tag, Telescope } from "lucide-react";
+import {
+  ArrowRight,
+  BadgeCheck,
+  Leaf,
+  Microscope,
+  Recycle,
+  RefreshCw,
+  Sprout,
+  Tag,
+  Telescope,
+  TestTubes,
+  Wrench,
+} from "lucide-react";
 import type { Locale } from "@/i18n/routing";
 import { buttonClass } from "@/ui/button";
 import { readDesignPrefs } from "@/ui/design-prefs.server";
@@ -30,6 +42,18 @@ export default async function OpenerPage({ params }: { params: Promise<{ locale:
   const t = await getTranslations({ locale, namespace: "opener" });
   const prefs = await readDesignPrefs();
 
+  // What is left over after a project, in the three parts of the marketplace.
+  const leftovers = [
+    { icon: Microscope, title: t("devicesTitle"), text: t("devicesText"), link: t("devicesLink"), href: `/${locale}/suche` },
+    { icon: Wrench, title: t("partsTitle"), text: t("partsText"), link: t("partsLink"), href: `/${locale}/ersatzteillager` },
+    {
+      icon: TestTubes,
+      title: t("consumablesTitle"),
+      text: t("consumablesText"),
+      link: t("consumablesLink"),
+      href: `/${locale}/verbrauchsmaterialien`,
+    },
+  ];
   const steps = [
     { icon: Tag, title: t("step1Title"), text: t("step1Text") },
     { icon: BadgeCheck, title: t("step2Title"), text: t("step2Text") },
@@ -71,6 +95,29 @@ export default async function OpenerPage({ params }: { params: Promise<{ locale:
           <p className="mt-5 max-w-xl leading-relaxed text-fg-muted">{t("text")}</p>
         </div>
         <LabIllustration title={t("imageAlt")} className="mx-auto max-w-xl" />
+      </section>
+
+      {/* Project work: what one lab has left, another is missing */}
+      <section className="relative mx-auto w-full max-w-[1200px] px-4 pb-16">
+        <div className="mx-auto max-w-2xl text-center">
+          <Recycle className="mx-auto size-7 text-primary" aria-hidden="true" />
+          <h2 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">{t("projectTitle")}</h2>
+          <p className="mt-3 leading-relaxed text-fg-muted">{t("projectText")}</p>
+        </div>
+        <ul className="mt-10 grid gap-4 md:grid-cols-3">
+          {leftovers.map((item) => (
+            <li key={item.title} className="flex flex-col rounded-[var(--radius-lg)] border border-border bg-bg-elevated p-5">
+              <span className="flex size-11 items-center justify-center rounded-[var(--radius-full)] bg-primary-subtle">
+                <item.icon className="size-5 text-primary" aria-hidden="true" />
+              </span>
+              <h3 className="mt-4 text-lg font-semibold text-fg">{item.title}</h3>
+              <p className="mt-1.5 flex-1 text-sm leading-relaxed text-fg-muted">{item.text}</p>
+              <Link href={item.href} className="mt-4 text-sm font-medium text-primary hover:underline">
+                {item.link} →
+              </Link>
+            </li>
+          ))}
+        </ul>
       </section>
 
       {/* The cycle */}
