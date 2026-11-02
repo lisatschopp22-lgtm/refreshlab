@@ -819,5 +819,32 @@
     "errorName": "Bitte einen Namen mit höchstens 60 Zeichen eingeben.",
     "errorTooMany": "Es sind höchstens 30 Merklisten möglich.",
     "deleteConfirm": "Ja, Liste löschen"
+  },
+  "opener": {
+    "metaTitle": "Willkommen bei refreshLab",
+    "kicker": "Nachhaltig forschen",
+    "title": "Der Marktplatz für gebrauchte Laborgeräte.",
+    "slogan": "Aus alt mach neu. Ressourcen schonen, Forschung stärken.",
+    "text": "refreshLab bringt gebrauchte und geprüfte Laborgeräte dorthin, wo sie wieder gebraucht werden. Labore, Universitäten, Firmen und Privatpersonen geben weiter, was ungenutzt im Keller steht, und andere forschen damit weiter. Das spart Geld, Rohstoffe und die Energie, die ein neues Gerät gekostet hätte.",
+    "imageAlt": "Zeichnung einer hellen Laborbank mit Zentrifuge, Mikroskop, Glaswaren und Pflanze, umgeben von drei Pfeilen im Kreis",
+    "cycleTitle": "Ein Gerät, viele Leben",
+    "cycleText": "Gute Laborgeräte halten Jahrzehnte. refreshLab sorgt dafür, dass sie diese Zeit auch arbeiten dürfen.",
+    "step1Title": "Weitergeben",
+    "step1Text": "Ungenutzte Geräte aus Keller, Lager oder Laborumzug kostenlos inserieren.",
+    "step2Title": "Prüfen",
+    "step2Text": "Auf Wunsch setzen akkreditierte Fachbetriebe das Gerät instand und geben 3 bis 24 Monate Garantie.",
+    "step3Title": "Weiterforschen",
+    "step3Text": "Ein anderes Labor kauft sicher über refreshLab und forscht damit weiter. Dann beginnt der Kreis von vorn.",
+    "valuesTitle": "Nachhaltigkeit ohne Grenzen",
+    "valuesText": "Für Labore, Hochschulen und Firmen, die Ressourcen schonen und an morgen denken.",
+    "value1Title": "Ressourcen schonen",
+    "value1Text": "Jedes weitergegebene Gerät muss nicht neu gebaut, verpackt und um die Welt verschickt werden.",
+    "value2Title": "Altbewährtes nutzen",
+    "value2Text": "Bewährte Technik ist oft robuster als ihr Ruf und sofort verfügbar, ohne Lieferfrist.",
+    "value3Title": "An morgen denken",
+    "value3Text": "Wer weitergibt statt entsorgt, macht Nachhaltigkeit im Labor konkret.",
+    "closing": "refreshLab – der Marktplatz für Labore, die an morgen denken.",
+    "enter": "Weiter zum Marktplatz",
+    "enterHint": "Stöbern ist kostenlos und ohne Anmeldung möglich."
   }
 }

@@ -394,3 +394,21 @@ Tried by hand: two manufacturers with a price and a year range (17
 results), then a model (3), the chips and their links, and the folded
 filters at tablet width. Unit tests cover the parameters, integration tests
 the year, manufacturer, model and range queries.
+
+## Opener
+
+* Opening the site without a path now shows `/de/willkommen`: "Der
+  Marktplatz für gebrauchte Laborgeräte", the slogan "Aus alt mach neu.
+  Ressourcen schonen, Forschung stärken.", a short explanation and a drawn
+  lab bench inside a cycle of arrows.
+* "Ein Gerät, viele Leben": weitergeben, prüfen, weiterforschen.
+* "Nachhaltigkeit ohne Grenzen": Ressourcen schonen, Altbewährtes nutzen, an
+  morgen denken.
+* At the bottom, "refreshLab – der Marktplatz für Labore, die an morgen
+  denken" and the button "Weiter zum Marktplatz".
+* Bright surfaces with a light green tint and the recycling mark throughout;
+  a large one turns slowly behind the first screen unless the system asks
+  for less motion.
+
+Checked at desktop and phone width: no sideways scrolling, the button leads
+to /de.
