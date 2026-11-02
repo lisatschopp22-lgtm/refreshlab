@@ -417,3 +417,7 @@ to /de.
   für Ihr nachhaltiges Labor-Equipment." A new section, "Projektarbeit der
   Zukunft", shows what a project leaves behind (instruments, spare parts,
   supplies ordered in excess) with links to the three parts of the marketplace.
+
+* The home hero now has the opener's light: the green glow from the top and
+  the slowly turning recycling mark, from one shared component (`Daylight`),
+  so the two pages cannot drift apart.

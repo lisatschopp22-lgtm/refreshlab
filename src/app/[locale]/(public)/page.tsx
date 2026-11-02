@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ArrowRight, Database, Gauge, Search, ShieldCheck } from "lucide-react";
+import { ArrowRight, Database, Gauge, Recycle, Search, ShieldCheck } from "lucide-react";
 import { catalogueCounts, listCategories } from "@/db/queries/catalogue";
 import { searchProvider } from "@/integrations/search";
 import { feeRule } from "@/domain/settings";
@@ -8,6 +8,7 @@ import { formatNumber, formatPercent, pick } from "@/i18n/format";
 import type { Locale } from "@/i18n/routing";
 import { ButtonLink } from "@/ui/button";
 import { Card, CardBody, Section } from "@/ui/card";
+import { Daylight } from "@/ui/daylight";
 import { ListingCardItem } from "@/ui/listing-card";
 import { QualifiedFacts } from "@/ui/qualified-facts";
 
@@ -34,11 +35,14 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   return (
     <main>
       {/* Hero, after mockup S1: search-first, one clear promise, no carousel. */}
-      <section className="border-b border-border bg-bg-subtle">
-        <div className="mx-auto max-w-[1200px] px-4 py-16 sm:py-20">
+      <section className="relative overflow-hidden border-b border-border bg-bg-elevated">
+        {/* The same light as the opener, so the marketplace feels like its continuation. */}
+        <Daylight />
+        <div className="relative mx-auto max-w-[1200px] px-4 py-16 sm:py-20">
           <div className="max-w-3xl">
             <span className="inline-flex items-center gap-1.5 rounded-[var(--radius-full)] bg-primary-subtle px-3 py-1 text-sm font-medium text-primary-subtle-fg">
-              ♻ {th("heroKicker")}
+              <Recycle className="size-4" aria-hidden="true" />
+              {th("heroKicker")}
             </span>
             <h1 className="mt-5 text-4xl font-bold leading-[1.08] tracking-tight text-fg sm:text-5xl lg:text-6xl">
               {t("title")}

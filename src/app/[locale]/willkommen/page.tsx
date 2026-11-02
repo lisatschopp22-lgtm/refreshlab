@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import type { Locale } from "@/i18n/routing";
 import { buttonClass } from "@/ui/button";
+import { Daylight } from "@/ui/daylight";
 import { readDesignPrefs } from "@/ui/design-prefs.server";
 import { LabIllustration } from "@/ui/lab-illustration";
 import { LocaleSwitch } from "@/ui/site/locale-switch";
@@ -67,16 +68,7 @@ export default async function OpenerPage({ params }: { params: Promise<{ locale:
 
   return (
     <main className="relative min-h-svh overflow-hidden bg-bg-elevated text-fg">
-      {/* Daylight from above and a large, slow recycling mark behind the first screen. */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-[42rem] bg-[radial-gradient(ellipse_at_top,var(--primary-subtle),transparent_70%)]"
-      />
-      <Recycle
-        aria-hidden="true"
-        strokeWidth={0.6}
-        className="pointer-events-none absolute -right-40 -top-32 size-[38rem] text-primary opacity-[0.07] motion-safe:animate-[spin_180s_linear_infinite]"
-      />
+      <Daylight />
 
       <div className="relative mx-auto flex w-full max-w-[1200px] items-center justify-between px-4 py-4">
         <SwitchableLogo initial={prefs.logo} />
