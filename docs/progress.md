@@ -421,3 +421,23 @@ to /de.
 * The home hero now has the opener's light: the green glow from the top and
   the slowly turning recycling mark, from one shared component (`Daylight`),
   so the two pages cannot drift apart.
+
+## Lab clearance, maintenance and chemicals
+
+* Three new menu entries, in the header and the footer, each a page with the
+  opener's light and a request form at the end:
+  * **Laborräumung** (`/de/laborraeumung`): inventory, offering, decontamination
+    and collection, recycling of the rest; what the lab gains.
+  * **Gerätewartung** (`/de/geraetewartung`): maintenance and repair,
+    calibration, qualification, spare parts, and the refurbishers and service
+    companies on refreshLab, verified ones first.
+  * **Chemikalien** (`/de/chemikalien`): what may be passed on and what not,
+    the four steps, and a note that a legal review comes first.
+* **Admin → Anfragen** lists the requests, open ones first, filterable by
+  kind, with status and a note; the menu shows how many are open.
+* E-mails: every admin hears of a new request, the person who asked gets a
+  confirmation.
+
+Tried by hand: a maintenance request as a visitor without an account, its
+e-mails, and setting it to "In Bearbeitung" with a note as admin. The test
+request was removed afterwards.

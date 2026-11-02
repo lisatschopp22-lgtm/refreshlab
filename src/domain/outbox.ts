@@ -3,7 +3,7 @@ import { db } from "@/db/client";
 import { messages } from "@/db/schema/community";
 import { organisations, profiles } from "@/db/schema/identity";
 import { listings } from "@/db/schema/marketplace";
-import { outbox } from "@/db/schema/operations";
+import { outbox, serviceRequests } from "@/db/schema/operations";
 import { orders, ratings, specialRates } from "@/db/schema/transactions";
 import { searchProvider } from "@/integrations/search";
 import { layout, mailer } from "@/integrations/email";
@@ -145,6 +145,40 @@ const handlers: Record<string, Handler> = {
           : `Zur Transaktion ${row.reference} liegt eine Bewertung vor.`,
         `${siteUrl}/de/bestellung/${row.orderId}`,
         "Transaktion ansehen",
+      ),
+    });
+  },
+
+  "service_request.created": async (payload) => {
+    const [row] = await db
+      .select()
+      .from(serviceRequests)
+      .where(eq(serviceRequests.id, payload.serviceRequestId as string))
+      .limit(1);
+    if (!row) return;
+    const kind = { lab_clearance: "Laborräumung", maintenance: "Gerätewartung", chemicals: "Chemikalien" }[row.kind];
+    const admins = await db.select({ email: profiles.email }).from(profiles).where(eq(profiles.role, "admin"));
+    for (const admin of admins) {
+      await mailer().send({
+        to: admin.email,
+        subject: `Neue Anfrage: ${kind} von ${row.contactName}`,
+        ...layout(
+          `Neue Anfrage: ${kind}`,
+          [row.contactName, row.organisationName, row.location].filter(Boolean).join(" · ") +
+            (row.message ? `\n\n${row.message.slice(0, 600)}` : ""),
+          `${siteUrl}/de/admin/anfragen`,
+          "Anfrage ansehen",
+        ),
+      });
+    }
+    await mailer().send({
+      to: row.email,
+      subject: `Ihre Anfrage zu ${kind} bei refreshLab`,
+      ...layout(
+        "Danke für Ihre Anfrage",
+        `Ihre Anfrage zu ${kind} ist bei refreshLab eingegangen. Wir melden uns bei Ihnen.`,
+        `${siteUrl}/de`,
+        "Zu refreshLab",
       ),
     });
   },

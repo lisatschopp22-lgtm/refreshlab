@@ -50,6 +50,13 @@
       "when": 1792616882259,
       "tag": "0006_watch_lists",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793660407704,
+      "tag": "0007_service_requests",
+      "breakpoints": true
     }
   ]
 }

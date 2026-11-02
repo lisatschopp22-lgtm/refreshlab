@@ -19,6 +19,9 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
     { href: `/${locale}/qualifizierte-geraete`, label: t("qualified") },
     { href: `/${locale}/ersatzteillager`, label: t("parts") },
     { href: `/${locale}/verbrauchsmaterialien`, label: t("consumables") },
+    { href: `/${locale}/chemikalien`, label: t("chemicals") },
+    { href: `/${locale}/laborraeumung`, label: t("labClearance") },
+    { href: `/${locale}/geraetewartung`, label: t("maintenance") },
     { href: `/${locale}/katalog`, label: t("catalogue") },
     { href: `/${locale}/p/gebrauchte-zentrifuge-kaufen`, label: t("guides") },
   ];

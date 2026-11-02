@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { requireAdmin } from "@/auth/session";
 import { openReportCount } from "@/domain/moderation";
 import { openSpecialRateCount } from "@/db/queries/special-rates";
+import { openServiceRequestCount } from "@/db/queries/service-requests";
 import type { Locale } from "@/i18n/routing";
 import { SwitchableLogo } from "@/ui/site/logo-switchable";
 import { readDesignPrefs } from "@/ui/design-prefs.server";
@@ -23,7 +24,11 @@ export default async function AdminLayout({
 
   const user = await requireAdmin(locale);
   const t = await getTranslations({ locale, namespace: "admin" });
-  const [openReports, openSpecialRates] = await Promise.all([openReportCount(), openSpecialRateCount()]);
+  const [openReports, openSpecialRates, openRequests] = await Promise.all([
+    openReportCount(),
+    openSpecialRateCount(),
+    openServiceRequestCount(),
+  ]);
   const prefs = await readDesignPrefs();
 
   const items = [
@@ -36,6 +41,7 @@ export default async function AdminLayout({
     { href: `/${locale}/admin/kommentare`, label: t("comments") },
     { href: `/${locale}/admin/transaktionen`, label: t("orders") },
     { href: `/${locale}/admin/sonderkonditionen`, label: t("specialRates"), badge: openSpecialRates },
+    { href: `/${locale}/admin/anfragen`, label: t("requests"), badge: openRequests },
     { href: `/${locale}/admin/inhalte`, label: t("pages") },
     { href: `/${locale}/admin/einstellungen`, label: t("settings") },
     { href: `/${locale}/admin/audit`, label: t("audit") },

@@ -96,3 +96,36 @@ export type Report = typeof reports.$inferSelect;
 export type AuditEntry = typeof auditLog.$inferSelect;
 export type ContentPage = typeof contentPages.$inferSelect;
 export type OutboxEntry = typeof outbox.$inferSelect;
+
+export const serviceKindEnum = pgEnum("service_kind", ["lab_clearance", "maintenance", "chemicals"]);
+export const serviceStatusEnum = pgEnum("service_status", ["open", "in_progress", "done", "declined"]);
+
+/**
+ * What refreshLab arranges rather than lists: clearing a lab, servicing an
+ * instrument, passing on unopened surplus chemicals. Anyone may ask, signed
+ * in or not; an admin follows each request up. What differs per kind sits in
+ * `details`.
+ */
+export const serviceRequests = pgTable(
+  "service_requests",
+  {
+    id: id(),
+    kind: serviceKindEnum("kind").notNull(),
+    status: serviceStatusEnum("status").notNull().default("open"),
+    profileId: uuid("profile_id").references(() => profiles.id, { onDelete: "set null" }),
+    contactName: text("contact_name").notNull(),
+    email: text("email").notNull(),
+    phone: text("phone"),
+    organisationName: text("organisation_name"),
+    location: text("location"),
+    message: text("message"),
+    details: jsonb("details").$type<Record<string, string>>().notNull().default({}),
+    adminNote: text("admin_note"),
+    handledBy: uuid("handled_by").references(() => profiles.id, { onDelete: "set null" }),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [index("service_requests_status_idx").on(t.status, t.kind)],
+);
+
+export type ServiceRequest = typeof serviceRequests.$inferSelect;

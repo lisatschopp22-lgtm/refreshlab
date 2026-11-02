@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Ban, CircleCheck } from "lucide-react";
 import { listConsumableCategories } from "@/db/queries/catalogue";
@@ -64,6 +65,9 @@ export default async function ConsumablesPage({ params }: { params: Promise<{ lo
                 <Ban className="size-5 text-danger" aria-hidden="true" />
                 <h2 className="font-semibold text-fg">{t("excludedTitle")}</h2>
                 <p className="text-sm leading-relaxed text-fg-muted">{t("excludedText")}</p>
+                <Link href={`/${locale}/chemikalien`} className="inline-block text-sm font-medium text-primary hover:underline">
+                  {t("chemicalsLink")} →
+                </Link>
               </CardBody>
             </Card>
           </li>

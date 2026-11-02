@@ -90,6 +90,11 @@ export function canModerateRatings(user: SessionUser | null) {
   return isAdmin(user);
 }
 
+/** Anyone may ask for a lab clearance, maintenance or a chemicals hand-over; only an admin follows it up. */
+export function canHandleServiceRequests(user: SessionUser | null) {
+  return isAdmin(user);
+}
+
 /** A list of saved listings belongs to its person alone, admins included. */
 export function canEditWatchList(user: SessionUser | null, list: { profileId: string }) {
   return !!user && list.profileId === user.id;
